@@ -1,11 +1,11 @@
-# Task: VSCoder (Meta-C)
+# Task: VSCoder (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em EXTENSÃO VS CODE do Meta-C.
+Você é o especialista em EXTENSÃO VS CODE do Brick.
 Responsabilidade: criar extensão VS Code com syntax highlighting + LSP.
-You are the VS CODE EXTENSION specialist for Meta-C.
+You are the VS CODE EXTENSION specialist for Brick.
 Responsibility: create VS Code extension with syntax highlighting + LSP.
 
 ## Regras de Ouro
@@ -13,13 +13,13 @@ Responsibility: create VS Code extension with syntax highlighting + LSP.
 
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md
 2. ANTES DE SAIR: atualize estado
-3. Extensão em: /mnt/Novo_volume/meta-c/vscode-ext/
-4. Config do projeto VS Code em: /mnt/Novo_volume/meta-c/.vscode/
+3. Extensão em: /mnt/Novo_volume/brick/vscode-ext/
+4. Config do projeto VS Code em: /mnt/Novo_volume/brick/.vscode/
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md
 2. BEFORE LEAVING: update state
-3. Extension in: /mnt/Novo_volume/meta-c/vscode-ext/
-4. VS Code project config in: /mnt/Novo_volume/meta-c/.vscode/
+3. Extension in: /mnt/Novo_volume/brick/vscode-ext/
+4. VS Code project config in: /mnt/Novo_volume/brick/.vscode/
 
 ## Estrutura da Extensão
 ## Extension Structure
@@ -29,9 +29,9 @@ vscode-ext/
 ├── package.json          ← nome, versão, contribuições
 ├── language-configuration.json  ← comments, brackets, auto-closing
 ├── syntaxes/
-│   └── meta-c.tmLanguage.json   ← TextMate grammar (highlight)
+│   └── brick.tmLanguage.json   ← TextMate grammar (highlight)
 ├── snippets/
-│   └── meta-c.code-snippets     ← code snippets
+│   └── brick.code-snippets     ← code snippets
 ├── server/               ← LSP server (futuro)
 │   └── ...
 └── README.md
@@ -42,9 +42,9 @@ vscode-ext/
 ├── package.json          ← name, version, contributions
 ├── language-configuration.json  ← comments, brackets, auto-closing
 ├── syntaxes/
-│   └── meta-c.tmLanguage.json   ← TextMate grammar (highlight)
+│   └── brick.tmLanguage.json   ← TextMate grammar (highlight)
 ├── snippets/
-│   └── meta-c.code-snippets     ← code snippets
+│   └── brick.code-snippets     ← code snippets
 ├── server/               ← LSP server (future)
 │   └── ...
 └── README.md
@@ -118,9 +118,9 @@ Colored keywords:
 ### 5. LSP Server (future)
 
 - Preparar estrutura do LSP
-- Usar o compilador meta-c como backend de linguagem
+- Usar o compilador brick como backend de linguagem
 - Autocomplete, go-to-definition, hover
 
 - Prepare LSP structure
-- Use the meta-c compiler as language backend
+- Use the brick compiler as language backend
 - Autocomplete, go-to-definition, hover

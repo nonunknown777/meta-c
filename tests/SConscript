@@ -16,21 +16,21 @@ project_root_flag = [f'-DPROJECT_ROOT=\\"{root_dir}\\"']
 
 # ─── Unit tests ─────────────────────────────────────────────
 test_bins.append(build_test('test_lexer',   ['test_lexer.cpp'],
-                            ['meta_lexer']))
+                            ['brick_lexer']))
 
 test_bins.append(build_test('test_parser',  ['test_parser.cpp'],
-                            ['meta_parser', 'meta_lexer']))
+                            ['brick_parser', 'brick_lexer']))
 
 test_bins.append(build_test('test_codegen', ['test_codegen.cpp'],
-                            ['meta_codegen', 'meta_parser', 'meta_lexer'],
+                            ['brick_codegen', 'brick_parser', 'brick_lexer'],
                             project_root_flag))
 
 test_bins.append(build_test('test_runtime', ['test_runtime.c'],
-                            ['meta_runtime']))
+                            ['brick_runtime']))
 
 if has_hotreload:
     test_bins.append(build_test('test_hot_reload', ['test_hot_reload.c'],
-                                ['meta_runtime']))
+                                ['brick_runtime']))
 
 # ─── Window library tests (X11) ─────────────────────────────
 if has_x11:
@@ -38,7 +38,7 @@ if has_x11:
     env_win.ParseConfig('pkg-config --cflags --libs x11')
 
     tw = env_win.Clone()
-    tw.Append(LIBS=['meta_lib_window', 'meta_runtime'])
+    tw.Append(LIBS=['brick_lib_window', 'brick_runtime'])
     test_bins.append(tw.Program('#build/test_libs_window',
                                 ['test_libs_window.c']))
 
@@ -50,13 +50,13 @@ if has_x11:
             '-Wl,--undefined=block_alloc',
             '-Wl,--undefined=block_create_bytes',
         ])
-        tw_hr.Append(LIBS=['meta_runtime'])
+        tw_hr.Append(LIBS=['brick_runtime'])
         tw_hr.Append(CFLAGS=[
-            f'-DMETA_LIB_WINDOW_SO=\\"{root_dir}/build/meta_lib_window.so\\"'
+            f'-DBRICK_LIB_WINDOW_SO=\\"{root_dir}/build/brick_lib_window.so\\"'
         ])
         b = tw_hr.Program('#build/test_libs_window_hr',
                           ['test_libs_window_hr.c'])
-        Depends(b, ['#build/meta_lib_window.so', '#build/libmeta_lib_window.a'])
+        Depends(b, ['#build/brick_lib_window.so', '#build/libbrick_lib_window.a'])
         test_bins.append(b)
 
 # ─── Alias: test (build + run, native only) ─────────────────

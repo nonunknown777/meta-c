@@ -27,17 +27,17 @@
 - [x] Unit tests (14 tests)
 - [x] Integração com Codegen e Visualizador
 - [x] Integration with Codegen and Visualizer
-- [x] Registry API (opcional, -DMETA_C_TRACK_BLOCKS)
-- [x] Registry API (optional, -DMETA_C_TRACK_BLOCKS)
+- [x] Registry API (opcional, -DBRICK_TRACK_BLOCKS)
+- [x] Registry API (optional, -DBRICK_TRACK_BLOCKS)
 - [x] block_register / block_unregister / block_find / block_snapshot
 - [x] block_register / block_unregister / block_find / block_snapshot
-- [x] block_shm_export: exportar para /tmp/meta-c-mem-<pid>.bin
-- [x] block_shm_export: export to /tmp/meta-c-mem-<pid>.bin
-- [x] io.h / io.c: API de I/O (MetaCString, io_print_*)
-- [x] io.h / io.c: I/O API (MetaCString, io_print_*)
+- [x] block_shm_export: exportar para /tmp/brick-mem-<pid>.bin
+- [x] block_shm_export: export to /tmp/brick-mem-<pid>.bin
+- [x] io.h / io.c: API de I/O (BrickString, io_print_*)
+- [x] io.h / io.c: I/O API (BrickString, io_print_*)
 - [x] Tipos explícitos de largura fixa (u8/i8..u64/i64, f32/f64, usize/isize)
 - [x] Explicit fixed-width types (u8/i8..u64/i64, f32/f64, usize/isize)
 - [x] Compilação com -Wall -Werror sem warnings
 - [x] Compilation with -Wall -Werror with no warnings
-- [x] Macros no-op com META_C_TRACK_BLOCKS desativado
-- [x] No-op macros when META_C_TRACK_BLOCKS disabled
+- [x] Macros no-op com BRICK_TRACK_BLOCKS desativado
+- [x] No-op macros when BRICK_TRACK_BLOCKS disabled

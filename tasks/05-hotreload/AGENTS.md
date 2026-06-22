@@ -1,11 +1,11 @@
-# Task: Hot Reload (Meta-C)
+# Task: Hot Reload (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em HOT RELOAD do Meta-C.
+Você é o especialista em HOT RELOAD do Brick.
 Responsabilidade: implementar swap de código em tempo real via dlopen + inotify.
-You are the HOT RELOAD specialist for Meta-C.
+You are the HOT RELOAD specialist for Brick.
 Responsibility: implement real-time code swap via dlopen + inotify.
 
 ## Regras de Ouro
@@ -13,20 +13,20 @@ Responsibility: implement real-time code swap via dlopen + inotify.
 
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md
 2. ANTES DE SAIR: atualize estado
-3. Código em: /mnt/Novo_volume/meta-c/runtime/
+3. Código em: /mnt/Novo_volume/brick/runtime/
 4. A runtime de hot reload é em C, headers com extern "C"
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md
 2. BEFORE LEAVING: update state
-3. Code in: /mnt/Novo_volume/meta-c/runtime/
+3. Code in: /mnt/Novo_volume/brick/runtime/
 4. Hot reload runtime is in C, headers with extern "C"
 
 ## API Pública (hot_reload.h)
 ## Public API (hot_reload.h)
 
 ```c
-#ifndef META_C_HOT_RELOAD_H
-#define META_C_HOT_RELOAD_H
+#ifndef BRICK_HOT_RELOAD_H
+#define BRICK_HOT_RELOAD_H
 
 #ifdef __cplusplus
 extern "C" {

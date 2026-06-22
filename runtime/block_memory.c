@@ -25,7 +25,7 @@ static atomic_int block_frozen_flag = 0;
 
 // ─── Global Block Registry ───────────────────────────────────
 // ─── Registro Global de Blocos ────────────────────────────────
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
 
 #include <pthread.h>
 #include <unistd.h>
@@ -33,10 +33,10 @@ static atomic_int block_frozen_flag = 0;
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#define REGISTRY_MAX META_C_MAX_BLOCKS
+#define REGISTRY_MAX BRICK_MAX_BLOCKS
 
 typedef struct {
-    char      name[META_C_BLOCK_NAME_MAX];
+    char      name[BRICK_BLOCK_NAME_MAX];
     BlockCtx* ctx;
     int       active;
 } RegistryEntry;
@@ -62,8 +62,8 @@ void block_register(BlockCtx* ctx, const char* name) {
     }
 
     if (slot >= 0) {
-        strncpy(registry[slot].name, name, META_C_BLOCK_NAME_MAX - 1);
-        registry[slot].name[META_C_BLOCK_NAME_MAX - 1] = '\0';
+        strncpy(registry[slot].name, name, BRICK_BLOCK_NAME_MAX - 1);
+        registry[slot].name[BRICK_BLOCK_NAME_MAX - 1] = '\0';
         registry[slot].ctx = ctx;
         registry[slot].active = 1;
     }
@@ -108,8 +108,8 @@ size_t block_snapshot(BlockInfo* out, size_t max_count) {
     size_t written = 0;
     for (int i = 0; i < REGISTRY_MAX && written < max_count; i++) {
         if (registry[i].active) {
-            strncpy(out[written].name, registry[i].name, META_C_BLOCK_NAME_MAX - 1);
-            out[written].name[META_C_BLOCK_NAME_MAX - 1] = '\0';
+            strncpy(out[written].name, registry[i].name, BRICK_BLOCK_NAME_MAX - 1);
+            out[written].name[BRICK_BLOCK_NAME_MAX - 1] = '\0';
             out[written].capacity        = registry[i].ctx->capacity;
             out[written].used            = registry[i].ctx->used;
             out[written].peak_used       = registry[i].ctx->peak_used;
@@ -126,7 +126,7 @@ size_t block_snapshot(BlockInfo* out, size_t max_count) {
 // ─── Exportacao de Memoria Compartilhada ──────────────────────
 
 static void shm_path(char* buf, size_t bufsize) {
-    snprintf(buf, bufsize, "/tmp/meta-c-mem-%d.bin", (int)getpid());
+    snprintf(buf, bufsize, "/tmp/brick-mem-%d.bin", (int)getpid());
 }
 
 int block_shm_export(void) {
@@ -141,15 +141,15 @@ int block_shm_export(void) {
     for (int i = 0; i < REGISTRY_MAX; i++)
         if (registry[i].active) count++;
 
-    size_t file_size = sizeof(MetaCShmHeader) + (size_t)count * sizeof(BlockInfo);
+    size_t file_size = sizeof(BrickShmHeader) + (size_t)count * sizeof(BlockInfo);
 
     int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) { pthread_mutex_unlock(&registry_mutex); return -1; }
 
     ftruncate(fd, (off_t)file_size);
 
-    MetaCShmHeader header;
-    header.magic   = META_C_SHM_MAGIC;
+    BrickShmHeader header;
+    header.magic   = BRICK_SHM_MAGIC;
     header.version = 1;
     header.pid     = (int32_t)getpid();
     header.block_count = (uint32_t)count;
@@ -164,8 +164,8 @@ int block_shm_export(void) {
     for (int i = 0; i < REGISTRY_MAX && written < count; i++) {
         if (registry[i].active) {
             BlockInfo info;
-            strncpy(info.name, registry[i].name, META_C_BLOCK_NAME_MAX - 1);
-            info.name[META_C_BLOCK_NAME_MAX - 1] = '\0';
+            strncpy(info.name, registry[i].name, BRICK_BLOCK_NAME_MAX - 1);
+            info.name[BRICK_BLOCK_NAME_MAX - 1] = '\0';
             info.capacity        = registry[i].ctx->capacity;
             info.used            = registry[i].ctx->used;
             info.peak_used       = registry[i].ctx->peak_used;
@@ -180,11 +180,11 @@ int block_shm_export(void) {
     return 0;
 }
 
-#endif // META_C_TRACK_BLOCKS
-     // META_C_TRACK_BLOCKS
+#endif // BRICK_TRACK_BLOCKS
+     // BRICK_TRACK_BLOCKS
 
 static void error(const char* msg) {
-    fprintf(stderr, "Meta-C runtime error: %s\n", msg);
+    fprintf(stderr, "Brick runtime error: %s\n", msg);
     exit(1);
 }
 
@@ -259,7 +259,7 @@ void* block_alloc_aligned(BlockCtx* ctx, size_t size, size_t alignment) {
 
     // Auto-export shm every 16 allocations (for visualizer attach mode)
     // Auto-exporta shm a cada 16 alocacoes (para modo attach do visualizer)
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
     static unsigned int _alloc_counter = 0;
     if ((++_alloc_counter & 0xF) == 0) {
         block_shm_export();
@@ -275,7 +275,7 @@ void block_reset(BlockCtx* ctx) {
     // Nota: allocation_count NAO e resetado aqui,
     // so we can track total allocations across resets
     // para que possamos rastrear alocacoes totais entre resets
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
     block_shm_export();
 #endif
 }

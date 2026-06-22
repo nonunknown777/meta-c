@@ -1,6 +1,6 @@
 {
-    "name": "meta-c-language-server",
-    "description": "LSP server for Meta-C language",
+    "name": "brick-language-server",
+    "description": "LSP server for Brick language",
     "version": "0.1.0",
     "engines": {
         "node": "*"

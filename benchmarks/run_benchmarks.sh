@@ -1,11 +1,11 @@
 #!/bin/bash
-# Meta-C Performance Benchmarks
+# Brick Performance Benchmarks
 # Mede tempo de compilação, alocação, reset, etc.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$PROJECT_DIR/build"
-META_C="$BUILD_DIR/meta-c"
+BRICK="$BUILD_DIR/brick"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -16,10 +16,10 @@ NC='\033[0m'
 mkdir -p "$BUILD_DIR"
 
 echo -e "${CYAN}========================================${NC}"
-echo -e "${CYAN}  Meta-C Benchmarks${NC}"
+echo -e "${CYAN}  Brick Benchmarks${NC}"
 echo -e "${CYAN}========================================${NC}"
 
-if [ ! -f "$META_C" ]; then
+if [ ! -f "$BRICK" ]; then
     echo -e "${RED}Compiler not found. Run 'scons' first.${NC}"
     exit 1
 fi
@@ -27,7 +27,7 @@ fi
 echo ""
 echo -e "${YELLOW}Benchmark 1: Compilation time${NC}"
 
-# Generate a .mc file with N structs/functions
+# Generate a .brc file with N structs/functions
 generate_large_mc() {
     local n=$1
     local file=$2
@@ -46,11 +46,11 @@ generate_large_mc() {
     echo "}" >> "$file"
 }
 
-generate_large_mc 100 "$BUILD_DIR/bench_100.mc"
+generate_large_mc 100 "$BUILD_DIR/bench_100.brc"
 
 echo -n "  Compiling 100 structs... "
 start=$(date +%s%N)
-$META_C "$BUILD_DIR/bench_100.mc" -o "$BUILD_DIR/bench_100.c" 2>/dev/null
+$BRICK "$BUILD_DIR/bench_100.brc" -o "$BUILD_DIR/bench_100.c" 2>/dev/null
 end=$(date +%s%N)
 elapsed=$(( (end - start) / 1000000 ))
 echo -e "${GREEN}${elapsed}ms${NC}"

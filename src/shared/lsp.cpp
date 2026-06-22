@@ -2,7 +2,7 @@
 #include <sstream>
 #include <cctype>
 
-namespace meta_c {
+namespace brick {
 
 static std::string escape_json(const std::string& s) {
     std::string out;
@@ -47,6 +47,19 @@ static std::string token_type_name(TokenType t) {
         case TokenType::CHAR: return "CHAR";
         case TokenType::STRING: return "STRING";
         case TokenType::VOID: return "VOID";
+        case TokenType::U8: return "U8";
+        case TokenType::U16: return "U16";
+        case TokenType::U32: return "U32";
+        case TokenType::U64: return "U64";
+        case TokenType::I8: return "I8";
+        case TokenType::I16: return "I16";
+        case TokenType::I32: return "I32";
+        case TokenType::I64: return "I64";
+        case TokenType::F32: return "F32";
+        case TokenType::F64: return "F64";
+        case TokenType::USIZE: return "USIZE";
+        case TokenType::ISIZE: return "ISIZE";
+        case TokenType::BYTE: return "BYTE";
         case TokenType::INT_LITERAL: return "INT_LITERAL";
         case TokenType::FLOAT_LITERAL: return "FLOAT_LITERAL";
         case TokenType::STRING_LITERAL: return "STRING_LITERAL";
@@ -282,5 +295,5 @@ std::string emit_lsp_json(const LspOutput& output) {
     return json.str();
 }
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick

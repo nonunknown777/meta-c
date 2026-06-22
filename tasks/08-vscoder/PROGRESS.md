@@ -4,8 +4,8 @@
 - [ ] package.json da extensão
 - [ ] Extension package.json
 - [ ] language-configuration.json
-- [ ] syntaxes/meta-c.tmLanguage.json (highlight)
-- [ ] snippets/meta-c.code-snippets
+- [ ] syntaxes/brick.tmLanguage.json (highlight)
+- [ ] snippets/brick.code-snippets
 - [ ] .vscode/tasks.json
 - [ ] .vscode/launch.json
 - [ ] .vscode/settings.json

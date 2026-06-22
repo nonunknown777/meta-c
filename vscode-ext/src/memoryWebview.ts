@@ -12,7 +12,7 @@ interface BlockInfo {
 // GDB convenience function $block_names provides dynamic block discovery
 
 export class MemoryViewProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = 'meta-c.memoryView';
+    public static readonly viewType = 'brick.memoryView';
     private _view?: vscode.WebviewView;
 
     constructor(private readonly _extensionUri: vscode.Uri) { }
@@ -31,26 +31,26 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
     }
 
     public async update() {
-        console.log('[Meta-C Mem] update() called');
+        console.log('[Brick Mem] update() called');
         if (this._view) {
             const session = vscode.debug.activeDebugSession;
-            console.log('[Meta-C Mem] session:', session ? session.id : 'none');
+            console.log('[Brick Mem] session:', session ? session.id : 'none');
             if (session) {
                 try {
                     const blocks = await this._readBlocksFromSession(session);
-                    console.log('[Meta-C Mem] blocks count:', blocks.length);
+                    console.log('[Brick Mem] blocks count:', blocks.length);
                     if (blocks.length > 0) {
                         this._view.webview.postMessage({ command: 'update', blocks });
                         return;
                     }
                 } catch (e) {
-                    console.log('[Meta-C Mem] update error:', e);
+                    console.log('[Brick Mem] update error:', e);
                 }
             }
-            console.log('[Meta-C Mem] posting clear');
+            console.log('[Brick Mem] posting clear');
             this._view.webview.postMessage({ command: 'clear', msg: session ? 'No memory blocks found' : 'No debug session active' });
         } else {
-            console.log('[Meta-C Mem] no view yet');
+            console.log('[Brick Mem] no view yet');
         }
     }
 
@@ -81,7 +81,7 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
             const sResp = await session.customRequest('stackTrace', { threadId: tid });
             return sResp?.stackFrames?.[0]?.id;
         } catch (e) {
-            console.log('[Meta-C Mem] _getDAPFrameId err:', e);
+            console.log('[Brick Mem] _getDAPFrameId err:', e);
             return undefined;
         }
     }
@@ -102,7 +102,7 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
                 expression: cmd, context: 'repl'
             });
         } catch (e: any) {
-            console.log('[Meta-C Mem] _evalCommand err:', e?.message || String(e));
+            console.log('[Brick Mem] _evalCommand err:', e?.message || String(e));
             return null;
         }
     }
@@ -110,19 +110,19 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
     private async _getBlockNames(session: vscode.DebugSession, frameId: number): Promise<string[]> {
         // Diagnostic: check if .gdbinit was loaded
         {
-            const r = await this._evalExpr(session, '$_meta_c_loaded', frameId);
-            console.log('[Meta-C Mem] DIAG $_meta_c_loaded:', JSON.stringify(r));
+            const r = await this._evalExpr(session, '$_brick_loaded', frameId);
+            console.log('[Brick Mem] DIAG $_brick_loaded:', JSON.stringify(r));
         }
 
         // Approach 1: $_block_names via expression evaluate (needs frameId)
         {
             const r = await this._evalExpr(session, '$_block_names', frameId);
-            console.log('[Meta-C Mem] A1 raw:', JSON.stringify(r));
+            console.log('[Brick Mem] A1 raw:', JSON.stringify(r));
             if (r && r.result) {
                 const t = this._cleanReplResult(r.result);
                 if (t.length > 0) {
                     const n = t.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                    if (n.length > 0) { console.log('[Meta-C Mem] A1 ok:', n); return n; }
+                    if (n.length > 0) { console.log('[Brick Mem] A1 ok:', n); return n; }
                 }
             }
         }
@@ -130,40 +130,40 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
         // Approach 2: info variables -t BlockCtx (CLI command, no frameId)
         {
             const r = await this._evalCommand(session, 'info variables -t BlockCtx');
-            console.log('[Meta-C Mem] A2 raw:', JSON.stringify(r));
+            console.log('[Brick Mem] A2 raw:', JSON.stringify(r));
             if (r && r.result) {
                 const names: string[] = [];
                 for (const rawLine of String(r.result).split('\n')) {
                     const m = this._cleanMiLine(rawLine).match(/BlockCtx\s*\*?\s*(\w+);/);
                     if (m) names.push(m[1]);
                 }
-                if (names.length > 0) { console.log('[Meta-C Mem] A2 ok:', [...new Set(names)]); return [...new Set(names)]; }
+                if (names.length > 0) { console.log('[Brick Mem] A2 ok:', [...new Set(names)]); return [...new Set(names)]; }
             }
         }
 
         // Approach 3: info variables BlockCtx (CLI command, no frameId)
         {
             const r = await this._evalCommand(session, 'info variables BlockCtx');
-            console.log('[Meta-C Mem] A3 raw:', JSON.stringify(r));
+            console.log('[Brick Mem] A3 raw:', JSON.stringify(r));
             if (r && r.result) {
                 const names: string[] = [];
                 for (const rawLine of String(r.result).split('\n')) {
                     const m = this._cleanMiLine(rawLine).match(/BlockCtx\s*\*?\s*(\w+);/);
                     if (m) names.push(m[1]);
                 }
-                if (names.length > 0) { console.log('[Meta-C Mem] A3 ok:', [...new Set(names)]); return [...new Set(names)]; }
+                if (names.length > 0) { console.log('[Brick Mem] A3 ok:', [...new Set(names)]); return [...new Set(names)]; }
             }
         }
 
         // Approach 4: blocks-list command (CLI command, no frameId)
         {
             const r = await this._evalCommand(session, 'blocks-list');
-            console.log('[Meta-C Mem] A4 raw:', JSON.stringify(r));
+            console.log('[Brick Mem] A4 raw:', JSON.stringify(r));
             if (r && r.result) {
                 const names = String(r.result).split('\n')
                     .map(s => this._cleanMiLine(s))
                     .filter(s => s.length > 0 && !s.startsWith('~'));
-                if (names.length > 0) { console.log('[Meta-C Mem] A4 ok:', names); return names; }
+                if (names.length > 0) { console.log('[Brick Mem] A4 ok:', names); return names; }
             }
         }
 
@@ -184,13 +184,13 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
     private async _readBlocksFromSession(session: vscode.DebugSession): Promise<BlockInfo[]> {
         const frameId = await this._getDAPFrameId(session);
         if (frameId === undefined) {
-            console.log('[Meta-C Mem] no frameId (process running?), skip');
+            console.log('[Brick Mem] no frameId (process running?), skip');
             return [];
         }
-        console.log('[Meta-C Mem] frameId:', frameId);
+        console.log('[Brick Mem] frameId:', frameId);
 
         const names = await this._getBlockNames(session, frameId);
-        console.log('[Meta-C Mem] Blocks found:', names);
+        console.log('[Brick Mem] Blocks found:', names);
         if (names.length === 0) return [];
 
         const blocks: BlockInfo[] = [];
@@ -198,12 +198,12 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
         for (const name of names) {
             try {
                 const capResult = await this._evalExpr(session, `${name}->capacity`, frameId);
-                console.log(`[Meta-C Mem] ${name}->capacity:`, JSON.stringify(capResult));
+                console.log(`[Brick Mem] ${name}->capacity:`, JSON.stringify(capResult));
                 if (!capResult || capResult.result === undefined) continue;
 
                 const capacity = this._extractNum(capResult.result);
                 if (isNaN(capacity) || capacity === 0) {
-                    console.log(`[Meta-C Mem] ${name}: capacity=${capacity} (skip)`);
+                    console.log(`[Brick Mem] ${name}: capacity=${capacity} (skip)`);
                     continue;
                 }
 
@@ -218,7 +218,7 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
                 const unit = capacity >= 1024 * 1024 ? 'MB' : capacity >= 1024 ? 'KB' : 'B';
                 const divisor = unit === 'MB' ? 1024 * 1024 : unit === 'KB' ? 1024 : 1;
 
-                console.log(`[Meta-C Mem] ${name}: cap=${capacity} used=${used} peak=${peak} allocs=${allocs}`);
+                console.log(`[Brick Mem] ${name}: cap=${capacity} used=${used} peak=${peak} allocs=${allocs}`);
 
                 blocks.push({
                     name,
@@ -229,11 +229,11 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
                     allocs
                 });
             } catch (e) {
-                console.log(`[Meta-C Mem] ${name} error:`, e);
+                console.log(`[Brick Mem] ${name} error:`, e);
             }
         }
 
-        console.log('[Meta-C Mem] Blocks data:', blocks);
+        console.log('[Brick Mem] Blocks data:', blocks);
         return blocks;
     }
 
@@ -323,7 +323,7 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
     </style>
 </head>
 <body>
-    <div class="header">META-C MEMORY</div>
+    <div class="header">BRICK MEMORY</div>
     <div id="blocks">
         <div class="empty" id="empty-msg">No debug session active</div>
     </div>

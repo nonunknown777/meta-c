@@ -40,7 +40,7 @@ struct HotReloadEngine {
 };
 
 static void error(const char* msg) {
-    fprintf(stderr, "Meta-C hot reload error: %s\n", msg);
+    fprintf(stderr, "Brick hot reload error: %s\n", msg);
     exit(1);
 }
 

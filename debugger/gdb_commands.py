@@ -1,5 +1,5 @@
-# Meta-C GDB Custom Commands
-# Comandos Personalizados GDB do Meta-C
+# Brick GDB Custom Commands
+# Comandos Personalizados GDB do Brick
 #
 # Provides:
 # Fornece:
@@ -247,7 +247,7 @@ BlockWatchCommand()
 
 # Expose find_blocks_in_frame on gdb module for hook-stop access
 # Expoe find_blocks_in_frame no modulo gdb para acesso hook-stop
-gdb._meta_c_find_blocks = find_blocks_in_frame
+gdb._brick_find_blocks = find_blocks_in_frame
 
 # Event-based stop handler (GDB 7.9+) — sets $_block_names as backup
 # Manipulador de parada baseado em evento (GDB 7.9+) — define $_block_names como backup
@@ -257,7 +257,7 @@ def _on_stop(event):
     try:
         frame = gdb.selected_frame()
         if frame:
-            names = ",".join(name for name, _ in gdb._meta_c_find_blocks(frame))
+            names = ",".join(name for name, _ in gdb._brick_find_blocks(frame))
             gdb.set_convenience_variable("_block_names", names)
         else:
             gdb.set_convenience_variable("_block_names", "")

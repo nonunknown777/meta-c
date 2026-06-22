@@ -1,11 +1,11 @@
-# Meta-C Design Document
+# Brick Design Document
 
 > Linguagem OOP que compila para C. Performance máxima, memória em blocos, hot reload.
 
 ## Projeto
-- **Nome:** Meta-C
-- **Extensão:** `.mc`
-- **CLI:** `meta-c input.mc -o output.c`
+- **Nome:** Brick
+- **Extensão:** `.brc`
+- **CLI:** `brick input.brc -o output.c`
 - **Sintaxe:** GDScript-inspired com chaves `{ }`, tipos explícitos
 - **Paradigma:** Struct-OOP (structs com métodos)
 - **Compilador:** C++20, gera C puro
@@ -41,12 +41,12 @@
 
 ## Compilação
 ```
-.mc → Lexer → Parser + Package Resolver → Codegen → .c (com #line) → gcc -g → binário
+.brc → Lexer → Parser + Package Resolver → Codegen → .c (com #line) → gcc -g → binário
 ```
 
 ## Debugging
-- `#line` directives no C gerado mapeiam .mc → .c
-- GDB mostra código-fonte Meta-C original
+- `#line` directives no C gerado mapeiam .brc → .c
+- GDB mostra código-fonte Brick original
 - GDB pretty-printers para BlockCtx e String
 - Comandos GDB custom: `info blocks`, `block <nome>`
 - VS Code webview com blocos visuais durante debug
@@ -55,13 +55,13 @@
 - **Hot Reload:** dlopen + inotify, swap de .so por package
 - **Visualizador:** TUI ncurses (blocos em tempo real)
 - **VS Code:** Syntax highlight + snippets + LSP + Memory Webview (debug)
-- **Testes:** Unitários + integração (.mc → binário)
+- **Testes:** Unitários + integração (.brc → binário)
 - **Debugger:** GDB + VS Code integrados com suporte a blocos
 - **Tester/Optimizer:** Task sênior que testa, otimiza e documenta tudo
 
 ## Tasks
 ```
-01-lexer      Tokenizer .mc → tokens
+01-lexer      Tokenizer .brc → tokens
 02-parser     AST + Package Resolution
 03-codegen    Type check + geração C (com #line p/ debug)
 04-runtime    Block memory allocator (C)

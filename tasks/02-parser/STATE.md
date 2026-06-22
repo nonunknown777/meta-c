@@ -7,8 +7,8 @@ Session: 3 (active)
 Progresso: 100%
 Progress: 100%
 
-Próximo passo: Integração com codegen — verificar exemplos .mc compilam
-Next step: Integration with codegen — verify .mc examples compile
+Próximo passo: Integração com codegen — verificar exemplos .brc compilam
+Next step: Integration with codegen — verify .brc examples compile
 
 Última ação: Implementados tipos explícitos de largura fixa no parser
 Last action: Implemented explicit fixed-width types in parser

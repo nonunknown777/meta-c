@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace meta_c { namespace embedded {
+namespace brick { namespace embedded {
 
 struct EmbeddedFile {
     const char* name;

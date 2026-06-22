@@ -1,6 +1,6 @@
 # Performance
 
-Meta-C is designed for **maximum performance** across all layers: the compiler, the generated code, and the runtime. This page documents the performance philosophy, optimizations, benchmarks, and comparison to traditional approaches.
+Brick is designed for **maximum performance** across all layers: the compiler, the generated code, and the runtime. This page documents the performance philosophy, optimizations, benchmarks, and comparison to traditional approaches.
 
 ---
 
@@ -79,7 +79,7 @@ Reset: 100,000 resets + allocs
   free() loop:   ~2.000s (~2000x slower)
 
 Compilation: 100 structs (2919 tokens)
-  Meta-C:        0.005s  (5ms)
+  Brick:        0.005s  (5ms)
 ```
 
 ### Why It's So Fast
@@ -132,9 +132,9 @@ scons profile=sanitize # -g -O1 -fsanitize=address,undefined
 
 ### Flat Structs (No Vtable)
 
-Meta-C structs are pure C structs with no hidden vtable pointer:
+Brick structs are pure C structs with no hidden vtable pointer:
 
-```meta-c
+```brick
 struct Player {
     int hp
     String name
@@ -145,7 +145,7 @@ struct Player {
 // Generated C — just data, no extra fields
 typedef struct Player {
     int32_t hp;
-    MetaCString name;
+    BrickString name;
 } Player;
 ```
 
@@ -172,7 +172,7 @@ Player_take_damage(&player, 10);
 
 ## What We Don't Have (And Why)
 
-| Missing Feature | Performance Impact | Alternative in Meta-C |
+| Missing Feature | Performance Impact | Alternative in Brick |
 |----------------|-------------------|----------------------|
 | Exceptions | Runtime overhead + larger binary + slower code paths | `error()` panic for unrecoverable |
 | RTTI | `typeid()` is expensive, `dynamic_cast` even worse | Structs know their type at compile time |
@@ -202,7 +202,7 @@ Future optimization: autovectorization hints via `__attribute__((aligned(32)))` 
 
 ## Memory Overhead Comparison
 
-| Feature | malloc | Meta-C Block |
+| Feature | malloc | Brick Block |
 |---------|--------|--------------|
 | Per-allocation header | 8-16 bytes | **0 bytes** |
 | Fragmentation | 10-30% | **0%** |
@@ -216,9 +216,9 @@ Future optimization: autovectorization hints via `__attribute__((aligned(32)))` 
 
 | Metric | Expected |
 |--------|----------|
-| 100 lines .mc → C | <10ms |
-| 1000 lines .mc → C | <50ms |
-| 10000 lines .mc → C | <500ms |
+| 100 lines .brc → C | <10ms |
+| 1000 lines .brc → C | <50ms |
+| 10000 lines .brc → C | <500ms |
 | Memory used during compilation | ~10-50 MB |
 
 These are fast because:
@@ -249,7 +249,7 @@ These are fast because:
 
 ### 1. Choose Block Sizes Wisely
 
-```meta-c
+```brick
 // Too small → overflow panics
 block temp = 1KB    // dangerous
 
@@ -262,7 +262,7 @@ block temp = 8MB    // fit your workload
 
 ### 2. Reset Blocks at Natural Boundaries
 
-```meta-c
+```brick
 fn game_loop() {
     temp.reset()       // every frame
     level.reset()      // on level transition
@@ -274,13 +274,13 @@ fn game_loop() {
 
 ```bash
 # With tracking (for debugging + visualizer support)
-build/meta-c build program.mc -o program
+build/brick build program.brc -o program
 
 # Without tracking (max performance — no visualizer)
-build/meta-c build program.mc --release -o program
+build/brick build program.brc --release -o program
 ```
 
-When `--release` is used, `META_C_TRACK_BLOCKS` is not defined and the block registry operations become no-op macros that the compiler optimizes away entirely.
+When `--release` is used, `BRICK_TRACK_BLOCKS` is not defined and the block registry operations become no-op macros that the compiler optimizes away entirely.
 
 ### 4. Profile-Guided Code Organization
 
@@ -290,7 +290,7 @@ When `--release` is used, `META_C_TRACK_BLOCKS` is not defined and the block reg
 
 ### 5. Let gcc Optimize
 
-Meta-C generates simple C code that gcc optimizes well:
+Brick generates simple C code that gcc optimizes well:
 
 ```c
 // Generated C is straightforward — gcc loves this
@@ -300,4 +300,4 @@ int32_t Player_take_damage(Player* this, int32_t dmg) {
 }
 ```
 
-Don't try to outsmart the compiler. Write clear Meta-C code and let `-O3` do its magic.
+Don't try to outsmart the compiler. Write clear Brick code and let `-O3` do its magic.

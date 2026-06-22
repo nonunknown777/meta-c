@@ -1,11 +1,11 @@
-# Task: Codegen (Meta-C)
+# Task: Codegen (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em CODEGEN do compilador Meta-C.
+Você é o especialista em CODEGEN do compilador Brick.
 Responsabilidade: type checking + geração de C puro a partir da AST.
-You are the CODEGEN specialist for the Meta-C compiler.
+You are the CODEGEN specialist for the Brick compiler.
 Responsibility: type checking + pure C generation from the AST.
 
 ## Regras de Ouro
@@ -13,13 +13,13 @@ Responsibility: type checking + pure C generation from the AST.
 
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md
 2. ANTES DE SAIR: atualize STATE.md, PROGRESS.md, NEXT.md
-3. Código em: /mnt/Novo_volume/meta-c/src/codegen/
-4. Testes em: /mnt/Novo_volume/meta-c/tests/test_codegen.cpp
+3. Código em: /mnt/Novo_volume/brick/src/codegen/
+4. Testes em: /mnt/Novo_volume/brick/tests/test_codegen.cpp
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md
 2. BEFORE LEAVING: update STATE.md, PROGRESS.md, NEXT.md
-3. Code in: /mnt/Novo_volume/meta-c/src/codegen/
-4. Tests in: /mnt/Novo_volume/meta-c/tests/test_codegen.cpp
+3. Code in: /mnt/Novo_volume/brick/src/codegen/
+4. Tests in: /mnt/Novo_volume/brick/tests/test_codegen.cpp
 
 ## Interface
 
@@ -27,11 +27,11 @@ Responsibility: type checking + pure C generation from the AST.
 std::string generate_c(const std::vector<ASTNode*>& ast, const PackageTable& packages);
 ```
 
-## Mapeamento Meta-C → C
-## Meta-C → C Mapping
+## Mapeamento Brick → C
+## Brick → C Mapping
 
 ```
-Meta-C                  → C
+Brick                  → C
 ────────────────────────────────────────────────
 struct Player { }       → typedef struct { } Player;
 fn Player() { }         → void Player_init(Player* this) { }
@@ -50,7 +50,7 @@ int[N]                  → struct { int data[N]; }
 ```
 
 ```
-Meta-C                  → C
+Brick                  → C
 ────────────────────────────────────────────────
 struct Player { }       → typedef struct { } Player;
 fn Player() { }         → void Player_init(Player* this) { }
@@ -76,11 +76,11 @@ int[N]                  → struct { int data[N]; }
 - Compilável com gcc/clang -O3 -Wall -Werror
 - Bloco anônimo interno pra params/retorno/temporários
 - Cada package gera um .c separado
-- Comentários no C gerado mostrando correlação com .mc original
+- Comentários no C gerado mostrando correlação com .brc original
 
 - Type checker: consistent types, no name shadowing
 - Generated code must be readable (descriptive names)
 - Compilable with gcc/clang -O3 -Wall -Werror
 - Internal anonymous block for params/return/temporaries
 - Each package generates a separate .c file
-- Comments in generated C showing correlation with original .mc
+- Comments in generated C showing correlation with original .brc

@@ -1,11 +1,11 @@
-# Task: Runtime (Meta-C)
+# Task: Runtime (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em RUNTIME do Meta-C.
+Você é o especialista em RUNTIME do Brick.
 Responsabilidade: implementar o sistema de blocos de memória em C.
-You are the RUNTIME specialist for Meta-C.
+You are the RUNTIME specialist for Brick.
 Responsibility: implement the block memory system in C.
 
 ## Regras de Ouro
@@ -13,22 +13,22 @@ Responsibility: implement the block memory system in C.
 
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md
 2. ANTES DE SAIR: atualize estado
-3. Código em: /mnt/Novo_volume/meta-c/runtime/
-4. Testes em: /mnt/Novo_volume/meta-c/tests/test_runtime.c
+3. Código em: /mnt/Novo_volume/brick/runtime/
+4. Testes em: /mnt/Novo_volume/brick/tests/test_runtime.c
 5. HEADERS DEVEM TER extern "C" pra compatibilidade C++
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md
 2. BEFORE LEAVING: update state
-3. Code in: /mnt/Novo_volume/meta-c/runtime/
-4. Tests in: /mnt/Novo_volume/meta-c/tests/test_runtime.c
+3. Code in: /mnt/Novo_volume/brick/runtime/
+4. Tests in: /mnt/Novo_volume/brick/tests/test_runtime.c
 5. HEADERS MUST HAVE extern "C" for C++ compatibility
 
 ## API Pública (block_memory.h)
 ## Public API (block_memory.h)
 
 ```c
-#ifndef META_C_BLOCK_MEMORY_H
-#define META_C_BLOCK_MEMORY_H
+#ifndef BRICK_BLOCK_MEMORY_H
+#define BRICK_BLOCK_MEMORY_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,15 +59,15 @@ size_t      block_alignment(void);
 #endif
 ```
 
-## Flag de Compilação: META_C_TRACK_BLOCKS
-## Compilation Flag: META_C_TRACK_BLOCKS
+## Flag de Compilação: BRICK_TRACK_BLOCKS
+## Compilation Flag: BRICK_TRACK_BLOCKS
 
 O runtime pode opcionalmente manter um **registro global de blocos** para tools
 externas (visualizador, debugger). Esse registro é ativado pela flag de
-compilação `-DMETA_C_TRACK_BLOCKS`.
+compilação `-DBRICK_TRACK_BLOCKS`.
 The runtime can optionally maintain a **global block registry** for external
 tools (visualizer, debugger). This registry is activated by the
-`-DMETA_C_TRACK_BLOCKS` compilation flag.
+`-DBRICK_TRACK_BLOCKS` compilation flag.
 
 **Quando ativado:**
 **When activated:**
@@ -76,14 +76,14 @@ tools (visualizer, debugger). This registry is activated by the
 - `block_unregister(ctx)` — remove do registro
 - `block_find(name)` — busca por nome
 - `block_snapshot(out, max)` — snapshot thread-safe
-- `block_shm_export()` — exporta pra `/tmp/meta-c-mem-<pid>.bin`
+- `block_shm_export()` — exporta pra `/tmp/brick-mem-<pid>.bin`
 - Consumo: ~3KB BSS (64 entradas × 40 bytes + mutex)
 
 - `block_register(ctx, name)` — adds block to registry
 - `block_unregister(ctx)` — removes from registry
 - `block_find(name)` — search by name
 - `block_snapshot(out, max)` — thread-safe snapshot
-- `block_shm_export()` — exports to `/tmp/meta-c-mem-<pid>.bin`
+- `block_shm_export()` — exports to `/tmp/brick-mem-<pid>.bin`
 - Overhead: ~3KB BSS (64 entries × 40 bytes + mutex)
 
 **Quando desativado (default):**
@@ -97,9 +97,9 @@ tools (visualizer, debugger). This registry is activated by the
 **Quem ativa:**
 **Who activates it:**
 
-- O `SConstruct` adiciona `-DMETA_C_TRACK_BLOCKS` automaticamente nos
+- O `SConstruct` adiciona `-DBRICK_TRACK_BLOCKS` automaticamente nos
   CFLAGS/CXXFLAGS quando `visualizer=yes` (default).
-- The `SConstruct` adds `-DMETA_C_TRACK_BLOCKS` automatically to
+- The `SConstruct` adds `-DBRICK_TRACK_BLOCKS` automatically to
   CFLAGS/CXXFLAGS when `visualizer=yes` (default).
 
 **IMPORTANTE:**
@@ -107,12 +107,12 @@ tools (visualizer, debugger). This registry is activated by the
 
 - `block_destroy()` NÃO chama `block_unregister()` — o usuário deve
   desregistrar antes de destruir.
-- `META_C_BLOCK_NAME_MAX = 32`, `META_C_MAX_BLOCKS = 64`
+- `BRICK_BLOCK_NAME_MAX = 32`, `BRICK_MAX_BLOCKS = 64`
 - Thread-safe via `pthread_mutex_t` no registry (não afeta o bump allocator)
 
 - `block_destroy()` does NOT call `block_unregister()` — the user must
   unregister before destroying.
-- `META_C_BLOCK_NAME_MAX = 32`, `META_C_MAX_BLOCKS = 64`
+- `BRICK_BLOCK_NAME_MAX = 32`, `BRICK_MAX_BLOCKS = 64`
 - Thread-safe via `pthread_mutex_t` in the registry (does not affect the bump allocator)
 
 ## Implementação

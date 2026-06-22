@@ -5,7 +5,7 @@
 #include <cfloat>
 #include <algorithm>
 
-namespace meta_c {
+namespace brick {
 
 // ─── Type helper utilities ───
 // ─── Utilitarios de tipo ───
@@ -981,5 +981,5 @@ void TypeChecker::check_constructor_call(const std::string& struct_name, CallExp
     }
 }
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick

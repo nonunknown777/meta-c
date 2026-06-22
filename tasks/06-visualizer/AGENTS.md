@@ -1,11 +1,11 @@
-# Task: Visualizer TUI (Meta-C)
+# Task: Visualizer TUI (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em VISUALIZADOR do Meta-C.
+Você é o especialista em VISUALIZADOR do Brick.
 Responsabilidade: TUI ncurses mostrando blocos de memória em tempo real.
-You are the VISUALIZER specialist for Meta-C.
+You are the VISUALIZER specialist for Brick.
 Responsibility: ncurses TUI showing memory blocks in real time.
 
 ## Regras de Ouro
@@ -13,23 +13,23 @@ Responsibility: ncurses TUI showing memory blocks in real time.
 
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md
 2. ANTES DE SAIR: atualize estado
-3. Código em: /mnt/Novo_volume/meta-c/visualizer/
+3. Código em: /mnt/Novo_volume/brick/visualizer/
 4. Dependência: ncurses (libncurses-dev no Arch)
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md
 2. BEFORE LEAVING: update state
-3. Code in: /mnt/Novo_volume/meta-c/visualizer/
+3. Code in: /mnt/Novo_volume/brick/visualizer/
 4. Dependency: ncurses (libncurses-dev on Arch)
 
 ## Interface
 
 ```cpp
-#ifndef META_C_MEMVIS_H
-#define META_C_MEMVIS_H
+#ifndef BRICK_MEMVIS_H
+#define BRICK_MEMVIS_H
 
 #include "../runtime/block_memory.h"
 
-namespace meta_c {
+namespace brick {
 
 struct MemVisConfig {
     int refresh_ms = 500;
@@ -71,11 +71,11 @@ void run_visualizer_attach(pid_t target_pid, MemVisConfig config);
 ## Modos de Operação
 ## Operation Modes
 
-1. **Standalone**: visualizador independente que lê /tmp/meta-c-mem-*.bin
+1. **Standalone**: visualizador independente que lê /tmp/brick-mem-*.bin
 2. **Attach**: anexa a PID via shared memory ou pipe nomeado
 3. **Embedded**: runtime chama callback e visualizador roda em thread separada
 
-1. **Standalone**: independent visualizer that reads /tmp/meta-c-mem-*.bin
+1. **Standalone**: independent visualizer that reads /tmp/brick-mem-*.bin
 2. **Attach**: attaches to PID via shared memory or named pipe
 3. **Embedded**: runtime calls callback and visualizer runs in separate thread
 
@@ -84,7 +84,7 @@ void run_visualizer_attach(pid_t target_pid, MemVisConfig config);
 
 ```
 ┌─────────────────────────────────────────────┐
-│  META-C Memory Visualizer  █ refresh: 500ms │
+│  BRICK Memory Visualizer  █ refresh: 500ms │
 ├─────────────────────────────────────────────┤
 │  global  256MB  ████████████░░░  67%  172MB │
 │  game     64MB  ██████░░░░░░░░  38%   24MB │

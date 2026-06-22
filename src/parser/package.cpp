@@ -1,7 +1,7 @@
 #include "package.h"
 #include <stdexcept>
 
-namespace meta_c {
+namespace brick {
 
 PackageTable resolve_packages(
     std::unique_ptr<ProgramNode>& ast,
@@ -121,4 +121,4 @@ bool is_accessible(const PackageTable& table,
     return false;
 }
 
-} // namespace meta_c
+} // namespace brick

@@ -17,13 +17,13 @@
 ## Future
 ## Futuro
 
-- Refactor `meta_window_create` to use Meta-C block allocator instead of calloc
+- Refactor `meta_window_create` to use Brick block allocator instead of calloc
 - Add Wayland backend
 - macOS/Cocoa backend
 - Input library (keyboard, mouse, gamepad)
 - Audio, File I/O, Networking, Math libraries
 
-- Refatorar `meta_window_create` para usar alocador de blocos Meta-C em vez de calloc
+- Refatorar `meta_window_create` para usar alocador de blocos Brick em vez de calloc
 - Adicionar backend Wayland
 - Backend macOS/Cocoa
 - Biblioteca Input (teclado, mouse, gamepad)

@@ -1,12 +1,12 @@
-# Task: Debugger (Meta-C)
+# Task: Debugger (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em DEBUG do Meta-C.
+Você é o especialista em DEBUG do Brick.
 Responsabilidade: garantir que a linguagem seja 100% debuggável no GDB e VS Code,
 com visualização gráfica dos blocos de memória.
-You are the DEBUG specialist for Meta-C.
+You are the DEBUG specialist for Brick.
 Responsibility: ensure the language is 100% debuggable in GDB and VS Code,
 with graphical visualization of memory blocks.
 
@@ -28,21 +28,21 @@ with graphical visualization of memory blocks.
 
 ### 1. #line Directives (codegen.cpp)
 
-Cada linha do código C gerado deve ter #line apontando pro .mc original.
-Isso faz GDB e VS Code mostrarem o código Meta-C, não o C gerado.
-Each line of generated C code must have #line pointing to the original .mc.
-This makes GDB and VS Code show Meta-C code, not the generated C.
+Cada linha do código C gerado deve ter #line apontando pro .brc original.
+Isso faz GDB e VS Code mostrarem o código Brick, não o C gerado.
+Each line of generated C code must have #line pointing to the original .brc.
+This makes GDB and VS Code show Brick code, not the generated C.
 
 ### 2. GDB Pretty-Printers (debugger/gdb_pretty_printers.py)
 
 Printers Python pro GDB:
 - BlockCtx*: mostra nome, capacidade, uso, alocações
-- MetaCString: mostra conteúdo + tamanho
+- BrickString: mostra conteúdo + tamanho
 - Block-allocated pointers: mostra offset dentro do bloco
 
 Python printers for GDB:
 - BlockCtx*: shows name, capacity, usage, allocations
-- MetaCString: shows content + size
+- BrickString: shows content + size
 - Block-allocated pointers: shows offset within the block
 
 ### 3. GDB Custom Commands (debugger/gdb_commands.py)
@@ -76,5 +76,5 @@ Visual panel showing blocks during debug:
 
 ### 6. VS Code Config (.vscode/launch.json + tasks.json)
 
-Config de debug que compila .mc → .c → binary com -g e inicia o GDB.
-Debug config that compiles .mc → .c → binary with -g and starts GDB.
+Config de debug que compila .brc → .c → binary com -g e inicia o GDB.
+Debug config that compiles .brc → .c → binary with -g and starts GDB.

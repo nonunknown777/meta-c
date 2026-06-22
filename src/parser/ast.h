@@ -1,12 +1,12 @@
-#ifndef META_C_AST_H
-#define META_C_AST_H
+#ifndef BRICK_AST_H
+#define BRICK_AST_H
 
 #include <string>
 #include <vector>
 #include <memory>
 #include "../shared/types.h"
 
-namespace meta_c {
+namespace brick {
 
 enum class ASTNodeType {
     PROGRAM,
@@ -281,7 +281,7 @@ struct Assignment : ASTNode {
     Assignment(TokenType o, SourceLocation loc) : ASTNode(ASTNodeType::ASSIGNMENT, loc), op(o) {}
 };
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick
 
 #endif

@@ -300,6 +300,23 @@ section:nth-child(even) { background:var(--bg-section); }
     gap:16px;
     margin-top:24px;
 }
+.lang-toggle {
+    position:absolute;
+    top:20px;
+    right:24px;
+    z-index:10;
+}
+.lang-toggle a {
+    color:var(--text-muted);
+    text-decoration:none;
+    font-size:.85rem;
+    padding:6px 14px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    transition:color .2s,border-color .2s;
+}
+.lang-toggle a:hover { color:var(--accent); border-color:var(--accent); }
+
 .doc-link {
     display:block;
     background:var(--bg-card);
@@ -311,6 +328,8 @@ section:nth-child(even) { background:var(--bg-section); }
     transition:border-color .25s,transform .25s;
 }
 .doc-link:hover { border-color:var(--accent); transform:translateY(-3px); }
+.doc-link.pt-link { border-color:var(--accent2); }
+.doc-link.pt-link:hover { border-color:var(--accent); }
 .doc-link h4 { font-size:.95rem; margin-bottom:4px; }
 .doc-link p { color:var(--text-muted); font-size:.8rem; }
 

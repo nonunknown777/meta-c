@@ -1,10 +1,10 @@
-#ifndef META_C_TYPES_H
-#define META_C_TYPES_H
+#ifndef BRICK_TYPES_H
+#define BRICK_TYPES_H
 
 #include <string>
 #include <cstdint>
 
-namespace meta_c {
+namespace brick {
 
 enum class TokenType {
     // Keywords
@@ -65,7 +65,7 @@ struct Token {
         : type(t), lexeme(std::move(l)), location(loc) {}
 };
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick
 
 #endif

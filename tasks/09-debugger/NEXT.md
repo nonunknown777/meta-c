@@ -14,7 +14,7 @@ corretamente os novos tipos C:
 - `size_t` / `ptrdiff_t`
 
 A maioria já tem suporte nativo no GDB, mas verificar se os
-pretty-printers customizados do projeto (BlockCtx, MetaCString)
+pretty-printers customizados do projeto (BlockCtx, BrickString)
 não são afetados.
 
 ### Webview Memory View

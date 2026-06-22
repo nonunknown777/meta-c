@@ -10,7 +10,7 @@ pelo type checker e codegen (task 03).
 
 - Confirmar que `byte`/`char` mapeiam pra `u8` no codegen
 - Verificar que `literal_type` é usado corretamente para inferência
-- Testar com exemplos .mc que usam tipos explícitos
+- Testar com exemplos .brc que usam tipos explícitos
 
 ## Contexto
 ## Context

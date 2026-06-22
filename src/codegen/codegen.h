@@ -1,5 +1,5 @@
-#ifndef META_C_CODEGEN_H
-#define META_C_CODEGEN_H
+#ifndef BRICK_CODEGEN_H
+#define BRICK_CODEGEN_H
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 #include "../parser/ast.h"
 #include "../parser/package.h"
 
-namespace meta_c {
+namespace brick {
 
 struct CodegenResult {
     std::string c_code;
@@ -22,7 +22,7 @@ CodegenResult generate_c(
     const PackageTable& packages
 );
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick
 
 #endif

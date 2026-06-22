@@ -1,12 +1,12 @@
-#ifndef META_C_LSP_H
-#define META_C_LSP_H
+#ifndef BRICK_LSP_H
+#define BRICK_LSP_H
 
 #include <string>
 #include <vector>
 #include "types.h"
 #include "../parser/ast.h"
 
-namespace meta_c {
+namespace brick {
 
 struct LspSymbol {
     std::string name;
@@ -36,6 +36,6 @@ LspError parse_error_string(const std::string& err_str, const std::string& defau
 // Emit JSON for LSP consumption
 std::string emit_lsp_json(const LspOutput& output);
 
-} // namespace meta_c
+} // namespace brick
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef META_C_WINDOW_INTERNAL_H
-#define META_C_WINDOW_INTERNAL_H
+#ifndef BRICK_WINDOW_INTERNAL_H
+#define BRICK_WINDOW_INTERNAL_H
 
 #include "window.h"
 #include "../../block_memory.h"
@@ -63,4 +63,4 @@ struct MetaWindowImpl {
 #endif
 };
 
-#endif /* META_C_WINDOW_INTERNAL_H */
+#endif /* BRICK_WINDOW_INTERNAL_H */

@@ -1,8 +1,8 @@
 {
-    "publisher": "meta-c",
-    "name": "meta-c-language",
-    "displayName": "Meta-C Language",
-    "description": "Meta-C language support: syntax highlighting, snippets, LSP, and debugger",
+    "publisher": "brick",
+    "name": "brick-language",
+    "displayName": "Brick Language",
+    "description": "Brick language support: syntax highlighting, snippets, LSP, and debugger",
     "version": "0.2.0",
     "engines": {
         "vscode": "^1.80.0"
@@ -12,7 +12,7 @@
         "Debuggers"
     ],
     "activationEvents": [
-        "onLanguage:meta-c",
+        "onLanguage:brick",
         "onDebug"
     ],
     "main": "./out/extension.js",
@@ -33,132 +33,132 @@
     "contributes": {
         "languages": [
             {
-                "id": "meta-c",
+                "id": "brick",
                 "aliases": [
-                    "Meta-C",
-                    "meta-c",
-                    "mc"
+                    "Brick",
+                    "brick",
+                    "brc"
                 ],
                 "extensions": [
-                    ".mc"
+                    ".brc"
                 ],
                 "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
             {
-                "language": "meta-c",
-                "scopeName": "source.mc",
-                "path": "./syntaxes/meta-c.tmLanguage.json"
+                "language": "brick",
+                "scopeName": "source.brc",
+                "path": "./syntaxes/brick.tmLanguage.json"
             }
         ],
         "snippets": [
             {
-                "language": "meta-c",
-                "path": "./snippets/meta-c.code-snippets"
+                "language": "brick",
+                "path": "./snippets/brick.code-snippets"
             }
         ],
         "views": {
             "debug": [
                 {
-                    "id": "meta-c.memoryView",
-                    "name": "Meta-C Memory",
+                    "id": "brick.memoryView",
+                    "name": "Brick Memory",
                     "type": "webview"
                 }
             ]
         },
         "commands": [
             {
-                "command": "meta-c.initWorkspace",
-                "title": "Meta-C: Init Workspace (create launch.json + tasks.json)"
+                "command": "brick.initWorkspace",
+                "title": "Brick: Init Workspace (create launch.json + tasks.json)"
             },
             {
-                "command": "meta-c.debugProgram",
-                "title": "Meta-C: Debug Program"
+                "command": "brick.debugProgram",
+                "title": "Brick: Debug Program"
             }
         ],
         "semanticTokenScopes": [
             {
                 "scopes": {
                     "keyword": [
-                        "keyword.control.package.mc",
-                        "keyword.control.struct.mc",
-                        "keyword.control.function.mc",
-                        "keyword.control.flow.mc",
-                        "keyword.control.memory.mc"
+                        "keyword.control.package.brc",
+                        "keyword.control.struct.brc",
+                        "keyword.control.function.brc",
+                        "keyword.control.flow.brc",
+                        "keyword.control.memory.brc"
                     ],
                     "type": [
-                        "storage.type.mc"
+                        "storage.type.brc"
                     ],
                     "class": [
-                        "entity.name.type.struct.mc"
+                        "entity.name.type.struct.brc"
                     ],
                     "interface": [
-                        "entity.name.type.interface.mc"
+                        "entity.name.type.interface.brc"
                     ],
                     "function": [
-                        "entity.name.function.mc"
+                        "entity.name.function.brc"
                     ],
                     "method": [
-                        "entity.name.function.method.mc"
+                        "entity.name.function.method.brc"
                     ],
                     "property": [
-                        "variable.other.mc"
+                        "variable.other.brc"
                     ],
                     "variable": [
-                        "variable.other.mc"
+                        "variable.other.brc"
                     ],
                     "string": [
-                        "string.quoted.double.mc",
-                        "string.quoted.single.mc"
+                        "string.quoted.double.brc",
+                        "string.quoted.single.brc"
                     ],
                     "number": [
-                        "constant.numeric.integer.mc",
-                        "constant.numeric.float.mc"
+                        "constant.numeric.integer.brc",
+                        "constant.numeric.float.brc"
                     ],
                     "comment": [
-                        "comment.line.double-slash.mc"
+                        "comment.line.double-slash.brc"
                     ],
                     "operator": [
-                        "keyword.operator.arithmetic.mc",
-                        "keyword.operator.comparison.mc",
-                        "keyword.operator.logical.mc",
-                        "keyword.operator.assignment.mc",
-                        "keyword.operator.arrow.mc",
-                        "keyword.operator.member.mc",
-                        "keyword.operator.inc.mc"
+                        "keyword.operator.arithmetic.brc",
+                        "keyword.operator.comparison.brc",
+                        "keyword.operator.logical.brc",
+                        "keyword.operator.assignment.brc",
+                        "keyword.operator.arrow.brc",
+                        "keyword.operator.member.brc",
+                        "keyword.operator.inc.brc"
                     ],
                     "parameter": [
-                        "variable.parameter.mc"
+                        "variable.parameter.brc"
                     ],
                     "struct": [
-                        "entity.name.type.struct.mc"
+                        "entity.name.type.struct.brc"
                     ],
                     "constant": [
-                        "constant.language.mc"
+                        "constant.language.brc"
                     ]
                 }
             }
         ],
         "colorize": true,
         "configurationDefaults": {
-            "[meta-c]": {
+            "[brick]": {
                 "editor.semanticHighlighting.enabled": true
             }
         },
         "debuggers": [
             {
                 "type": "cppdbg",
-                "label": "Meta-C",
+                "label": "Brick",
                 "configurationSnippets": [
                     {
-                        "label": "Meta-C: Debug Compiler",
-                        "description": "Debug the Meta-C compiler compiling the current .mc file",
+                        "label": "Brick: Debug Compiler",
+                        "description": "Debug the Brick compiler compiling the current .brc file",
                         "body": {
                             "name": "Debug Compiler (current file)",
                             "type": "cppdbg",
                             "request": "launch",
-                            "program": "${workspaceFolder}/build/meta-c",
+                            "program": "${workspaceFolder}/build/brick",
                             "args": [
                                 "${file}",
                                 "-o",
@@ -177,8 +177,8 @@
                         }
                     },
                     {
-                        "label": "Meta-C: Debug Program",
-                        "description": "Compile and debug the current .mc file as a binary",
+                        "label": "Brick: Debug Program",
+                        "description": "Compile and debug the current .brc file as a binary",
                         "body": {
                             "name": "Debug Compiled Program",
                             "type": "cppdbg",
@@ -194,17 +194,17 @@
                                     "ignoreFailures": true
                                 },
                                 {
-                                    "description": "Load Meta-C printers",
+                                    "description": "Load Brick printers",
                                     "text": "source ${workspaceFolder}/debugger/.gdbinit",
                                     "ignoreFailures": true
                                 }
                             ],
-                            "preLaunchTask": "Compile this .mc file"
+                            "preLaunchTask": "Compile this .brc file"
                         }
                     },
                     {
-                        "label": "Meta-C: Run Program",
-                        "description": "Compile and run the current .mc file (no debugger UI)",
+                        "label": "Brick: Run Program",
+                        "description": "Compile and run the current .brc file (no debugger UI)",
                         "body": {
                             "name": "Run Compiled Program",
                             "type": "cppdbg",
@@ -213,7 +213,7 @@
                             "args": [],
                             "cwd": "${workspaceFolder}",
                             "MIMode": "gdb",
-                            "preLaunchTask": "Compile this .mc file (release)"
+                            "preLaunchTask": "Compile this .brc file (release)"
                         }
                     }
                 ],

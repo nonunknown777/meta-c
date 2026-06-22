@@ -38,13 +38,13 @@ export interface CompilerResult {
     raw: string;
 }
 
-export function findMetaC(): string {
+export function findBrick(): string {
     const candidates = [
-        'meta-c',
-        './build/meta-c',
-        '../build/meta-c',
-        '../../build/meta-c',
-        '/usr/local/bin/meta-c',
+        'brick',
+        './build/brick',
+        '../build/brick',
+        '../../build/brick',
+        '/usr/local/bin/brick',
     ];
     for (const cmd of candidates) {
         try {
@@ -54,11 +54,11 @@ export function findMetaC(): string {
             continue;
         }
     }
-    return 'meta-c';
+    return 'brick';
 }
 
 export function runCompiler(filePath: string): CompilerResult {
-    const cmd = findMetaC();
+    const cmd = findBrick();
 
     try {
         const raw = execSync(`"${cmd}" "${filePath}" --lsp`, {

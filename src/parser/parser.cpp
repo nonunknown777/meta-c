@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace meta_c {
+namespace brick {
 
 static bool is_auto_semicolon(TokenType t) {
     switch (t) {
@@ -705,5 +705,5 @@ ParseResult parse(const std::vector<Token>& tokens) {
     return parser.parse_all();
 }
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick

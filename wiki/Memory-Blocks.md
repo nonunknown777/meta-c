@@ -1,6 +1,6 @@
 # Memory Blocks
 
-The block memory system is the heart of Meta-C's performance philosophy. Instead of traditional malloc/free or garbage collection, Meta-C uses **bump allocation** in user-declared memory blocks.
+The block memory system is the heart of Brick's performance philosophy. Instead of traditional malloc/free or garbage collection, Brick uses **bump allocation** in user-declared memory blocks.
 
 ---
 
@@ -14,7 +14,7 @@ Traditional memory management has three approaches, each with drawbacks:
 | Garbage Collection | "Stop the world" pauses, unpredictable performance |
 | Manual (C++) | `new`/`delete` everywhere, leak-prone, complex |
 
-Meta-C's approach: **declare blocks, allocate into them, reset when done**.
+Brick's approach: **declare blocks, allocate into them, reset when done**.
 
 ```
 Allocation: +++  (3 CPU cycles — just advance a pointer)
@@ -29,7 +29,7 @@ Reset:       +    (1 CPU cycle — just set used = 0)
 
 Blocks are declared at the file level (outside any function):
 
-```meta-c
+```brick
 block global = 256MB    // Units: KB, MB, GB
 block game   = 64MB
 block temp   = 8KB
@@ -42,7 +42,7 @@ block data   = 1GB
 - `global` **must** be declared in the main file — it is the default block
 - Block names must be unique
 - Supported size units: `KB` (kilobytes), `MB` (megabytes), `GB` (gigabytes)
-- Block memory is pre-allocated at program start (`__meta_c_init()`)
+- Block memory is pre-allocated at program start (`__brick_init()`)
 
 ---
 
@@ -52,7 +52,7 @@ block data   = 1GB
 
 Variables without any block annotation go to the `global` block:
 
-```meta-c
+```brick
 int x = 5           // allocated in 'global'
 String s = "hello"  // also in 'global'
 ```
@@ -61,7 +61,7 @@ String s = "hello"  // also in 'global'
 
 Use `block name { }` to temporarily change the default block:
 
-```meta-c
+```brick
 block game {
     Player p = Player(100, "Felipe")    // allocated in 'game'
     Enemy e = Enemy(50)                 // also in 'game'
@@ -89,7 +89,7 @@ The compiler generates code that saves and restores the current block context:
 
 Allocate a specific variable in a specific block:
 
-```meta-c
+```brick
 float f = 2.0 @temp             // f lives in 'temp'
 int[] arr = int[10] @game       // arr lives in 'game'
 Player p = Player(100, "Felipe") @game
@@ -101,7 +101,7 @@ The annotation goes **after** the value expression, before the semicolon.
 
 When you call a constructor with `@`:
 
-```meta-c
+```brick
 Player p = Player(100, "Felipe", 30) @game
 ```
 
@@ -119,9 +119,9 @@ Player_Player(p, 100, "Felipe", 30);
 
 ## Reset
 
-The only way to free memory in Meta-C is to reset an entire block:
+The only way to free memory in Brick is to reset an entire block:
 
-```meta-c
+```brick
 game.reset()       // O(1) — just sets used = 0
 ```
 
@@ -137,7 +137,7 @@ block_reset(game);  // ctx->used = 0;
 - Auto-exports to shared memory (for the visualizer)
 
 **What reset does NOT do:**
-- Call destructors (there are none in Meta-C)
+- Call destructors (there are none in Brick)
 - Free individual objects
 - Check for dangling pointers
 
@@ -147,7 +147,7 @@ block_reset(game);  // ctx->used = 0;
 
 Pointers can refer across blocks:
 
-```meta-c
+```brick
 block global = 256MB
 block temp = 8MB
 
@@ -177,7 +177,7 @@ fn main() {
 If a block runs out of space, the program panics:
 
 ```
-Meta-C runtime error: block overflow: out of memory in block
+Brick runtime error: block overflow: out of memory in block
 ```
 
 The panic is intentional — it's better than silent corruption. Choose block sizes carefully based on your usage patterns.
@@ -188,7 +188,7 @@ The panic is intentional — it's better than silent corruption. Choose block si
 
 ### 1. Match Block Size to Lifetime
 
-```meta-c
+```brick
 block global = 256MB    // program lifetime — reset only at exit
 block level  = 64MB     // per-level data — reset when changing levels
 block temp   = 8MB      // per-frame data — reset every frame
@@ -197,7 +197,7 @@ block frame  = 1MB      // very short-lived
 
 ### 2. Reset at Natural Boundaries
 
-```meta-c
+```brick
 fn game_loop() {
     while running {
         temp.reset()       // clear temp data every frame
@@ -211,7 +211,7 @@ fn game_loop() {
 
 ### 3. Use `temp` for Short-Lived Data
 
-```meta-c
+```brick
 fn process() {
     String debug_msg = "processing..." @temp  // temporary string
     int[1000] buffer = int[1000] @temp        // temporary buffer
@@ -241,7 +241,7 @@ If you're used to `free()` or `delete`, adjust your thinking:
 
 ### 6. Memory Leak Prevention
 
-Meta-C's block system makes leaks **impossible**:
+Brick's block system makes leaks **impossible**:
 - Every allocation goes to a block
 - When the block resets, everything is reclaimed
 - No need to track individual allocations
@@ -302,7 +302,7 @@ double* avx_data = block_alloc_aligned(ctx, 32 * sizeof(double), 32);
 
 ## Shared Memory Export
 
-For the TUI visualizer and VS Code extension, block information is auto-exported to `/tmp/meta-c-mem-<pid>.bin` every 16 allocations. This file contains:
+For the TUI visualizer and VS Code extension, block information is auto-exported to `/tmp/brick-mem-<pid>.bin` every 16 allocations. This file contains:
 
 ```c
 typedef struct {
@@ -311,7 +311,7 @@ typedef struct {
     int32_t  pid;
     uint32_t block_count;
     uint64_t timestamp_us;
-} MetaCShmHeader;
+} BrickShmHeader;
 
 typedef struct {
     char     name[32];
@@ -322,7 +322,7 @@ typedef struct {
 } BlockInfo;
 ```
 
-Export is only enabled when compiled with `-DMETA_C_TRACK_BLOCKS`.
+Export is only enabled when compiled with `-DBRICK_TRACK_BLOCKS`.
 
 ---
 

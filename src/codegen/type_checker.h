@@ -1,5 +1,5 @@
-#ifndef META_C_TYPE_CHECKER_H
-#define META_C_TYPE_CHECKER_H
+#ifndef BRICK_TYPE_CHECKER_H
+#define BRICK_TYPE_CHECKER_H
 
 #include <string>
 #include <vector>
@@ -9,7 +9,7 @@
 #include "../parser/ast.h"
 #include "../parser/package.h"
 
-namespace meta_c {
+namespace brick {
 
 struct SymbolInfo {
     std::string type;
@@ -67,7 +67,7 @@ private:
     void add_error(const std::string& msg);
 };
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick
 
 #endif

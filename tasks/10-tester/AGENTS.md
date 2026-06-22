@@ -1,4 +1,4 @@
-# Task 10: Tester / Optimizer / Doc (Meta-C)
+# Task 10: Tester / Optimizer / Doc (Brick)
 
 ## AUTORIDADE TOTAL
 ## FULL AUTHORITY
@@ -37,13 +37,13 @@ You are the SENIOR task of the project. The other tasks (01-09) listen to you.
 2. ANTES DE SAIR: atualize STATE.md + STATE.md de TODAS as tasks que tocar
 3. Documentação em português simples, como se fosse pra um amigo leigo
 4. Otimizações extremas: inline asm, SIMD, alignment, bump alloc tuning
-5. Testes de integração: compilar .mc → C → gcc → executar binário
+5. Testes de integração: compilar .brc → C → gcc → executar binário
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md
 2. BEFORE LEAVING: update STATE.md + STATE.md of ALL tasks you touched
 3. Documentation in simple Portuguese, as if for a lay friend
 4. Extreme optimizations: inline asm, SIMD, alignment, bump alloc tuning
-5. Integration tests: compile .mc → C → gcc → run binary
+5. Integration tests: compile .brc → C → gcc → run binary
 
 ## O que ler ao iniciar
 ## What to read on start
@@ -66,7 +66,7 @@ You are the SENIOR task of the project. The other tasks (01-09) listen to you.
 ```
 1. TESTAR
    ├─ scons test                    (testes unitários)
-   ├─ tests/test_integration.sh     (compila .mc → executa binário)
+   ├─ tests/test_integration.sh     (compila .brc → executa binário)
    └─ benchmarks/run_benchmarks.sh  (performance)
 
 2. ANALISAR
@@ -92,7 +92,7 @@ You are the SENIOR task of the project. The other tasks (01-09) listen to you.
 ```
 1. TEST
    ├─ scons test                    (unit tests)
-   ├─ tests/test_integration.sh     (compile .mc → run binary)
+   ├─ tests/test_integration.sh     (compile .brc → run binary)
    └─ benchmarks/run_benchmarks.sh  (performance)
 
 2. ANALYZE

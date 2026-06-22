@@ -1,12 +1,12 @@
-# Getting Started with Meta-C
+# Getting Started with Brick
 
-Quick guide to install, build, compile, run, and debug Meta-C programs.
+Quick guide to install, build, compile, run, and debug Brick programs.
 
 ## Prerequisites
 
 | Dependency | Purpose | Install (Arch Linux) | Install (Ubuntu/Debian) |
 |------------|---------|---------------------|-------------------------|
-| **g++** (C++20) | Compile the Meta-C compiler | `sudo pacman -S gcc` | `sudo apt install g++` |
+| **g++** (C++20) | Compile the Brick compiler | `sudo pacman -S gcc` | `sudo apt install g++` |
 | **gcc** | Compile generated C code | `sudo pacman -S gcc` | `sudo apt install gcc` |
 | **SCons** | Build system | `sudo pacman -S scons` | `sudo apt install scons` |
 | **ncurses** | TUI visualizer | `sudo pacman -S ncurses` | `sudo apt install libncurses-dev` |
@@ -15,34 +15,34 @@ Quick guide to install, build, compile, run, and debug Meta-C programs.
 ## Clone & Build
 
 ```bash
-git clone https://github.com/nonunknown777/meta-c.git
-cd meta-c
+git clone https://github.com/nonunknown777/brick.git
+cd brick
 scons                     # release build (default)
 scons profile=debug       # debug build
 scons profile=sanitize    # sanitizers (for finding bugs)
 ```
 
-The `meta-c` compiler will be at `build/meta-c`.
+The `brick` compiler will be at `build/brick`.
 
 ## Compile and Run Your First Program
 
 ### One-step (build + run)
 
 ```bash
-build/meta-c run examples/hello.mc
+build/brick run examples/hello.brc
 ```
 
 ### Build to binary
 
 ```bash
-build/meta-c build examples/hello.mc -o hello
+build/brick build examples/hello.brc -o hello
 ./hello
 ```
 
 ### Expected output
 
 ```
-Hello from Meta-C!
+Hello from Brick!
 42
 3.140000
 true
@@ -52,30 +52,30 @@ done with 2 blocks
 
 ## Two-in-One Commands
 
-The `meta-c` CLI provides convenience subcommands:
+The `brick` CLI provides convenience subcommands:
 
 ```bash
-# Build everything in one step (.mc → .c → gcc → binary)
-build/meta-c build hello.mc -o hello
+# Build everything in one step (.brc → .c → gcc → binary)
+build/brick build hello.brc -o hello
 
 # Build and run in one step
-build/meta-c run hello.mc
+build/brick run hello.brc
 
 # Release mode (no tracking overhead, max performance)
-build/meta-c build hello.mc --release -o hello
+build/brick build hello.brc --release -o hello
 ```
 
 ## Debugging
 
 ```bash
 # Build with debug symbols
-build/meta-c build hello.mc -o hello   # always includes -g
+build/brick build hello.brc -o hello   # always includes -g
 
 # Launch GDB
 gdb ./hello
 ```
 
-The `.gdbinit` in the project automatically loads Meta-C's debug support.
+The `.gdbinit` in the project automatically loads Brick's debug support.
 
 **Custom GDB Commands:**
 
@@ -86,45 +86,45 @@ The `.gdbinit` in the project automatically loads Meta-C's debug support.
 (gdb) ib                    # Alias for "info blocks"
 ```
 
-Because the generated C code includes `#line` directives, GDB will display your original `.mc` source code.
+Because the generated C code includes `#line` directives, GDB will display your original `.brc` source code.
 
 ## Running Tests
 
 ```bash
 scons test                    # unit tests
-tests/test_integration.sh     # integration tests (.mc → compile → run)
+tests/test_integration.sh     # integration tests (.brc → compile → run)
 benchmarks/run_benchmarks.sh  # performance benchmarks
 ```
 
 ## TUI Memory Visualizer
 
 ```bash
-build/meta-c --visualize examples/hello.mc   # compile, run, show TUI
-build/meta-c --attach <pid>                  # attach to running process
+build/brick --visualize examples/hello.brc   # compile, run, show TUI
+build/brick --attach <pid>                  # attach to running process
 ```
 
 ## Quick Reference
 
 ```bash
 scons                          # Build compiler
-build/meta-c run input.mc      # Compile and run
-build/meta-c build input.mc -o out  # Build to binary
-build/meta-c input.mc -o out.c # Compile to C only
+build/brick run input.brc      # Compile and run
+build/brick build input.brc -o out  # Build to binary
+build/brick input.brc -o out.c # Compile to C only
 scons test                     # Run tests
-build/meta-c --visualize file  # Compile + run + visualize
+build/brick --visualize file  # Compile + run + visualize
 ```
 
 ## Project Layout
 
 ```
-meta-c/
+brick/
 ├── src/              → Compiler (C++20)
 ├── runtime/          → C runtime (block alloc, IO, hot reload)
 ├── visualizer/       → ncurses TUI
 ├── debugger/         → GDB Python scripts
 ├── vscode-ext/       → VS Code extension
 ├── tests/            → Test suites
-├── examples/         → Example .mc code
+├── examples/         → Example .brc code
 ├── benchmarks/       → Performance benchmarks
 └── docs/             → GitHub Pages site
 ```

@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <unordered_map>
 
-namespace meta_c {
+namespace brick {
 
 static const std::unordered_map<std::string, TokenType> keywords = {
     {"package", TokenType::PACKAGE},
@@ -296,5 +296,5 @@ std::vector<Token> tokenize(const std::string& source, const std::string& filena
     return lexer.tokenize();
 }
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick

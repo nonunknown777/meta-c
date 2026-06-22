@@ -1,6 +1,6 @@
-# Meta-C Window Library
+# Brick Window Library
 
-Cross-platform window creation and input for Meta-C.
+Cross-platform window creation and input for Brick.
 
 ## Backends
 
@@ -18,7 +18,7 @@ Cross-platform window creation and input for Meta-C.
 
 ## Quickstart
 
-```meta-c
+```brick
 using Window
 
 block global = 64MB
@@ -49,9 +49,9 @@ gcc -O3 basic.c runtime/libs/window/window_win32.c runtime/block_memory.c -lgdi3
 
 ## API Reference
 
-See `window.h` for the full C API. Meta-C binding maps as follows:
+See `window.h` for the full C API. Brick binding maps as follows:
 
-| Meta-C                                 | C function                          |
+| Brick                                 | C function                          |
 |----------------------------------------|-------------------------------------|
 | `Window.create(title, w, h, flags)`    | `meta_window_create(...)`           |
 | `w.destroy()`                          | `meta_window_destroy(w)`            |

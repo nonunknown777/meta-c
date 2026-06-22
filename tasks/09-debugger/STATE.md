@@ -86,17 +86,17 @@ Pending: NEW FEATURE — Explicit Fixed-Width Types (see NEXT.md)
 ## Implemented (previous sessions)
 
 - #line directives no codegen
-- GDB pretty-printers (BlockCtx, MetaCString, BlockAlloc)
+- GDB pretty-printers (BlockCtx, BrickString, BlockAlloc)
 - GDB custom commands (info blocks, block, block-watch)
 - .gdbinit com auto-load
 - VS Code debug config (launch.json + tasks.json)
-- VS Code webview panel (Meta-C Memory)
+- VS Code webview panel (Brick Memory)
 - Block Data Provider para debug
 
 - #line directives in codegen
-- GDB pretty-printers (BlockCtx, MetaCString, BlockAlloc)
+- GDB pretty-printers (BlockCtx, BrickString, BlockAlloc)
 - GDB custom commands (info blocks, block, block-watch)
 - .gdbinit with auto-load
 - VS Code debug config (launch.json + tasks.json)
-- VS Code webview panel (Meta-C Memory)
+- VS Code webview panel (Brick Memory)
 - Block Data Provider for debugging

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
-using namespace meta_c;
+using namespace brick;
 
 static int passed = 0;
 static int failed = 0;
@@ -244,10 +244,10 @@ TEST(test_unexpected_char) {
 }
 
 TEST(test_source_locations) {
-    auto tokens = tokenize("int x = 5\nfloat y", "test.mc");
+    auto tokens = tokenize("int x = 5\nfloat y", "test.brc");
     assert(tokens[0].location.line == 1);
     assert(tokens[0].location.col == 1);
-    assert(tokens[0].location.file == "test.mc");
+    assert(tokens[0].location.file == "test.brc");
     assert(tokens[4].location.line == 2);
     assert(tokens[4].location.col == 1);
 }

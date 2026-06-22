@@ -3,8 +3,8 @@
 
 - [x] Define window.h public API
 - [x] Define API pública window.h
-- [x] Meta-C binding definition (using Window)
-- [x] Definição de binding Meta-C (using Window)
+- [x] Brick binding definition (using Window)
+- [x] Definição de binding Brick (using Window)
 - [x] Linux X11 backend (create, poll, swap, destroy)
 - [x] Backend Linux X11 (create, poll, swap, destroy)
 - [ ] Windows Win32 backend (create, poll, swap, destroy) — untested on Linux
@@ -15,10 +15,10 @@
 - [x] Suporte a hot reload (tabela de ponteiros de função + build .so)
 - [x] SCons build integration (auto-detect OS + libs)
 - [x] Integração de build SCons (detecção automática de SO + libs)
-- [x] Example .mc (basic window)
-- [x] Exemplo .mc (janela básica)
-- [ ] Example .mc (fullscreen + input)
-- [ ] Exemplo .mc (tela cheia + input)
+- [x] Example .brc (basic window)
+- [x] Exemplo .brc (janela básica)
+- [ ] Example .brc (fullscreen + input)
+- [ ] Exemplo .brc (tela cheia + input)
 - [x] Test suite for Window library (X11) — 15 tests
 - [x] Suite de testes para biblioteca Window (X11) — 15 testes
 - [x] Test suite for Window HR — 3 tests

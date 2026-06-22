@@ -1,4 +1,4 @@
-# Build: meta_lib_window (X11) — static + shared for hot reload
+# Build: brick_lib_window (X11) — static + shared for hot reload
 Import('env', 'has_x11')
 
 if not has_x11:
@@ -8,13 +8,13 @@ env_win = env.Clone()
 env_win.ParseConfig('pkg-config --cflags --libs x11')
 
 # ─── Static library ─────────────────────────────────────────
-lib_window = env_win.Library('#build/meta_lib_window',
+lib_window = env_win.Library('#build/brick_lib_window',
     ['window_linux.c'])
 
 # ─── Shared library (hot reload) ────────────────────────────
 env_win_so = env_win.Clone()
 env_win_so.Append(LINKFLAGS=['-Wl,--allow-shlib-undefined'])
-lib_window_so = env_win_so.SharedLibrary('#build/meta_lib_window',
+lib_window_so = env_win_so.SharedLibrary('#build/brick_lib_window',
     ['window_linux.c'],
     SHLIBPREFIX='',
     SHLIBSUFFIX='.so')

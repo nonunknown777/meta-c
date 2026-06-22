@@ -1,16 +1,16 @@
-# Contributing to Meta-C
+# Contributing to Brick
 
-Thank you for your interest in contributing to Meta-C! This guide covers everything you need to know to get started.
+Thank you for your interest in contributing to Brick! This guide covers everything you need to know to get started.
 
 ---
 
 ## Project Overview
 
-Meta-C is a programming language that compiles to C, with a focus on performance, block-based memory management, and hot reload. The project is structured into 11 tasks, each with its own area of responsibility.
+Brick is a programming language that compiles to C, with a focus on performance, block-based memory management, and hot reload. The project is structured into 11 tasks, each with its own area of responsibility.
 
 | Task | Component | Language | Description |
 |:----:|-----------|:--------:|-------------|
-| 01 | Lexer | C++20 | Tokenize `.mc` files |
+| 01 | Lexer | C++20 | Tokenize `.brc` files |
 | 02 | Parser | C++20 | Build AST + package resolution |
 | 03 | Codegen | C++20 | Type checking + C code generation |
 | 04 | Runtime | C | Block memory allocator |
@@ -40,8 +40,8 @@ sudo pacman -S ncurses libx11  # For visualizer + window library
 ### Clone and Build
 
 ```bash
-git clone <repo-url> meta-c
-cd meta-c
+git clone <repo-url> brick
+cd brick
 
 # Build the compiler
 scons
@@ -85,7 +85,7 @@ git commit
 
 ```cpp
 // Namespace
-namespace meta_c {
+namespace brick {
 
 // Functions: snake_case
 void block_alloc(BlockCtx* ctx);
@@ -104,7 +104,7 @@ enum class TokenType {
     FLOAT_LITERAL,
 };
 
-} // namespace meta_c
+} // namespace brick
 ```
 
 ### C Conventions
@@ -127,7 +127,7 @@ extern "C" {
 #endif
 ```
 
-### Meta-C Language Conventions (for examples/tests)
+### Brick Language Conventions (for examples/tests)
 
 - 4-space indentation
 - `snake_case` for functions and variables
@@ -140,7 +140,7 @@ extern "C" {
 Every source file should include a brief comment:
 
 ```cpp
-// Meta-C — <brief description of what this file does>
+// Brick — <brief description of what this file does>
 ```
 
 ---
@@ -181,7 +181,7 @@ tests/
 #include "../src/lexer/lexer.h"
 #include <cassert>
 
-namespace meta_c {
+namespace brick {
 
 void test_simple_tokens() {
     auto tokens = tokenize("int x = 5");
@@ -195,21 +195,21 @@ void test_simple_tokens() {
     printf("PASS: test_simple_tokens\n");
 }
 
-} // namespace meta_c
+} // namespace brick
 
 int main() {
-    meta_c::test_simple_tokens();
+    brick::test_simple_tokens();
     return 0;
 }
 ```
 
 ### Writing Integration Tests
 
-Integration tests compile `.mc` → C → binary → run and check output:
+Integration tests compile `.brc` → C → binary → run and check output:
 
 ```bash
 # Add to test_integration.sh:
-test_compile_and_expect "my_test" "path/to/test.mc" "Expected output"
+test_compile_and_expect "my_test" "path/to/test.brc" "Expected output"
 ```
 
 ### Test Coverage Guidelines
@@ -223,7 +223,7 @@ test_compile_and_expect "my_test" "path/to/test.mc" "Expected output"
 
 ## Build System
 
-Meta-C uses **SCons** (Python). Key files:
+Brick uses **SCons** (Python). Key files:
 
 ```
 SConstruct           → Entry point, build profiles, platform detection
@@ -243,7 +243,7 @@ Example — adding a new file to `src/codegen/`:
 
 ```python
 # src/SConscript — add to the library
-lib_codegen = env.Library('#build/meta_codegen', [
+lib_codegen = env.Library('#build/brick_codegen', [
     'codegen/codegen.cpp',
     'codegen/type_checker.cpp',
     'codegen/new_feature.cpp',  # ← add here
@@ -257,7 +257,7 @@ lib_codegen = env.Library('#build/meta_codegen', [
 
 ```python
 test_bins.append(build_test('test_my_feature', ['test_my_feature.cpp'],
-                            ['meta_codegen', 'meta_parser', 'meta_lexer']))
+                            ['brick_codegen', 'brick_parser', 'brick_lexer']))
 ```
 
 3. Run `scons test`
@@ -269,8 +269,8 @@ test_bins.append(build_test('test_my_feature', ['test_my_feature.cpp'],
 ### 1. Fork and Clone
 
 ```bash
-git clone <your-fork-url> meta-c
-cd meta-c
+git clone <your-fork-url> brick
+cd brick
 ```
 
 ### 2. Create a Branch

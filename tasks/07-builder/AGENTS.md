@@ -1,11 +1,11 @@
-# Task: Builder (Meta-C)
+# Task: Builder (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em BUILD do Meta-C.
+Você é o especialista em BUILD do Brick.
 Responsabilidade: sistema de build SCons para o compilador e runtime.
-You are the BUILD specialist for Meta-C.
+You are the BUILD specialist for Brick.
 Responsibility: SCons build system for the compiler and runtime.
 
 ## Regras de Ouro
@@ -69,21 +69,21 @@ scons -j$(nproc)         # parallel build
 ## Módulos
 ## Modules
 
-- meta_shared: tipos compartilhados (interface)
-- meta_lexer: biblioteca do lexer
-- meta_parser: biblioteca do parser
-- meta_codegen: biblioteca do codegen
-- meta_runtime: biblioteca runtime em C
-- meta_visualizer: TUI ncurses
-- meta-c: CLI principal
+- brick_shared: tipos compartilhados (interface)
+- brick_lexer: biblioteca do lexer
+- brick_parser: biblioteca do parser
+- brick_codegen: biblioteca do codegen
+- brick_runtime: biblioteca runtime em C
+- brick_visualizer: TUI ncurses
+- brick: CLI principal
 
-- meta_shared: shared types (interface)
-- meta_lexer: lexer library
-- meta_parser: parser library
-- meta_codegen: codegen library
-- meta_runtime: runtime library in C
-- meta_visualizer: ncurses TUI
-- meta-c: main CLI
+- brick_shared: shared types (interface)
+- brick_lexer: lexer library
+- brick_parser: parser library
+- brick_codegen: codegen library
+- brick_runtime: runtime library in C
+- brick_visualizer: ncurses TUI
+- brick: main CLI
 
 ## Responsabilidades
 ## Responsibilities

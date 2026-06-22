@@ -3,20 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Meta-C — A Language That Compiles to C</title>
-<meta name="description" content="Meta-C: OOP language that compiles to C. Maximum performance, explicit block-based memory management, native hot reload.">
+<title>Brick — A Language That Compiles to C</title>
+<meta name="description" content="Brick: OOP language that compiles to C. Maximum performance, explicit block-based memory management, native hot reload.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- Hero -->
 <section class="hero">
-  <h1>Meta-C</h1>
+  <div class="lang-toggle"><a href="https://github.com/nonunknown777/brick/blob/main/README.pt-BR.md">🇧🇷 Português</a></div>
+  <h1>Brick</h1>
   <p class="tagline">A programming language that compiles to C.<br>Maximum performance. Explicit memory. Native hot reload.</p>
   <a href="#start" class="btn">Get Started</a>
 </section>
 
-<!-- What is Meta-C -->
+<!-- What is Brick -->
 <section>
   <div class="container">
     <h2 class="section-title fade-in">What is Meta‑C?</h2>
@@ -24,7 +25,7 @@
     <div class="philosophy-grid">
       <div class="phil-item fade-in">
         <h3>Compiles to C</h3>
-        <p>Your .mc code becomes readable C — then gcc turns it into a native binary. No VM, no interpreter, no overhead.</p>
+        <p>Your .brc code becomes readable C — then gcc turns it into a native binary. No VM, no interpreter, no overhead.</p>
       </div>
       <div class="phil-item fade-in">
         <h3>Explicit Memory</h3>
@@ -48,7 +49,7 @@
     <h2 class="section-title fade-in">Code Example</h2>
     <p class="section-sub fade-in">Interfaces, fixed-width types, blocks — all working together.</p>
     <div class="code-block fade-in">
-      <span class="lang-label">Meta‑C (.mc)</span>
+      <span class="lang-label">Meta‑C (.brc)</span>
 <pre><span class="kw">package</span> DEMO
 
 <span class="kw">using</span> IO
@@ -111,12 +112,12 @@
       <div class="feature-card fade-in">
         <span class="icon">🐛</span>
         <h3>GDB Integration</h3>
-        <p>Step through your original .mc code, not the generated C. <code>#line</code> directives map every line back.</p>
+        <p>Step through your original .brc code, not the generated C. <code>#line</code> directives map every line back.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="icon">📊</span>
         <h3>TUI Visualizer</h3>
-        <p>Ncurses dashboard showing block memory usage and allocations in real time. <code>meta-c --visualize file.mc</code>.</p>
+        <p>Ncurses dashboard showing block memory usage and allocations in real time. <code>brick --visualize file.brc</code>.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="icon">🔌</span>
@@ -186,8 +187,8 @@
         <div class="step-body">
           <h3>Clone</h3>
           <p>Get the repository and enter the project directory.</p>
-          <div class="code-block"><pre>git clone https://github.com/nonunknown777/meta-c.git
-cd meta-c</pre></div>
+          <div class="code-block"><pre>git clone https://github.com/nonunknown777/brick.git
+cd brick</pre></div>
         </div>
       </div>
       <div class="step fade-in">
@@ -202,16 +203,16 @@ cd meta-c</pre></div>
         <div class="step-num">3</div>
         <div class="step-body">
           <h3>Write</h3>
-          <p>Create a <code>.mc</code> file with structs, methods, and blocks.</p>
-          <div class="code-block"><pre>touch game.mc</pre></div>
+          <p>Create a <code>.brc</code> file with structs, methods, and blocks.</p>
+          <div class="code-block"><pre>touch game.brc</pre></div>
         </div>
       </div>
       <div class="step fade-in">
         <div class="step-num">4</div>
         <div class="step-body">
           <h3>Compile &amp; Run</h3>
-          <p>Use the <code>meta-c</code> CLI — no manual gcc needed.</p>
-          <div class="code-block"><pre>build/meta-c run game.mc</pre></div>
+          <p>Use the <code>brick</code> CLI — no manual gcc needed.</p>
+          <div class="code-block"><pre>build/brick run game.brc</pre></div>
         </div>
       </div>
     </div>
@@ -226,7 +227,7 @@ cd meta-c</pre></div>
 
     <div class="pipeline fade-in">
       <div class="pipe-row">
-        <div class="pipe-step"><div class="label">.mc Source</div><div class="sub">your code</div></div>
+        <div class="pipe-step"><div class="label">.brc Source</div><div class="sub">your code</div></div>
         <span class="pipe-arrow">→</span>
         <div class="pipe-step"><div class="label">Lexer</div><div class="sub">src/lexer</div></div>
         <span class="pipe-arrow">→</span>
@@ -258,29 +259,29 @@ cd meta-c</pre></div>
     <h2 class="section-title fade-in">Documentation</h2>
     <p class="section-sub fade-in">Learn the language, the runtime, and the toolchain.</p>
     <div class="docs-links">
-      <a href="https://github.com/nonunknown777/meta-c/wiki/Language-Reference" class="doc-link fade-in">
+      <a href="LANGUAGE.md" class="doc-link fade-in">
         <h4>Language Spec</h4>
         <p>Complete syntax, types, packages, and memory model reference.</p>
       </a>
-      <a href="https://github.com/nonunknown777/meta-c/wiki/Getting-Started" class="doc-link fade-in">
+      <a href="GETTING_STARTED.md" class="doc-link fade-in">
         <h4>Getting Started</h4>
         <p>Installation, first project, and common patterns explained simply.</p>
       </a>
-      <a href="https://github.com/nonunknown777/meta-c/wiki/Architecture" class="doc-link fade-in">
+      <a href="ARCHITECTURE.md" class="doc-link fade-in">
         <h4>Architecture</h4>
         <p>How the compiler, runtime, and tools fit together.</p>
       </a>
-      <a href="https://github.com/nonunknown777/meta-c/wiki/Performance" class="doc-link fade-in">
+      <a href="OPTIMIZATIONS.md" class="doc-link fade-in">
         <h4>Optimizations</h4>
         <p>Bump allocator tuning, SIMD, alignment, and benchmarks.</p>
       </a>
-      <a href="https://github.com/nonunknown777/meta-c/wiki/Hot-Reload" class="doc-link fade-in">
+      <a href="hot-reload.md" class="doc-link fade-in">
         <h4>Hot Reload</h4>
         <p>Live code swapping architecture and usage.</p>
       </a>
-      <a href="https://github.com/nonunknown777/meta-c/wiki/Memory-Blocks" class="doc-link fade-in">
-        <h4>Memory Blocks</h4>
-        <p>Deep dive into the block memory system.</p>
+      <a href="LANGUAGE.pt-BR.md" class="doc-link pt-link fade-in">
+        <h4>🇧🇷 Referência</h4>
+        <p>Documentação completa em português.</p>
       </a>
     </div>
   </div>
@@ -289,7 +290,7 @@ cd meta-c</pre></div>
 <!-- Footer -->
 <footer>
   <p>Meta‑C — MIT License</p>
-  <p class="ai-note"><a href="https://github.com/nonunknown777/meta-c">github.com/nonunknown777/meta-c</a></p>
+  <p class="ai-note"><a href="https://github.com/nonunknown777/brick">github.com/nonunknown777/brick</a></p>
 </footer>
 
 <script src="script.js"></script>

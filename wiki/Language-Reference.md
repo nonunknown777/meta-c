@@ -1,14 +1,14 @@
-# Meta-C Language Reference
+# Brick Language Reference
 
-This is the complete reference for the Meta-C programming language. Everything you need to know to write `.mc` files.
+This is the complete reference for the Brick programming language. Everything you need to know to write `.brc` files.
 
 ---
 
 ## File Structure
 
-A Meta-C source file (`.mc`) follows this structure:
+A Brick source file (`.brc`) follows this structure:
 
-```meta-c
+```brick
 package NOME               // which package this file belongs to
 using OUTRO                // import another package
 
@@ -24,7 +24,7 @@ fn main() { }              // entry point (required)
 
 Packages organize code into namespaces. Every file must declare its package.
 
-```meta-c
+```brick
 package SPRITES                // declares the "SPRITES" package
 package SPRITES.EFFECTS        // hierarchical sub-package
 
@@ -43,7 +43,7 @@ private int internal_var       // visible only within the package
 
 Only single-line comments are supported:
 
-```meta-c
+```brick
 // This is a comment — goes until end of line
 int x = 5  // inline comment
 ```
@@ -54,7 +54,7 @@ Block comments (`/* */`) are **not** supported.
 
 ### Fixed-Width Types
 
-| Meta-C | C Type | Size | Description |
+| Brick | C Type | Size | Description |
 |--------|--------|:----:|-------------|
 | `i8` | `int8_t` | 8-bit | Signed integer |
 | `i16` | `int16_t` | 16-bit | Signed integer |
@@ -69,7 +69,7 @@ Block comments (`/* */`) are **not** supported.
 | `usize` | `size_t` | pointer | Unsigned pointer-size |
 | `isize` | `ptrdiff_t` | pointer | Signed pointer-size |
 | `bool` | `uint8_t` | 8-bit | Boolean (true/false) |
-| `String` | `MetaCString` | dynamic | Dynamic text (block-allocated) |
+| `String` | `BrickString` | dynamic | Dynamic text (block-allocated) |
 | `void` | `void` | — | Nothing (for functions) |
 | `null` | `NULL` | — | Null pointer literal |
 
@@ -107,7 +107,7 @@ Block comments (`/* */`) are **not** supported.
 
 ### Array Types
 
-```meta-c
+```brick
 int[10] arr              // fixed array of 10 integers
 float[5] values          // fixed array of 5 floats
 String[100] names        // array of 100 Strings
@@ -117,9 +117,9 @@ Array size is fixed at declaration and cannot be changed.
 
 ### Type Mapping to C
 
-When compiled, Meta-C types map to C types as follows:
+When compiled, Brick types map to C types as follows:
 
-| Meta-C | C |
+| Brick | C |
 |--------|---|
 | `i8` | `int8_t` |
 | `i16` | `int16_t` |
@@ -134,14 +134,14 @@ When compiled, Meta-C types map to C types as follows:
 | `usize` | `size_t` |
 | `isize` | `ptrdiff_t` |
 | `bool` | `uint8_t` |
-| `String` | `MetaCString` (struct with `data` and `len`) |
+| `String` | `BrickString` (struct with `data` and `len`) |
 | `block` | `BlockCtx*` |
 
 ## Blocks of Memory
 
-Blocks are the foundation of Meta-C's memory model. You declare them at the file level:
+Blocks are the foundation of Brick's memory model. You declare them at the file level:
 
-```meta-c
+```brick
 block global = 256MB       // default block — variables go here by default
 block game   = 64MB
 block temp   = 8KB
@@ -153,13 +153,13 @@ block data   = 1GB
 ### Allocation Modes
 
 **1. Default block** — variables without `@` or `block:` go to `global`:
-```meta-c
+```brick
 int x = 5                  // allocated in global (the default block)
 String s = "hello"         // also in global
 ```
 
 **2. Block scope** — everything inside a `block name {}` block targets that block:
-```meta-c
+```brick
 block game {
     Player p = Player(100, "Felipe")   // both allocated in 'game'
     Enemy e = Enemy(50)
@@ -167,14 +167,14 @@ block game {
 ```
 
 **3. Inline annotation** — allocate a specific variable in a specific block:
-```meta-c
+```brick
 float f = 2.0 @temp        // f lives in 'temp' block
 int[] arr = int[10] @game  // arr lives in 'game' block
 ```
 
 ### Block Operations
 
-```meta-c
+```brick
 game.reset()               // release ALL memory in 'game' — O(1), super fast
 global.reset()             // release everything in 'global'
 ```
@@ -193,7 +193,7 @@ See [Memory Blocks](Memory-Blocks) for the complete deep dive.
 
 Structs group data with methods. They are the core OOP mechanism.
 
-```meta-c
+```brick
 struct Player {
     int hp
     String name
@@ -222,13 +222,13 @@ struct Player {
 
 A constructor is a function with the same name as the struct. It is called when you create an instance:
 
-```meta-c
+```brick
 Player p = Player(100, "Felipe", 30) @game
 ```
 
 ### Inheritance
 
-```meta-c
+```brick
 struct NPC extends Player {
     int ai_type
 
@@ -249,7 +249,7 @@ Inherited fields are directly accessible in the child struct. The generated C co
 
 ### Interfaces
 
-```meta-c
+```brick
 interface Damageable {
     fn take_damage(int d)
 }
@@ -274,7 +274,7 @@ struct Enemy : Damageable, Serializable {
 
 ### Visibility
 
-```meta-c
+```brick
 public int x               // visible everywhere (default)
 private int y              // visible only within the package
 ```
@@ -285,9 +285,9 @@ private int y              // visible only within the package
 
 ### No `this`, No Name Shadowing
 
-Meta-C does **not** use `this`. Inside a method, you can reference fields directly:
+Brick does **not** use `this`. Inside a method, you can reference fields directly:
 
-```meta-c
+```brick
 fn take_damage(int dmg) {
     hp -= dmg              // 'hp' is the struct field, not a parameter
 }
@@ -299,7 +299,7 @@ Name shadowing is **not allowed** — you cannot have a parameter or local varia
 
 Functions are declared with `fn`:
 
-```meta-c
+```brick
 fn main() { }                            // entry point (returns void)
 
 fn add(int a, int b) -> int {            // returns int
@@ -323,14 +323,14 @@ fn multiply(int a, int b) -> int {
 
 ### Calling Functions
 
-```meta-c
+```brick
 int result = add(3, 4)
 log("calculation complete")
 ```
 
 ### Calling Methods
 
-```meta-c
+```brick
 Player p = Player(100, "Felipe", 30) @game
 p.take_damage(20)
 int current_hp = p.get_hp()
@@ -340,7 +340,7 @@ int current_hp = p.get_hp()
 
 ### If/Else
 
-```meta-c
+```brick
 if hp <= 0 {
     print("dead")
 } else {
@@ -357,7 +357,7 @@ if x > 0 {
 
 ### While
 
-```meta-c
+```brick
 while hp > 0 {
     apply_damage(10)
     hp -= 10
@@ -366,7 +366,7 @@ while hp > 0 {
 
 ### For
 
-```meta-c
+```brick
 for int i = 0; i < 10; i++ {
     print(i)
 }
@@ -374,7 +374,7 @@ for int i = 0; i < 10; i++ {
 
 ### Return
 
-```meta-c
+```brick
 fn add(int a, int b) -> int {
     return a + b
 }
@@ -447,7 +447,7 @@ fn log(String msg) {
 
 ## Strings
 
-```meta-c
+```brick
 String s = "hello"                   // creates a String
 String name = "Felipe" @game         // String in a specific block
 String empty = ""                    // empty string
@@ -459,7 +459,7 @@ String empty = ""                    // empty string
 
 ## Arrays
 
-```meta-c
+```brick
 int[10] arr                          // fixed array of 10 integers
 int[5] vals = int[5] @game           // array in a specific block
 float[100] data                      // array of 100 floats
@@ -473,7 +473,7 @@ float[100] data                      // array of 100 floats
 
 The `IO` package provides `print()`:
 
-```meta-c
+```brick
 using IO
 
 fn main() {
@@ -497,7 +497,7 @@ Rules:
 
 ## Error Handling
 
-```meta-c
+```brick
 error("something went wrong")    // prints message and aborts (panic)
 ```
 
@@ -518,7 +518,7 @@ float     bool      char      String    void
 
 ## Complete Example
 
-```meta-c
+```brick
 package JOGO
 
 using SPRITES
@@ -580,8 +580,8 @@ fn main() {
 ## Compilation
 
 ```bash
-# Step 1: Meta-C compiler produces C code
-meta-c input.mc -o output.c
+# Step 1: Brick compiler produces C code
+brick input.brc -o output.c
 
 # Step 2: gcc compiles C + runtime into a binary
 gcc -O3 output.c runtime/block_memory.c runtime/io.c -o program -ldl

@@ -16,13 +16,13 @@ Last action: Implementation of explicit fixed-width types (u8/i8..u64/i64, f32/f
 - Type checker: detecta `using IO;` → seta `using_io = true`
 - Type checker: valida print() args (int/float/String/bool/char), retorna void
 - Type checker: erro se print() sem `using IO;`
-- Codegen: `#include "io.h"` no cabeçalho (em vez de gerar MetaCString)
-- Codegen: `gen_string_type()` removido — MetaCString vem do io.h
+- Codegen: `#include "io.h"` no cabeçalho (em vez de gerar BrickString)
+- Codegen: `gen_string_type()` removido — BrickString vem do io.h
 - Codegen: print() 0 args → `io_print_newline()`
 - Codegen: print() 1 arg sem placeholders → `io_print_X(arg)`
 - Codegen: print() com formato `{N}` → `io_printf()` com specifiers
 - Codegen: `block_register(name, "name")` emitido após cada `block_create_bytes()`
-- Codegen: `block_shm_export()` emitido ao final de `__meta_c_init()`
+- Codegen: `block_shm_export()` emitido ao final de `__brick_init()`
 - Type checker: `is_type_known()` atualizado com tipos de largura fixa
 - Type checker: `can_assign()` com regras de widening/narrowing (Signed↔Unsigned, Int↔Float)
 - Type checker: `promote_types()` para expressões mistas (i8+u16→i32, i32+u32→i64, etc.)
@@ -37,13 +37,13 @@ Last action: Implementation of explicit fixed-width types (u8/i8..u64/i64, f32/f
 - Type checker: detects `using IO;` → sets `using_io = true`
 - Type checker: validates print() args (int/float/String/bool/char), returns void
 - Type checker: error if print() without `using IO;`
-- Codegen: `#include "io.h"` in header (instead of generating MetaCString)
-- Codegen: `gen_string_type()` removed — MetaCString comes from io.h
+- Codegen: `#include "io.h"` in header (instead of generating BrickString)
+- Codegen: `gen_string_type()` removed — BrickString comes from io.h
 - Codegen: print() 0 args → `io_print_newline()`
 - Codegen: print() 1 arg without placeholders → `io_print_X(arg)`
 - Codegen: print() with format `{N}` → `io_printf()` with specifiers
 - Codegen: `block_register(name, "name")` emitted after each `block_create_bytes()`
-- Codegen: `block_shm_export()` emitted at the end of `__meta_c_init()`
+- Codegen: `block_shm_export()` emitted at the end of `__brick_init()`
 - Type checker: `is_type_known()` updated with fixed-width types
 - Type checker: `can_assign()` with widening/narrowing rules (Signed↔Unsigned, Int↔Float)
 - Type checker: `promote_types()` for mixed expressions (i8+u16→i32, i32+u32→i64, etc.)

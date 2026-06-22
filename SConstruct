@@ -1,13 +1,13 @@
 # =============================================================================
-# Meta-C Build System (SCons) — Entry Point
-# Sistema de Build Meta-C (SCons) — Ponto de Entrada
+# Brick Build System (SCons) — Entry Point
+# Sistema de Build Brick (SCons) — Ponto de Entrada
 # =============================================================================
 import os, subprocess
 from os.path import join
 
 Help("""
-Meta-C Build System
-Sistema de Build Meta-C
+Brick Build System
+Sistema de Build Brick
 ===================
 Targets:
 Alvos:
@@ -169,8 +169,8 @@ if target == 'linux':
         print("[build] X11 nao encontrado, pulando biblioteca de janela")
 
 if has_visualizer:
-    env.Append(CFLAGS=['-DMETA_C_TRACK_BLOCKS'],
-               CXXFLAGS=['-DMETA_C_TRACK_BLOCKS'])
+    env.Append(CFLAGS=['-DBRICK_TRACK_BLOCKS'],
+               CXXFLAGS=['-DBRICK_TRACK_BLOCKS'])
 
 # ═════════════════════════════════════════════════════════════════════════════
 # 7. EXPORT (shared context for all SConscripts)
@@ -200,7 +200,7 @@ SConscript('tests/SConscript', chdir=True)
 # ═════════════════════════════════════════════════════════════════════════════
 # 9. ALIASES
 # ═════════════════════════════════════════════════════════════════════════════
-prog_path = join('build', 'meta-c' + prog_suffix)
+prog_path = join('build', 'brick' + prog_suffix)
 env.Alias('build', prog_path)
 env.Alias('install', env.Install(join(prefix, 'bin'), prog_path))
 Default('build')

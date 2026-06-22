@@ -1,5 +1,5 @@
 /**
- * window_hr.c — Hot reload support for Meta-C Window library
+ * window_hr.c — Hot reload support for Brick Window library
  *
  * Defines the global function pointer table and hooks into the
  * HotReloadEngine so that all window API calls can be swapped

@@ -6,12 +6,12 @@ RELEASE_DIR="$SCRIPT_DIR/build/release"
 BUILD_DIR="$SCRIPT_DIR/build"
 
 echo "╔═══════════════════════════════════════════════╗"
-echo "║     Meta-C Release Builder v0.1              ║"
+echo "║     Brick Release Builder v0.1              ║"
 echo "╚═══════════════════════════════════════════════╝"
 
 # ─── 1. Build release profile ──────────────────────────────────────────────
 echo ""
-echo "[1/3] Building meta-c (release)..."
+echo "[1/3] Building brick (release)..."
 cd "$SCRIPT_DIR"
 scons profile=release -j$(nproc) 2>&1 | sed 's/^/      /'
 
@@ -21,14 +21,14 @@ echo "[2/3] Assembling release..."
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 
-cp "$BUILD_DIR/meta-c" "$RELEASE_DIR/meta-c"
-strip "$RELEASE_DIR/meta-c" 2>/dev/null || true
-echo "      meta-c  ($(du -h "$RELEASE_DIR/meta-c" | cut -f1))"
+cp "$BUILD_DIR/brick" "$RELEASE_DIR/brick"
+strip "$RELEASE_DIR/brick" 2>/dev/null || true
+echo "      brick  ($(du -h "$RELEASE_DIR/brick" | cut -f1))"
 
 # ─── 3. Package VS Code extension ──────────────────────────────────────────
 echo ""
 echo "[3/3] Packaging VS Code extension..."
-VSIX="$RELEASE_DIR/meta-c-language.vsix"
+VSIX="$RELEASE_DIR/brick-language.vsix"
 
 if [ -d "$SCRIPT_DIR/vscode-ext" ]; then
     cd "$SCRIPT_DIR/vscode-ext"
@@ -73,12 +73,12 @@ echo ""
 echo ""
 echo "═══════════════════════════════════════════════════"
 echo "  Release ready: $RELEASE_DIR"
-echo "    meta-c                    (compilador + visualizer)"
-echo "    meta-c-language.vsix      (extensão VS Code)"
+echo "    brick                    (compilador + visualizer)"
+echo "    brick-language.vsix      (extensão VS Code)"
 echo "═══════════════════════════════════════════════════"
 echo ""
 echo "  Dependências necessárias:"
-echo "    - ncurses   (para meta-c --visualize / --attach)"
-echo "    - gcc, make (para meta-c build / run)"
+echo "    - ncurses   (para brick --visualize / --attach)"
+echo "    - gcc, make (para brick build / run)"
 echo "    - libX11    (Linux, apenas com window library)"
 echo "═══════════════════════════════════════════════════"

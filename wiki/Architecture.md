@@ -1,15 +1,15 @@
 # Architecture
 
-This page describes the Meta-C project architecture in detail — for contributors who want to understand how everything fits together.
+This page describes the Brick project architecture in detail — for contributors who want to understand how everything fits together.
 
 ---
 
 ## Overview
 
-Meta-C is a programming language that compiles to C. The pipeline is:
+Brick is a programming language that compiles to C. The pipeline is:
 
 ```
-.mc file  →  [Lexer] → tokens  →  [Parser] → AST  →  [Codegen] → .c file
+.brc file  →  [Lexer] → tokens  →  [Parser] → AST  →  [Codegen] → .c file
                                                                       ↓
                                                                [gcc -O3]
                                                                       ↓
@@ -26,7 +26,7 @@ The runtime (C library) is linked at the gcc step. The visualizer, debugger, and
 
 **File**: `lexer.cpp`, `lexer.h`
 
-The lexer converts a `.mc` source string into a sequence of **tokens**.
+The lexer converts a `.brc` source string into a sequence of **tokens**.
 
 **Input**: Raw source code string
 **Output**: `std::vector<Token>`
@@ -161,14 +161,14 @@ struct CodegenResult {
 **What the codegen produces:**
 
 1. **Headers** — includes for `<stdint.h>`, `<string.h>`, `block_memory.h`, `io.h`
-2. **Struct definitions** — each Meta-C struct becomes a `typedef struct` in C
+2. **Struct definitions** — each Brick struct becomes a `typedef struct` in C
    - Inheritance flattens into a `base` field (parent struct as first member)
 3. **Block context variables** — `BlockCtx* global; BlockCtx* game;`
-4. **`__meta_c_init()`** — initializes blocks at program start
+4. **`__brick_init()`** — initializes blocks at program start
 5. **Functions + methods** — each function becomes a C function
    - Methods: `StructName_method_name(StructName* this, args...)`
    - Constructors: `StructName_StructName(StructName* this, args...)`
-   - `main()` calls `__meta_c_init()` and returns `int`
+   - `main()` calls `__brick_init()` and returns `int`
 6. **`#line` directives** — embedded in the C code for source mapping
 
 **Naming conventions:**
@@ -192,7 +192,7 @@ struct CodegenResult {
 
 ## Runtime (`runtime/`)
 
-The C runtime library is linked into every Meta-C program.
+The C runtime library is linked into every Brick program.
 
 ### Block Memory (`block_memory.c` / `block_memory.h`)
 
@@ -216,12 +216,12 @@ Key functions:
 - `block_destroy(BlockCtx* ctx)` — free memory
 - `block_stats(BlockCtx* ctx)` — returns usage statistics
 
-**Optional registry** (enabled with `-DMETA_C_TRACK_BLOCKS`):
+**Optional registry** (enabled with `-DBRICK_TRACK_BLOCKS`):
 - `block_register(ctx, name)` — register a block for monitoring
 - `block_unregister(ctx)` — unregister
 - `block_find(name)` — find a block by name
 - `block_snapshot(out, max)` — snapshot all registered blocks
-- `block_shm_export()` — export to `/tmp/meta-c-mem-<pid>.bin` for visualizer
+- `block_shm_export()` — export to `/tmp/brick-mem-<pid>.bin` for visualizer
 
 ### IO (`io.c` / `io.h`)
 
@@ -250,8 +250,8 @@ The TUI memory visualizer uses ncurses to display memory blocks in real time.
 **Files**: `memvis.cpp`, `memvis.h`
 
 **Modes:**
-1. **Embedded** — `memvis_run(config)`: reads blocks from the runtime's registry (blocks must be registered with `META_C_TRACK_BLOCKS`)
-2. **Attach** — `memvis_attach(pid, config)`: reads from `/tmp/meta-c-mem-<pid>.bin` shared memory export
+1. **Embedded** — `memvis_run(config)`: reads blocks from the runtime's registry (blocks must be registered with `BRICK_TRACK_BLOCKS`)
+2. **Attach** — `memvis_attach(pid, config)`: reads from `/tmp/brick-mem-<pid>.bin` shared memory export
 
 **Display:**
 
@@ -271,24 +271,24 @@ Each block shows:
 **CLI Access:**
 
 ```bash
-build/meta-c --visualize        # standalone TUI
-build/meta-c --attach <pid>     # attach to running process
+build/brick --visualize        # standalone TUI
+build/brick --attach <pid>     # attach to running process
 ```
 
 ---
 
 ## Debugger (`debugger/`)
 
-The debugger provides GDB integration for Meta-C programs.
+The debugger provides GDB integration for Brick programs.
 
 **Files:**
 - `.gdbinit` — auto-loaded by VS Code or manually: `source debugger/.gdbinit`
-- `gdb_pretty_printers.py` — pretty-printers for `BlockCtx*`, `MetaCString`, block-allocated pointers
+- `gdb_pretty_printers.py` — pretty-printers for `BlockCtx*`, `BrickString`, block-allocated pointers
 - `gdb_commands.py` — custom GDB commands
 
 **Pretty-Printers:**
 - `BlockCtx*`: Shows name, capacity, used, peak, allocation count, usage bar
-- `MetaCString`: Shows `"content" (len=N)`
+- `BrickString`: Shows `"content" (len=N)`
 - Block-allocated pointers: Shows `@blockname+offset` with block fullness
 
 **Custom Commands:**
@@ -302,10 +302,10 @@ The debugger provides GDB integration for Meta-C programs.
 **`#line` Directives:**
 The codegen emits `#line` directives in the C code:
 ```c
-#line 42 "game.mc"
+#line 42 "game.brc"
 ```
 
-This tells GDB to show the original `.mc` file and line numbers when debugging, not the generated C.
+This tells GDB to show the original `.brc` file and line numbers when debugging, not the generated C.
 
 ---
 
@@ -315,8 +315,8 @@ This tells GDB to show the original `.mc` file and line numbers when debugging, 
 
 Capabilities:
 - **Language support**: Syntax highlighting (TextMate grammar), snippets, language configuration
-- **LSP client**: Communicates with the Meta-C compiler in `--lsp` mode for diagnostics
-- **Debug adapter**: Launch configurations for debugging compiled `.mc` programs with GDB
+- **LSP client**: Communicates with the Brick compiler in `--lsp` mode for diagnostics
+- **Debug adapter**: Launch configurations for debugging compiled `.brc` programs with GDB
 - **Memory Webview**: Visual representation of blocks during debug sessions
 
 See [VS Code Extension](VS-Code-Extension) for full details.
@@ -325,7 +325,7 @@ See [VS Code Extension](VS-Code-Extension) for full details.
 
 ## Build System (`SConstruct`)
 
-Meta-C uses **SCons** (Python) as its build system.
+Brick uses **SCons** (Python) as its build system.
 
 **Key features:**
 - **Profiles**: `release` (-O3), `debug` (-g -O0), `sanitize` (ASan+UBSan)
@@ -333,7 +333,7 @@ Meta-C uses **SCons** (Python) as its build system.
 - **Compiler detection**: Auto-detects g++ or clang++
 - **Feature detection**: Checks for ncurses, X11, pthreads
 - **Caching**: `CacheDir('.scons_cache')` for incremental builds
-- **Embedded runtime**: Python script `scripts/embed_runtime.py` generates `embedded_runtime.h/.cpp` that embeds all runtime C source files into the compiler binary, enabling `meta-c build` and `meta-c run` commands
+- **Embedded runtime**: Python script `scripts/embed_runtime.py` generates `embedded_runtime.h/.cpp` that embeds all runtime C source files into the compiler binary, enabling `brick build` and `brick run` commands
 
 **Build targets:**
 ```bash
@@ -350,7 +350,7 @@ scons install            # Install to prefix
 ## Data Flow Summary
 
 ```
-INPUT: hello.mc
+INPUT: hello.brc
 │
 ├─ Lexer
 │  → tokens: [PACKAGE("HELLO"), USING("IO"), BLOCK("global"), ...]

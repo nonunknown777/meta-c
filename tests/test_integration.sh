@@ -1,13 +1,13 @@
 #!/bin/bash
-# Meta-C Integration Test
-# Teste de Integracao Meta-C
-# Compila um .mc → .c → gcc → executa binário e verifica saída
-# Compila um .mc → .c → gcc → executa binario e verifica saida
+# Brick Integration Test
+# Teste de Integracao Brick
+# Compila um .brc → .c → gcc → executa binário e verifica saída
+# Compila um .brc → .c → gcc → executa binario e verifica saida
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$PROJECT_DIR/build"
-META_C="$BUILD_DIR/meta-c"
+BRICK="$BUILD_DIR/brick"
 RUNTIME="$PROJECT_DIR/runtime/block_memory.c $PROJECT_DIR/runtime/hot_reload.c $PROJECT_DIR/runtime/io.c"
 PASS=0
 FAIL=0
@@ -20,28 +20,28 @@ NC='\033[0m'
 mkdir -p "$BUILD_DIR"
 
 echo -e "${CYAN}========================================${NC}"
-echo -e "${CYAN}  Meta-C Integration Tests${NC}"
-echo -e "${CYAN}  Testes de Integracao Meta-C${NC}"
+echo -e "${CYAN}  Brick Integration Tests${NC}"
+echo -e "${CYAN}  Testes de Integracao Brick${NC}"
 echo -e "${CYAN}========================================${NC}"
 
 # Check if compiler exists
 # Verifica se o compilador existe
-if [ ! -f "$META_C" ]; then
+if [ ! -f "$BRICK" ]; then
     echo -e "${RED}Compiler not found. Run 'scons' first.${NC}"
     exit 1
 fi
 
 test_compile_and_run() {
     local name="$1"
-    local mc_file="$2"
+    local brc_file="$2"
     local c_file="$BUILD_DIR/${name}.c"
     local bin_file="$BUILD_DIR/${name}"
 
     echo -ne "  ${name}... "
 
-    # Compile .mc → .c
-    # Compila .mc → .c
-    $META_C "$mc_file" -o "$c_file" > /dev/null 2>&1
+    # Compile .brc → .c
+    # Compila .brc → .c
+    $BRICK "$brc_file" -o "$c_file" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${RED}FAIL (compiler error)${NC}"
         FAIL=$((FAIL + 1))
@@ -75,16 +75,16 @@ test_compile_and_run() {
 
 test_compile_and_expect() {
     local name="$1"
-    local mc_file="$2"
+    local brc_file="$2"
     local expected="$3"
     local c_file="$BUILD_DIR/${name}.c"
     local bin_file="$BUILD_DIR/${name}"
 
     echo -ne "  ${name}... "
 
-    # Compile .mc → .c
-    # Compila .mc → .c
-    $META_C "$mc_file" -o "$c_file" > /dev/null 2>&1
+    # Compile .brc → .c
+    # Compila .brc → .c
+    $BRICK "$brc_file" -o "$c_file" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${RED}FAIL (compiler error)${NC}"
         FAIL=$((FAIL + 1))
@@ -128,11 +128,11 @@ echo ""
 echo "Compiling and running examples..."
 echo "Compilando e executando exemplos..."
 
-# Test with a simple .mc example
-# Testa com um exemplo .mc simples
+# Test with a simple .brc example
+# Testa com um exemplo .brc simples
 # Create a minimal test that compiles but doesn't need I/O
 # Cria um teste minimo que compila mas nao precisa de I/O
-cat > "$BUILD_DIR/test_simple.mc" << 'EOF'
+cat > "$BUILD_DIR/test_simple.brc" << 'EOF'
 package TEST
 
 block global = 1MB
@@ -156,11 +156,11 @@ fn main() {
 }
 EOF
 
-test_compile_and_run "test_simple" "$BUILD_DIR/test_simple.mc"
+test_compile_and_run "test_simple" "$BUILD_DIR/test_simple.brc"
 
 # Test blocks
 # Testa blocos
-cat > "$BUILD_DIR/test_blocks.mc" << 'EOF'
+cat > "$BUILD_DIR/test_blocks.brc" << 'EOF'
 package TESTBLOCK
 
 block global = 1MB
@@ -184,7 +184,7 @@ fn main() {
 }
 EOF
 
-test_compile_and_run "test_blocks" "$BUILD_DIR/test_blocks.mc"
+test_compile_and_run "test_blocks" "$BUILD_DIR/test_blocks.brc"
 
 echo ""
 echo "Testing IO (print)..."
@@ -192,7 +192,7 @@ echo "Testando IO (print)..."
 
 # Test IO: print with various types
 # Testa IO: print com varios tipos
-cat > "$BUILD_DIR/test_io_print.mc" << 'EOF'
+cat > "$BUILD_DIR/test_io_print.brc" << 'EOF'
 package TEST_IO
 
 using IO
@@ -206,7 +206,7 @@ fn main() {
 }
 EOF
 
-test_compile_and_expect "test_io_print" "$BUILD_DIR/test_io_print.mc" \
+test_compile_and_expect "test_io_print" "$BUILD_DIR/test_io_print.brc" \
 "hello
 42
 3.140000
@@ -215,7 +215,7 @@ true
 
 # Test IO: formatted print
 # Testa IO: print formatado
-cat > "$BUILD_DIR/test_io_format.mc" << 'EOF'
+cat > "$BUILD_DIR/test_io_format.brc" << 'EOF'
 package TEST_IO_FMT
 
 using IO
@@ -225,12 +225,12 @@ fn main() {
 }
 EOF
 
-test_compile_and_expect "test_io_format" "$BUILD_DIR/test_io_format.mc" \
+test_compile_and_expect "test_io_format" "$BUILD_DIR/test_io_format.brc" \
 "int=10, str=test"
 
 # Test IO: print without using → should fail to compile
 # Testa IO: print sem using → deve falhar ao compilar
-cat > "$BUILD_DIR/test_io_no_using.mc" << 'EOF'
+cat > "$BUILD_DIR/test_io_no_using.brc" << 'EOF'
 package TEST_NO_IO
 
 fn main() {
@@ -239,7 +239,7 @@ fn main() {
 EOF
 
 echo -n "  test_io_no_using... "
-$META_C "$BUILD_DIR/test_io_no_using.mc" -o "$BUILD_DIR/test_io_no_using.c" > /dev/null 2>&1
+$BRICK "$BUILD_DIR/test_io_no_using.brc" -o "$BUILD_DIR/test_io_no_using.c" > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo -e "${GREEN}PASS (expected compiler error)${NC}"
     PASS=$((PASS + 1))

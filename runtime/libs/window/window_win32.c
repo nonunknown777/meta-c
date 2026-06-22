@@ -1,5 +1,5 @@
 /**
- * window_win32.c — Win32 backend for Meta-C Window library
+ * window_win32.c — Win32 backend for Brick Window library
  *
  * Uses raw Win32 API (user32 + gdi32). The event queue integrates
  * with the Windows message pump via PeekMessage().
@@ -52,7 +52,7 @@ static int win32_vk_to_meta(WPARAM vk) {
 
 /* ─── Window class registration (one-time) ─── */
 
-static const char* META_WIN_CLASS = "MetaCWindow";
+static const char* META_WIN_CLASS = "BrickWindow";
 
 static int register_window_class(HINSTANCE inst) {
     WNDCLASSW wc;
@@ -62,7 +62,7 @@ static int register_window_class(HINSTANCE inst) {
     wc.hInstance     = inst;
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wc.lpszClassName = L"MetaCWindow";
+    wc.lpszClassName = L"BrickWindow";
     return RegisterClassW(&wc) != 0;
 }
 
@@ -216,7 +216,7 @@ MetaWindow* meta_window_create(
         memcpy(w->title, title, len);
         w->title[len] = '\0';
     } else {
-        memcpy(w->title, "Meta-C", 7);
+        memcpy(w->title, "Brick", 7);
     }
 
     DWORD style = WS_OVERLAPPEDWINDOW;
@@ -239,7 +239,7 @@ MetaWindow* meta_window_create(
     AdjustWindowRect(&rect, style, FALSE);
 
     HWND hwnd = CreateWindowExW(
-        ex_style, L"MetaCWindow", wtitle,
+        ex_style, L"BrickWindow", wtitle,
         style,
         CW_USEDEFAULT, CW_USEDEFAULT,
         rect.right - rect.left,

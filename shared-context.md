@@ -1,4 +1,4 @@
-# Meta-C Language Specification v0.1
+# Brick Language Specification v0.1
 
 ## Filosofia
 ## Philosophy
@@ -17,7 +17,7 @@ Inspired by GDScript with braces { } and explicit types.
 Indentation: 4 spaces.
 
 ## Packages
-```meta-c
+```brick
 package SPRITES              // declara package
 package SPRITES.EFFECTS      // sub-package hierárquico
 
@@ -28,7 +28,7 @@ private int internal_var     // visível só no próprio package
 ```
 
 ## Structs (OOP)
-```meta-c
+```brick
 struct Player extends Entity {
     int hp
     String name
@@ -50,7 +50,7 @@ interface Damageable {
 
 ## Memória (Blocos)
 ## Memory (Blocks)
-```meta-c
+```brick
 // Declaração de blocos (no arquivo main principal)
 block global = 256MB
 block game   = 64MB
@@ -93,7 +93,7 @@ game.reset()     // libera TUDO no bloco game
 
 ## Tipos
 ## Types
-```meta-c
+```brick
 // Tipos de largura fixa / Fixed-width types
 i8 i16 i32 i64   // inteiros com sinal / signed integers
 u8 u16 u32 u64   // inteiros sem sinal / unsigned integers
@@ -116,7 +116,7 @@ null         // ponteiro nulo / null pointer
 ```
 
 ### Literais com sufixo / Suffixed literals
-```meta-c
+```brick
 42u8   42u16  42u32  42u64    // unsigned
 42i8   42i16  42i32  42i64    // signed (42 = auto)
 3.14f32  3.14f64              // float
@@ -133,7 +133,7 @@ null         // ponteiro nulo / null pointer
 
 ## Funções
 ## Functions
-```meta-c
+```brick
 fn main() { }                // entry point
 
 fn add(int a, int b) -> int {
@@ -148,7 +148,7 @@ fn void log(String msg) {
 
 ## Controle de Fluxo
 ## Flow Control
-```meta-c
+```brick
 if cond { }
 else { }
 
@@ -161,12 +161,12 @@ return expr
 
 ## Erros
 ## Errors
-```meta-c
+```brick
 error("msg")     // imprime e aborta (panic) / prints and aborts (panic)
 ```
 
 ## I/O (Package IO)
-```meta-c
+```brick
 using IO
 
 fn main() {
@@ -198,35 +198,35 @@ fn main() {
 ## Compilação
 ## Compilation
 ```bash
-meta-c input.mc -o output.c    # gera C (com #line directives)
+brick input.brc -o output.c    # gera C (com #line directives)
 gcc -O3 output.c runtime/block_memory.c runtime/io.c -o programa
 gcc -g output.c runtime/block_memory.c runtime/hot_reload.c runtime/io.c -o programa   # debug
 ```
 
 ## Debugging
-- `#line` directives no código C gerado mapeiam .mc → .c
-- GDB mostra código-fonte Meta-C original, não o C gerado
+- `#line` directives no código C gerado mapeiam .brc → .c
+- GDB mostra código-fonte Brick original, não o C gerado
 - GDB pretty-printers para BlockCtx (info blocks, block name)
 - VS Code webview com visualização gráfica dos blocos de memória
 - Comandos GDB custom: `info blocks`, `block <nome>`, `block-watch`
-- `#line` directives in the generated C code map .mc → .c
-- GDB shows the original Meta-C source, not the generated C
+- `#line` directives in the generated C code map .brc → .c
+- GDB shows the original Brick source, not the generated C
 - GDB pretty-printers for BlockCtx (info blocks, block name)
 - VS Code webview with graphical visualization of memory blocks
 - Custom GDB commands: `info blocks`, `block <name>`, `block-watch`
 
 ## Hot Reload
-Programas compilados com Meta-C suportam hot reload via dlopen.
+Programas compilados com Brick suportam hot reload via dlopen.
 Cada package compila para um .so separado.
 Monitoramento via inotify. Swap atômico de ponteiros de função.
-Programs compiled with Meta-C support hot reload via dlopen.
+Programs compiled with Brick support hot reload via dlopen.
 Each package compiles to a separate .so.
 Monitoring via inotify. Atomic swap of function pointers.
 
 ## Arquitetura do Compilador
 ## Compiler Architecture
 ```
-.mc file
+.brc file
   → Lexer (tokens)
   → Parser (AST + package resolution)
   → Codegen (type check + geração C com #line)
@@ -236,7 +236,7 @@ Monitoring via inotify. Atomic swap of function pointers.
 ```
 
 ```
-.mc file
+.brc file
   → Lexer (tokens)
   → Parser (AST + package resolution)
   → Codegen (type check + C generation with #line)

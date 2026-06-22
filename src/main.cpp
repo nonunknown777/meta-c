@@ -14,22 +14,24 @@
 #include "parser/package.h"
 #include "codegen/codegen.h"
 #include "shared/lsp.h"
+#include "shared/version.h"
 #include "embedded_runtime.h"
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
 #include "memvis.h"
 #endif
 
 void print_usage() {
-    std::cerr << "Meta-C Compiler v0.1\n";
+    std::cerr << "Brick Compiler v" << BRICK_VERSION_STRING << "\n";
     std::cerr << "Usage:\n";
-    std::cerr << "  meta-c <input.mc> [-o output.c] [--lsp]\n";
-    std::cerr << "  meta-c build <input.mc> [-o output] [--release]\n";
-    std::cerr << "  meta-c run   <input.mc> [--release]\n";
-#ifdef META_C_TRACK_BLOCKS
-    std::cerr << "  meta-c --visualize <file>   compile, run and visualize memory blocks\n";
-    std::cerr << "  meta-c --attach <pid>       attach visualizer to running process\n";
+    std::cerr << "  brick <input.brc> [-o output.c] [--lsp]\n";
+    std::cerr << "  brick build <input.brc> [-o output] [--release]\n";
+    std::cerr << "  brick run   <input.brc> [--release]\n";
+#ifdef BRICK_TRACK_BLOCKS
+    std::cerr << "  brick --visualize <file>   compile, run and visualize memory blocks\n";
+    std::cerr << "  brick --attach <pid>       attach visualizer to running process\n";
 #endif
-    std::cerr << "  meta-c --help\n";
+    std::cerr << "  brick --help\n";
+    std::cerr << "  brick --version\n";
     std::cerr << "\n";
     std::cerr << "  --release   omit tracking overhead (max performance, no visualizer)\n";
 }
@@ -66,7 +68,7 @@ static int cmd_build(const std::string& input, const std::string& output,
                      bool run_mode, bool release_mode) {
     // 1. Temp dir for build artifacts
     // 1. Diretorio temporario para artefatos de build
-    char tmpdir[] = "/tmp/meta-c-build-XXXXXX";
+    char tmpdir[] = "/tmp/brick-build-XXXXXX";
     if (!mkdtemp(tmpdir)) {
         std::cerr << "error: could not create temp directory\n";
         return 1;
@@ -75,7 +77,7 @@ static int cmd_build(const std::string& input, const std::string& output,
 
     // 2. Extract embedded runtime files
     // 2. Extrai arquivos de runtime embutidos
-    auto& info = meta_c::embedded::runtime_info;
+    auto& info = brick::embedded::runtime_info;
     for (int i = 0; i < info.num_sources; i++) {
         auto& f = info.sources[i];
         std::string fp = tmp + "/" + f.name;
@@ -86,11 +88,11 @@ static int cmd_build(const std::string& input, const std::string& output,
         }
     }
 
-    // 3. Compile .mc -> .c
-    // 3. Compila .mc -> .c
+    // 3. Compile .brc -> .c
+    // 3. Compila .brc -> .c
     std::string source = read_file(input);
-    auto tokens = meta_c::tokenize(source, input);
-    auto parse_result = meta_c::parse(tokens);
+    auto tokens = brick::tokenize(source, input);
+    auto parse_result = brick::parse(tokens);
     if (!parse_result.errors.empty()) {
         for (const auto& e : parse_result.errors)
             std::cerr << "error: " << e << "\n";
@@ -98,10 +100,10 @@ static int cmd_build(const std::string& input, const std::string& output,
     }
     if (!parse_result.ast) return 1;
 
-    auto packages = meta_c::resolve_packages(parse_result.ast, input);
-    std::vector<std::unique_ptr<meta_c::ProgramNode>> asts;
+    auto packages = brick::resolve_packages(parse_result.ast, input);
+    std::vector<std::unique_ptr<brick::ProgramNode>> asts;
     asts.push_back(std::move(parse_result.ast));
-    auto codegen_result = meta_c::generate_c(asts, packages);
+    auto codegen_result = brick::generate_c(asts, packages);
     for (const auto& e : codegen_result.errors)
         std::cerr << "error: " << e << "\n";
     if (!codegen_result.success) return 1;
@@ -135,7 +137,7 @@ static int cmd_build(const std::string& input, const std::string& output,
     // 6. Invoke C compiler
     // 6. Invoca compilador C
     std::string bin = run_mode ? (tmp + "/_run") : output;
-    std::string track = release_mode ? "" : " -DMETA_C_TRACK_BLOCKS";
+    std::string track = release_mode ? "" : " -DBRICK_TRACK_BLOCKS";
     std::string cmd = std::string(info.cc) + " -O3" + track + " -I" + tmp + " "
         + c_path + srcs + " -o " + bin + flags;
 
@@ -170,7 +172,7 @@ static int cmd_build(const std::string& input, const std::string& output,
 static int cmd_run(const std::string& input) {
     // Build to a temp binary
     // Compila para binario temporario
-    char tmpdir[] = "/tmp/meta-c-run-XXXXXX";
+    char tmpdir[] = "/tmp/brick-run-XXXXXX";
     if (!mkdtemp(tmpdir)) {
         std::cerr << "error: could not create temp directory\n";
         return 1;
@@ -226,7 +228,7 @@ int main(int argc, char** argv) {
     // ─── Flags do Visualizador ──────────────────────────────────────
     bool visualize_mode = false;
     int attach_pid = 0;
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
     for (int i = arg_idx; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "--visualize") {
@@ -245,6 +247,9 @@ int main(int argc, char** argv) {
         if (arg == "--help") {
             print_usage();
             return 0;
+        } else if (arg == "--version") {
+            std::cout << "Brick Compiler v" << BRICK_VERSION_STRING << "\n";
+            return 0;
         } else if (arg == "--lsp") {
             lsp_mode = true;
         } else if (arg == "--release") {
@@ -262,16 +267,16 @@ int main(int argc, char** argv) {
 
     // ─── Visualize mode: compile + run + attach TUI ────────────
     // ─── Modo visualizar: compila + executa + anexa TUI ────────
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
     if (visualize_mode) {
         if (input_file.empty()) {
-            std::cerr << "error: --visualize requires a .mc file\n";
+            std::cerr << "error: --visualize requires a .brc file (or try --attach <pid>)\n";
             return 1;
         }
 
         // Build to temp binary
         // Compila para binario temporario
-        char tmpdir[] = "/tmp/meta-c-viz-XXXXXX";
+        char tmpdir[] = "/tmp/brick-viz-XXXXXX";
         if (!mkdtemp(tmpdir)) {
             std::cerr << "error: could not create temp directory\n";
             return 1;
@@ -354,21 +359,21 @@ int main(int argc, char** argv) {
 
     std::string source = read_file(input_file);
 
-    meta_c::LspOutput lsp_out;
+    brick::LspOutput lsp_out;
 
-    auto tokens = meta_c::tokenize(source, input_file);
+    auto tokens = brick::tokenize(source, input_file);
     if (lsp_mode) {
         lsp_out.tokens = tokens;
     } else {
         std::cout << "[lexer] " << tokens.size() << " tokens\n";
     }
 
-    auto parse_result = meta_c::parse(tokens);
+    auto parse_result = brick::parse(tokens);
     if (!parse_result.errors.empty()) {
         for (const auto& err : parse_result.errors) {
             if (lsp_mode) {
                 lsp_out.errors.push_back(
-                    meta_c::parse_error_string(err, input_file));
+                    brick::parse_error_string(err, input_file));
             } else {
                 std::cerr << "error: " << err << "\n";
             }
@@ -378,23 +383,23 @@ int main(int argc, char** argv) {
 
     if (!parse_result.ast) {
         if (!lsp_mode) return 1;
-        std::cout << meta_c::emit_lsp_json(lsp_out);
+        std::cout << brick::emit_lsp_json(lsp_out);
         return 1;
     }
     if (!lsp_mode) std::cout << "[parser] AST built\n";
 
-    auto packages = meta_c::resolve_packages(parse_result.ast, input_file);
+    auto packages = brick::resolve_packages(parse_result.ast, input_file);
     if (!lsp_mode) std::cout << "[package] resolved\n";
 
-    std::vector<std::unique_ptr<meta_c::ProgramNode>> asts;
+    std::vector<std::unique_ptr<brick::ProgramNode>> asts;
     asts.push_back(std::move(parse_result.ast));
 
-    auto codegen_result = meta_c::generate_c(asts, packages);
+    auto codegen_result = brick::generate_c(asts, packages);
 
     for (const auto& err : codegen_result.errors) {
         if (lsp_mode) {
             lsp_out.errors.push_back(
-                meta_c::parse_error_string(err, input_file));
+                brick::parse_error_string(err, input_file));
         } else {
             std::cerr << "error: " << err << "\n";
         }
@@ -403,11 +408,11 @@ int main(int argc, char** argv) {
     if (!lsp_mode) std::cout << "[codegen] C code generated\n";
 
     if (!asts.empty() && asts[0]) {
-        meta_c::collect_symbols(asts[0].get(), lsp_out.symbols);
+        brick::collect_symbols(asts[0].get(), lsp_out.symbols);
     }
 
     if (lsp_mode) {
-        std::cout << meta_c::emit_lsp_json(lsp_out);
+        std::cout << brick::emit_lsp_json(lsp_out);
         return lsp_out.errors.empty() && codegen_result.success ? 0 : 1;
     }
 

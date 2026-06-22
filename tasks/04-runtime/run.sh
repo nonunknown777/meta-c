@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 konsole --new-tab \
-        --title "🧠 Meta-C: Runtime" \
+        --title "🧠 Brick: Runtime" \
         --workdir "$SCRIPT_DIR" \
         -e opencode

@@ -1,8 +1,8 @@
-# Meta-C Language Reference
+# Brick Language Reference
 
-Everything you need to know to write code in Meta-C.
+> Everything you need to know to write code in Brick.
 
-## File Structure (.mc)
+## File Structure (.brc)
 
 ```
 package NAME              ← which package this file belongs to
@@ -16,6 +16,8 @@ struct Player { }          ← your structs with methods
 fn main() { }              ← program entry point
 ```
 
+> Every `.brc` file starts with a package declaration, optional imports, block declarations, structs, and functions.
+
 ## Packages
 
 ```
@@ -25,7 +27,7 @@ using SPRITES                      ← import everything from package
 private int secret                 ← visible only within the package
 ```
 
-Everything is `public` by default. Use `private` to hide.
+> Everything is `public` by default. Use `private` to hide.
 
 ## Structs (with methods!)
 
@@ -49,6 +51,8 @@ struct Player {
 }
 ```
 
+> Structs bundle data and methods together. The constructor has the same name as the struct.
+
 ### Inheritance
 
 ```
@@ -62,6 +66,8 @@ struct NPC extends Player {
 }
 ```
 
+> A struct can extend another, inheriting its fields.
+
 ### Interface
 
 ```
@@ -73,6 +79,8 @@ struct Enemy : Damageable {       ← or "extends" + "implements"
     fn take_damage(int d) { }
 }
 ```
+
+> Interfaces define method contracts that structs must implement.
 
 ## Memory Blocks
 
@@ -93,6 +101,8 @@ int hp = p.get_hp()
 game.reset()               ← clears EVERYTHING in block game (super fast)
 ```
 
+> Memory blocks are the heart of Brick. They are contiguous regions of memory. Allocating is just moving a pointer — super fast. Resetting a block clears everything at once.
+
 Rules:
 - `global` is the default block (must be declared in main)
 - `block name: { }` changes the default block within that scope
@@ -104,7 +114,7 @@ Rules:
 
 ### Fixed-Width Types
 
-| Meta-C | C Type       | Size    | Description          |
+| Brick | C Type       | Size    | Description          |
 |--------|-------------|---------|----------------------|
 | `i8`   | `int8_t`    | 8 bits  | Signed integer       |
 | `i16`  | `int16_t`   | 16 bits | Signed integer       |
@@ -119,6 +129,8 @@ Rules:
 | `usize`| `size_t`    | pointer | Unsigned pointer-size|
 | `isize`| `ptrdiff_t` | pointer | Signed pointer-size  |
 
+> Every number type has a fixed, predictable size — no guessing.
+
 ### Aliases
 
 | Alias    | Maps To | Notes                      |
@@ -131,12 +143,14 @@ Rules:
 | `long`   | `i64`   | Long integer               |
 | `double` | `f64`   | Double precision           |
 
+> Friendly names for the most common types.
+
 ### Other Types
 
-| Meta-C     | C Type         | Description                  |
+| Brick     | C Type         | Description                  |
 |------------|----------------|------------------------------|
 | `bool`     | `uint8_t`      | true/false                   |
-| `String`   | `MetaCString`  | Built-in string (dynamic)    |
+| `String`   | `BrickString`  | Built-in string (dynamic)    |
 | `T[N]`     | `T[]`          | Fixed array of N elements    |
 | `null`     | `NULL`         | Null pointer                 |
 | `void`     | `void`         | No return value (functions)  |
@@ -150,16 +164,16 @@ Rules:
 42usz  42isize                 ← pointer-size types
 ```
 
-- Unsuffixed literals infer their type from context (fits target -> allowed)
-- Overflow on compile-time literal -> error
+> Unsuffixed literals infer their type from context (fits target -> allowed).
+> Overflow on compile-time literal -> error.
 
 ### Type Rules
 
-- **Widening** allowed: i8 -> i16, u8 -> u64, f32 -> f64
-- **Narrowing** prohibited: i64 -> i32 = error
-- **Signed <-> Unsigned** same rank prohibited: i32 <-> u32 = error
-- **Int + Float** -> Float (int promotes to float)
-- **Mixed expressions**: promotion to type that fits both operands
+> - **Widening** allowed: i8 -> i16, u8 -> u64, f32 -> f64
+> - **Narrowing** prohibited: i64 -> i32 = error
+> - **Signed <-> Unsigned** same rank prohibited: i32 <-> u32 = error
+> - **Int + Float** -> Float (int promotes to float)
+> - **Mixed expressions**: promotion to type that fits both operands
 
 ## Functions
 
@@ -175,7 +189,7 @@ fn log(String msg) {                   ← void function (no return)
 }
 ```
 
-Parameters and return values go to the compiler's internal "anonymous block".
+> Parameters and return values go to the compiler's internal "anonymous block".
 
 ## Flow Control
 
@@ -189,6 +203,8 @@ for int i = 0; i < 10; i++ { }
 
 return expr
 ```
+
+> Standard flow control: if/else, while, for, and return.
 
 ## Operators
 
@@ -213,7 +229,7 @@ String nome = "Felipe" @game           ← string in a block
 String empty = ""                      ← empty string
 ```
 
-String is a built-in type. It lives in blocks like any other struct.
+> String is a built-in type. It lives in blocks like any other struct.
 
 ## Arrays
 
@@ -222,7 +238,7 @@ int[10] arr                            ← fixed array of 10 integers
 int[5] vals = int[5] @game             ← array in a block
 ```
 
-Fixed size defined at declaration.
+> Fixed size defined at declaration.
 
 ## Error Handling
 
@@ -230,7 +246,7 @@ Fixed size defined at declaration.
 error("something went wrong")          ← prints message and aborts
 ```
 
-No try/catch. If something goes wrong, the program prints the error and exits.
+> No try/catch. If something goes wrong, the program prints the error and exits.
 
 ## Visibility
 
@@ -239,13 +255,15 @@ public int x                           ← visible everywhere (default)
 private int y                          ← visible only within own package
 ```
 
+> `public` is the default. `private` restricts visibility to the package.
+
 ## Comments
 
 ```
 // This is a comment  ← line comment only
 ```
 
-Line comments only (`//`). Block comments (`/* */`) are not supported.
+> Line comments only (`//`). Block comments (`/* */`) are not supported.
 
 ## Complete Example
 
@@ -285,3 +303,5 @@ fn main() {
     game.reset()
 }
 ```
+
+> This example shows a complete Brick program with package, blocks, interface, struct, and main function.

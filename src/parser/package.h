@@ -1,5 +1,5 @@
-#ifndef META_C_PACKAGE_H
-#define META_C_PACKAGE_H
+#ifndef BRICK_PACKAGE_H
+#define BRICK_PACKAGE_H
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include <set>
 #include "ast.h"
 
-namespace meta_c {
+namespace brick {
 
 struct PackageInfo {
     std::string full_name;
@@ -59,7 +59,7 @@ bool is_accessible(const PackageTable& table,
                    const std::string& from_package,
                    const std::string& symbol_name);
 
-} // namespace meta_c
-  // namespace meta_c
+} // namespace brick
+  // namespace brick
 
 #endif

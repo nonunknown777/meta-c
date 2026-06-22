@@ -1,5 +1,5 @@
-# Meta-C GDB Pretty-Printers
-# Pretty-Printers GDB do Meta-C
+# Brick GDB Pretty-Printers
+# Pretty-Printers GDB do Brick
 # Auto-loaded via .gdbinit
 # Carregado automaticamente via .gdbinit
 #
@@ -7,8 +7,8 @@
 # Fornece:
 #   - BlockCtx*: block name, size, usage, allocations
 #   - BlockCtx*: nome do bloco, tamanho, uso, alocacoes
-#   - MetaCString: string content
-#   - MetaCString: conteudo da string
+#   - BrickString: string content
+#   - BrickString: conteudo da string
 #   - Block-allocated ptrs: offset within block
 #   - Ponteiros alocados em bloco: offset dentro do bloco
 
@@ -16,8 +16,8 @@ import gdb
 import re
 
 class BlockCtxPrinter:
-    """Pretty-printer for Meta-C BlockCtx"""
-    """Pretty-printer para Meta-C BlockCtx"""
+    """Pretty-printer for Brick BlockCtx"""
+    """Pretty-printer para Brick BlockCtx"""
 
     def __init__(self, val):
         self.val = val
@@ -48,9 +48,9 @@ class BlockCtxPrinter:
         return 'string'
 
 
-class MetaCStringPrinter:
-    """Pretty-printer for Meta-C String (struct { char* data; int len; })"""
-    """Pretty-printer para Meta-C String (struct { char* data; int len; })"""
+class BrickStringPrinter:
+    """Pretty-printer for Brick String (struct { char* data; int len; })"""
+    """Pretty-printer para Brick String (struct { char* data; int len; })"""
 
     def __init__(self, val):
         self.val = val
@@ -200,21 +200,21 @@ def block_alloc_lookup(val):
 
 
 def register_printers():
-    """Register all Meta-C pretty-printers with GDB"""
-    """Registra todos os pretty-printers Meta-C no GDB"""
+    """Register all Brick pretty-printers with GDB"""
+    """Registra todos os pretty-printers Brick no GDB"""
 
     def block_ctx_lookup(val):
         if val.type.name in ('BlockCtx', 'struct BlockCtx'):
             return BlockCtxPrinter(val)
         return None
 
-    def meta_c_string_lookup(val):
-        if val.type.name in ('MetaCString', 'struct MetaCString'):
-            return MetaCStringPrinter(val)
+    def brick_string_lookup(val):
+        if val.type.name in ('BrickString', 'struct BrickString'):
+            return BrickStringPrinter(val)
         return None
 
     gdb.pretty_printers.append(block_ctx_lookup)
-    gdb.pretty_printers.append(meta_c_string_lookup)
+    gdb.pretty_printers.append(brick_string_lookup)
     gdb.pretty_printers.append(block_alloc_lookup)
 
 

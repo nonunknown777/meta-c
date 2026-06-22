@@ -1,5 +1,5 @@
-#ifndef META_C_IO_H
-#define META_C_IO_H
+#ifndef BRICK_IO_H
+#define BRICK_IO_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -11,7 +11,7 @@ extern "C" {
 typedef struct {
     char*  data;
     size_t len;
-} MetaCString;
+} BrickString;
 
 void io_print_u8(uint8_t val);
 void io_print_u16(uint16_t val);
@@ -37,5 +37,5 @@ void io_printf(const char* fmt, ...);
 }
 #endif
 
-#endif // META_C_IO_H
-     // META_C_IO_H
+#endif // BRICK_IO_H
+     // BRICK_IO_H

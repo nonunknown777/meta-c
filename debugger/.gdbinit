@@ -1,5 +1,5 @@
-# Meta-C GDB Configuration
-# Configuracao GDB do Meta-C
+# Brick GDB Configuration
+# Configuracao GDB do Brick
 # Auto-loaded from VS Code launch.json: source debugger/.gdbinit
 # Carregado automaticamente do VS Code launch.json: source debugger/.gdbinit
 #
@@ -10,38 +10,38 @@
 
 python
 import sys, os
-print("META-C|gdbinit LOADED cwd=" + os.getcwd(), file=sys.stderr)
+print("BRICK|gdbinit LOADED cwd=" + os.getcwd(), file=sys.stderr)
 
 _find_root = os.getcwd()
-_meta_c_root = None
+_brick_root = None
 for _ in range(20):
     _test = os.path.join(_find_root, "debugger")
     if os.path.isdir(_test) and os.path.isfile(os.path.join(_test, "gdb_commands.py")):
-        _meta_c_root = _find_root
+        _brick_root = _find_root
         break
     _parent = os.path.dirname(_find_root)
     if _parent == _find_root:
         break
     _find_root = _parent
 
-if _meta_c_root:
-    _debugger_dir = os.path.join(_meta_c_root, "debugger")
-    print("META-C|gdbinit ROOT=" + _meta_c_root, file=sys.stderr)
+if _brick_root:
+    _debugger_dir = os.path.join(_brick_root, "debugger")
+    print("BRICK|gdbinit ROOT=" + _brick_root, file=sys.stderr)
     if _debugger_dir not in sys.path:
         sys.path.insert(0, _debugger_dir)
     _pp_path = os.path.join(_debugger_dir, "gdb_pretty_printers.py")
     _cmd_path = os.path.join(_debugger_dir, "gdb_commands.py")
     if os.path.isfile(_pp_path):
         exec(open(_pp_path).read())
-        print("META-C|gdbinit loaded pretty_printers", file=sys.stderr)
-        print("META-C|gdbinit carregou pretty_printers", file=sys.stderr)
+        print("BRICK|gdbinit loaded pretty_printers", file=sys.stderr)
+        print("BRICK|gdbinit carregou pretty_printers", file=sys.stderr)
     if os.path.isfile(_cmd_path):
         exec(open(_cmd_path).read())
-        print("META-C|gdbinit loaded commands", file=sys.stderr)
-        print("META-C|gdbinit carregou commands", file=sys.stderr)
+        print("BRICK|gdbinit loaded commands", file=sys.stderr)
+        print("BRICK|gdbinit carregou commands", file=sys.stderr)
 else:
-    print("META-C|gdbinit ROOT NOT FOUND (searched from " + os.getcwd() + ")", file=sys.stderr)
-    print("META-C|gdbinit RAIZ NAO ENCONTRADA (buscou de " + os.getcwd() + ")", file=sys.stderr)
+    print("BRICK|gdbinit ROOT NOT FOUND (searched from " + os.getcwd() + ")", file=sys.stderr)
+    print("BRICK|gdbinit RAIZ NAO ENCONTRADA (buscou de " + os.getcwd() + ")", file=sys.stderr)
 end
 
 # General settings
@@ -58,7 +58,7 @@ set style enabled on
 
 # Marker to confirm .gdbinit was loaded
 # Marcador para confirmar que .gdbinit foi carregado
-set $_meta_c_loaded = 1
+set $_brick_loaded = 1
 
 # Aliases
 # Aliases

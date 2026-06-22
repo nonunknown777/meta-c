@@ -20,7 +20,7 @@ struct Greeter {
 }
 
 fn main() {
-    print("Hello from Meta-C!")
+    print("Hello from Brick!")
     print(42)
     print(3.14)
     print(true)

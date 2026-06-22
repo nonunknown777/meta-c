@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/logo.png" alt="Meta-C Logo" width="200"/>
+  <img src="docs/logo.png" alt="Brick Logo" width="200"/>
 </p>
 
-<h1 align="center">Meta-C</h1>
+<h1 align="center">Brick</h1>
 <p align="center">
   <em>Uma linguagem OOP de alta performance que compila para C puro.</em>
 </p>
@@ -15,7 +15,7 @@
 
 ## 👋 Demonstração Rápida
 
-```meta-c
+```brick
 package DEMO
 
 using IO
@@ -50,10 +50,10 @@ fn main() {
 ## Compilar & Executar
 
 ```bash
-meta-c run exemplo.mc
+brick run exemplo.brc
 ```
 
-Sem `gcc` manual — `meta-c build` e `meta-c run` cuidam de tudo.
+Sem `gcc` manual — `brick build` e `brick run` cuidam de tudo.
 
 ---
 
@@ -65,7 +65,7 @@ Sem `gcc` manual — `meta-c build` e `meta-c run` cuidam de tudo.
 - **Sem Pilha para Dados** — Tudo vive em blocos gerenciados. Reset de bloco recupera tudo instantaneamente.
 - **Hot Reload Nativo** — Troque código sem parar o programa via `dlopen` + `inotify`.
 - **Visualizador TUI** — Dashboard ncurses mostrando estado dos blocos em tempo real.
-- **Integração GDB** — Debug no código `.mc` original com pretty-printers para `BlockCtx`.
+- **Integração GDB** — Debug no código `.brc` original com pretty-printers para `BlockCtx`.
 - **Extensão VS Code** — Syntax highlighting, LSP e webview de memória.
 - **Tipos de Largura Fixa** — `i8/i16/i32/i64`, `u8/u16/u32/u64`, `f32/f64`, `usize`/`isize`.
 
@@ -83,23 +83,23 @@ Sem `gcc` manual — `meta-c build` e `meta-c run` cuidam de tudo.
 ### Build do Compilador
 
 ```bash
-git clone https://github.com/nonunknown777/meta-c.git
-cd meta-c
+git clone https://github.com/nonunknown777/brick.git
+cd brick
 scons                        # build release
 # ou
 ./build-release.sh           # release completo + extensão VS Code
 ```
 
-O binário `meta-c` estará em `build/`.
+O binário `brick` estará em `build/`.
 
 ### Executar um Demo
 
 ```bash
 # Compilar e executar em um passo
-meta-c run examples/hello.mc
+brick run examples/hello.brc
 
 # Ou compilar para binário primeiro
-meta-c build examples/hello.mc -o hello
+brick build examples/hello.brc -o hello
 ./hello
 ```
 
@@ -112,8 +112,8 @@ scons test                   # todos os testes unitários
 ### Visualizar Memória
 
 ```bash
-meta-c --visualize examples/hello.mc   # compila, executa, mostra TUI
-meta-c --attach <pid>                  # anexa a processo rodando
+brick --visualize examples/hello.brc   # compila, executa, mostra TUI
+brick --attach <pid>                  # anexa a processo rodando
 ```
 
 ---
@@ -147,7 +147,7 @@ malloc:      1.000.000 allocs de 64B em 0.039s   ← baseline
 
 ### Tipos de Largura Fixa e Interface
 
-```meta-c
+```brick
 package EXEMPLO
 
 using IO
@@ -180,10 +180,10 @@ fn main() {
 
 ```bash
 # Compilar com suporte a hot reload
-meta-c build jogo.mc --release -o jogo
+brick build jogo.brc --release -o jogo
 
-# Executar — Meta-C monitora arquivos via inotify
-# Edite seu .mc e salve — o binário recarrega automaticamente
+# Executar — Brick monitora arquivos via inotify
+# Edite seu .brc e salve — o binário recarrega automaticamente
 ./jogo
 ```
 
@@ -197,7 +197,7 @@ meta-c build jogo.mc --release -o jogo
 | `runtime/`     | Runtime C (alocador de blocos, IO, hot reload)          |
 | `visualizer/`  | TUI ncurses para visualização de memória                |
 | `debugger/`    | Pretty-printers GDB, comandos custom, `.gdbinit`        |
-| `examples/`    | Programas `.mc` de exemplo                              |
+| `examples/`    | Programas `.brc` de exemplo                              |
 | `tests/`       | Testes unitários (SCons)                                |
 | `benchmarks/`  | Scripts de benchmark                                    |
 | `vscode-ext/`  | Extensão VS Code (highlight, LSP, memory view)          |
@@ -210,9 +210,12 @@ meta-c build jogo.mc --release -o jogo
 
 ## 📚 Documentação
 
-- **[GitHub Pages](https://nonunknown777.github.io/meta-c/)** — Site de documentação
-- **[Wiki](https://github.com/nonunknown777/meta-c/wiki)** — Referência completa, tutoriais
-- **[Spec da Linguagem](shared-context.md)** — Especificação completa
+- **[Primeiros Passos](docs/GETTING_STARTED.pt-BR.md)** — Instalação, primeiro programa, uso da CLI
+- **[Referência da Linguagem](docs/LANGUAGE.pt-BR.md)** — Sintaxe completa, tipos, pacotes, modelo de memória
+- **[Arquitetura](docs/ARCHITECTURE.pt-BR.md)** — Como compilador, runtime e ferramentas se encaixam
+- **[Guia de Hot Reload](docs/hot-reload.pt-BR.md)** — Troca de código ao vivo via dlopen + inotify
+- **[Otimizações](docs/OPTIMIZATIONS.pt-BR.md)** — Ajustes de performance e benchmarks
+- 🇬🇧 **[English](README.md)** — English documentation
 
 ---
 
@@ -220,7 +223,19 @@ meta-c build jogo.mc --release -o jogo
 
 O projeto é dividido em **11 tarefas**, cada uma com seu `AGENTS.md` e `STATE.md`.
 
-Participe — abra uma issue ou PR em [github.com/nonunknown777/meta-c](https://github.com/nonunknown777/meta-c).
+Participe — abra uma issue ou PR em [github.com/nonunknown777/brick](https://github.com/nonunknown777/brick).
+
+---
+
+## 🧱 O Nome
+
+**BriCk** é um jogo de palavras em três camadas:
+
+1. **Brick** (tijolo) — blocos de memória são os tijolos que constroem o runtime
+2. **C** no meio — compila para **C**
+3. **BR** na frente — **Brasil**, a origem do projeto
+
+> *BriCk — the brazilian C.*
 
 ---
 

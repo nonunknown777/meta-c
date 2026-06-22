@@ -1,5 +1,5 @@
-#ifndef META_C_HOT_RELOAD_H
-#define META_C_HOT_RELOAD_H
+#ifndef BRICK_HOT_RELOAD_H
+#define BRICK_HOT_RELOAD_H
 
 #include <stddef.h>
 
@@ -62,5 +62,5 @@ void hr_destroy(HotReloadEngine* hr);
 }
 #endif
 
-#endif // META_C_HOT_RELOAD_H
-     // META_C_HOT_RELOAD_H
+#endif // BRICK_HOT_RELOAD_H
+     // BRICK_HOT_RELOAD_H

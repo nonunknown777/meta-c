@@ -13,8 +13,8 @@ Last action: Fixed -Wall -Werror warnings, mmap for large allocations, more test
 ## Realizado (nesta sessão)
 ## Completed (this session)
 
-### 1. Correção: `-Wall -Werror` com `META_C_TRACK_BLOCKS` desligado
-### 1. Fix: `-Wall -Werror` without `META_C_TRACK_BLOCKS`
+### 1. Correção: `-Wall -Werror` com `BRICK_TRACK_BLOCKS` desligado
+### 1. Fix: `-Wall -Werror` without `BRICK_TRACK_BLOCKS`
 
 `block_shm_export()` no-op macro usava `(-1)` que gerava `-Werror=unused-value`
 quando chamado como statement. Mudado para `((void)0)`.
@@ -23,11 +23,11 @@ quando chamado como statement. Mudado para `((void)0)`.
 when called as a statement. Changed to `((void)0)`.
 
 Auto-export em `block_alloc_aligned` e `block_reset` agora é condicional via
-`#ifdef META_C_TRACK_BLOCKS`, eliminando chamadas desnecessárias quando o
+`#ifdef BRICK_TRACK_BLOCKS`, eliminando chamadas desnecessárias quando o
 registro está desligado.
 
 Auto-export in `block_alloc_aligned` and `block_reset` is now conditional via
-`#ifdef META_C_TRACK_BLOCKS`, eliminating unnecessary calls when the registry
+`#ifdef BRICK_TRACK_BLOCKS`, eliminating unnecessary calls when the registry
 is disabled.
 
 ### 2. Performance: mmap para grandes alocações (>= 64KB)

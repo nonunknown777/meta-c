@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-using namespace meta_c;
+using namespace brick;
 
 void test_parse_struct() {
     std::string source = R"(

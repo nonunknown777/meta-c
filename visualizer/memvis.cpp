@@ -45,14 +45,14 @@ static void draw_bar(WINDOW* w, int y, int x, int width, int pct) {
 
 int memvis_read_shm(int pid, BlockInfo* blocks, int max_blocks) {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/meta-c-mem-%d.bin", pid);
+    snprintf(path, sizeof(path), "/tmp/brick-mem-%d.bin", pid);
 
     int fd = open(path, O_RDONLY);
     if (fd < 0) return 0;
 
-    MetaCShmHeader header;
+    BrickShmHeader header;
     ssize_t n = read(fd, &header, sizeof(header));
-    if (n != (ssize_t)sizeof(header) || header.magic != META_C_SHM_MAGIC) {
+    if (n != (ssize_t)sizeof(header) || header.magic != BRICK_SHM_MAGIC) {
         close(fd);
         return 0;
     }
@@ -82,7 +82,7 @@ enum {
 
 static void render_title(int max_x, MemVisConfig cfg, const char* suffix) {
     attron(A_BOLD);
-    mvprintw(0, 0, "  META-C Memory Visualizer%s", suffix ? suffix : "");
+    mvprintw(0, 0, "  BRICK Memory Visualizer%s", suffix ? suffix : "");
     attroff(A_BOLD);
     if (max_x >= 22)
         mvprintw(0, max_x - 22, "refresh: %dms", cfg.refresh_ms);
@@ -243,7 +243,7 @@ static void render_help(int max_x, int max_y, bool demo, bool detail_mode) {
     else
         mvprintw(max_y - 1, 0, "%s", help);
     if (max_x >= 18)
-        mvprintw(max_y - 1, max_x - 18, "Meta-C v0.1");
+        mvprintw(max_y - 1, max_x - 18, "Brick v0.1");
     attroff(A_REVERSE);
 }
 
@@ -253,7 +253,7 @@ static void render_no_blocks(int max_y, int max_x) {
     mvprintw(max_y / 2, (max_x - 20) / 2, "No blocks registered.");
     attroff(A_BOLD);
     mvprintw(max_y / 2 + 1, (max_x - 30) / 2,
-             "Run a Meta-C program with tracking enabled.");
+             "Run a Brick program with tracking enabled.");
     refresh();
 }
 
@@ -280,11 +280,11 @@ static void setup_ncurses(int timeout_ms) {
 void memvis_run(MemVisConfig config) {
     setup_ncurses(config.refresh_ms);
 
-    BlockInfo blocks[META_C_MAX_BLOCKS];
-    int block_count = (int)block_snapshot(blocks, META_C_MAX_BLOCKS);
+    BlockInfo blocks[BRICK_MAX_BLOCKS];
+    int block_count = (int)block_snapshot(blocks, BRICK_MAX_BLOCKS);
 
     // fallback: create demo blocks if nothing registered
-    BlockCtx* demos[META_C_MAX_BLOCKS];
+    BlockCtx* demos[BRICK_MAX_BLOCKS];
     int ndemos = 0;
     bool demo = (block_count == 0);
 
@@ -300,7 +300,7 @@ void memvis_run(MemVisConfig config) {
             for (int j = 0; j < n; j++)
                 block_alloc(demos[i], (size_t)(rand() % 4096 + 1));
         }
-        block_count = (int)block_snapshot(blocks, META_C_MAX_BLOCKS);
+        block_count = (int)block_snapshot(blocks, BRICK_MAX_BLOCKS);
     }
 
     bool running = true;
@@ -310,7 +310,7 @@ void memvis_run(MemVisConfig config) {
     if (demo) snprintf(title_sfx, sizeof(title_sfx), "  [demo]");
 
     while (running) {
-        block_count = (int)block_snapshot(blocks, META_C_MAX_BLOCKS);
+        block_count = (int)block_snapshot(blocks, BRICK_MAX_BLOCKS);
 
         if (sel >= block_count) sel = block_count - 1;
         if (sel < 0)            sel = 0;
@@ -374,12 +374,12 @@ void memvis_run(MemVisConfig config) {
     endwin();
 }
 
-// ─── attach mode (reads /tmp/meta-c-mem-<pid>.bin) ──────────
+// ─── attach mode (reads /tmp/brick-mem-<pid>.bin) ──────────
 
 void memvis_attach(int pid, MemVisConfig config) {
     setup_ncurses(config.refresh_ms);
 
-    BlockInfo blocks[META_C_MAX_BLOCKS];
+    BlockInfo blocks[BRICK_MAX_BLOCKS];
     bool running = true;
     int sel = 0;
     int block_count = 0;
@@ -389,7 +389,7 @@ void memvis_attach(int pid, MemVisConfig config) {
     snprintf(title_sfx, sizeof(title_sfx), "  [attached to PID %d]", pid);
 
     while (running) {
-        block_count = memvis_read_shm(pid, blocks, META_C_MAX_BLOCKS);
+        block_count = memvis_read_shm(pid, blocks, BRICK_MAX_BLOCKS);
         connected = (block_count > 0);
 
         if (sel >= block_count) sel = block_count - 1;

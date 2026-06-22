@@ -1,8 +1,8 @@
-// basic.mc — Minimal Meta-C window example
+// basic.mc — Minimal Brick window example
 // Uses the Window library to create a resizable 800x600 window.
 //
 // Compile:
-//   meta-c basic.mc -o basic.c
+//   brick basic.mc -o basic.c
 //   gcc -O3 basic.c runtime/libs/window/window_linux.c runtime/block_memory.c -lX11 -lm -o basic
 //   ./basic
 
@@ -11,7 +11,7 @@ using Window
 block global = 64MB
 
 fn main() {
-    Window w = Window.create("Meta-C Window", 800, 600, Window.RESIZABLE | Window.VSYNC)
+    Window w = Window.create("Brick Window", 800, 600, Window.RESIZABLE | Window.VSYNC)
 
     if w == null {
         error("Failed to create window")

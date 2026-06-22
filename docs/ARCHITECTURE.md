@@ -1,13 +1,13 @@
-# Meta-C Architecture
+# Brick Architecture
 
-Explained simply for anyone to understand.
+> Explained simply for anyone to understand.
 
 ## Overview
 
-Meta-C is a programming language you write in a `.mc` file and it becomes a real program. The path is:
+Brick is a programming language you write in a `.brc` file and it becomes a real program. The path is:
 
 ```
-Your .mc code  →  Compiler  →  C code  →  gcc  →  Final program
+Your .brc code  →  Compiler  →  C code  →  gcc  →  Final program
 ```
 
 ## Project Parts
@@ -19,12 +19,12 @@ The compiler has 3 parts in an assembly line:
 ```
 1. LEXER         2. PARSER           3. CODEGEN
    ┌─────┐         ┌──────┐           ┌──────┐
-   │ .mc │ → tokens → │ AST │ → C ───→ │ .c  │
+   │ .brc │ → tokens → │ AST │ → C ───→ │ .c  │
    └─────┘         └──────┘           └──────┘
 ```
 
 **Lexer** (`src/lexer/`):
-- Takes your `.mc` file and breaks it into tokens
+- Takes your `.brc` file and breaks it into tokens
 - Example: `int x = 5` becomes [INT, IDENT("x"), ASSIGN, INT_LITERAL(5)]
 - Ignores comments and whitespace
 
@@ -38,7 +38,7 @@ The compiler has 3 parts in an assembly line:
 - Each `struct` becomes `typedef struct`
 - Each method becomes `StructName_method()`
 - Type-checking: validates types, issues errors for mismatches
-- Generates `#line` directives so you debug in `.mc`, not C
+- Generates `#line` directives so you debug in `.brc`, not C
 
 ### runtime/ — The Foundation (C)
 
@@ -73,7 +73,7 @@ game     64MB  ██████░░░░░░░░  38%
 
 ### debugger/ — The Tools (GDB Python)
 
-Helps debug Meta-C programs:
+Helps debug Brick programs:
 - Pretty-printers: shows BlockCtx nicely in GDB
 - Commands: `info blocks`, `block <name>`
 - .gdbinit loads everything automatically
@@ -102,7 +102,7 @@ You write:
 
     Program running!
          ↓
-    Debug with GDB (shows .mc source)
+    Debug with GDB (shows .brc source)
     View blocks with TUI visualizer
     Monitor in VS Code memory view
     Hot reload packages

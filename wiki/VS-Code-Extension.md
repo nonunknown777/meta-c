@@ -1,6 +1,6 @@
-# Meta-C VS Code Extension
+# Brick VS Code Extension
 
-The VS Code extension provides syntax highlighting, snippets, language server protocol (LSP) integration, debugger support, and a memory block visualizer — all for the Meta-C language.
+The VS Code extension provides syntax highlighting, snippets, language server protocol (LSP) integration, debugger support, and a memory block visualizer — all for the Brick language.
 
 ---
 
@@ -20,7 +20,7 @@ Then press `F5` in VS Code to launch a new Extension Development Host window, or
 
 - **VS Code 1.80+**
 - **C++ tools extension**: `ms-vscode.cpptools` (auto-installed as dependency)
-- **Meta-C compiler**: Built with `scons` in the project root
+- **Brick compiler**: Built with `scons` in the project root
 - **GDB**: For debugging support
 
 ---
@@ -29,7 +29,7 @@ Then press `F5` in VS Code to launch a new Extension Development Host window, or
 
 ### 1. Syntax Highlighting
 
-Files with `.mc` extension are automatically recognized as Meta-C. The TextMate grammar provides semantic highlighting for:
+Files with `.brc` extension are automatically recognized as Brick. The TextMate grammar provides semantic highlighting for:
 
 - **Keywords**: `package`, `struct`, `fn`, `if`, `while`, `for`, `return`, `block`, `reset` — distinct color
 - **Types**: `int`, `float`, `bool`, `char`, `String`, `void` — type color
@@ -74,10 +74,10 @@ The extension includes code snippets for common patterns:
 
 ### 4. LSP Diagnostics
 
-The extension communicates with the Meta-C compiler in LSP mode:
+The extension communicates with the Brick compiler in LSP mode:
 
 ```bash
-meta-c input.mc --lsp
+brick input.brc --lsp
 ```
 
 The compiler outputs JSON with:
@@ -89,28 +89,28 @@ The extension shows these as inline diagnostics (red squiggles) in the editor.
 
 ### 5. Debugger Integration
 
-The extension provides VS Code launch configurations for debugging Meta-C programs.
+The extension provides VS Code launch configurations for debugging Brick programs.
 
 **Three debug configurations:**
 
 | Configuration | Description |
 |---------------|-------------|
-| **Debug Compiler** | Debug the Meta-C compiler compiling the current `.mc` file |
-| **Debug Compiled Program** | Compile `.mc` → C → binary with debug symbols, then launch GDB |
+| **Debug Compiler** | Debug the Brick compiler compiling the current `.brc` file |
+| **Debug Compiled Program** | Compile `.brc` → C → binary with debug symbols, then launch GDB |
 | **Run Compiled Program** | Compile and run (release mode, no debugger UI) |
 
 **Setup required:**
 
-Create `.vscode/launch.json` and `.vscode/tasks.json` using the `Meta-C: Init Workspace` command, or use the provided configuration snippets.
+Create `.vscode/launch.json` and `.vscode/tasks.json` using the `Brick: Init Workspace` command, or use the provided configuration snippets.
 
 **Pre-launch tasks:**
-- `Build (debug)` — builds the Meta-C compiler in debug mode
-- `Compile this .mc file` — compiles the current `.mc` to C and links the binary
-- `Compile this .mc file (release)` — same but with `-O3` and no debug symbols
+- `Build (debug)` — builds the Brick compiler in debug mode
+- `Compile this .brc file` — compiles the current `.brc` to C and links the binary
+- `Compile this .brc file (release)` — same but with `-O3` and no debug symbols
 
 **GDB integration:**
 
-The launch configuration auto-loads Meta-C's debug support:
+The launch configuration auto-loads Brick's debug support:
 
 ```json
 {
@@ -121,7 +121,7 @@ The launch configuration auto-loads Meta-C's debug support:
             "ignoreFailures": true
         },
         {
-            "description": "Load Meta-C printers",
+            "description": "Load Brick printers",
             "text": "source ${workspaceFolder}/debugger/.gdbinit",
             "ignoreFailures": true
         }
@@ -130,13 +130,13 @@ The launch configuration auto-loads Meta-C's debug support:
 ```
 
 This gives you access to:
-- Pretty-printers for `BlockCtx*` and `MetaCString`
+- Pretty-printers for `BlockCtx*` and `BrickString`
 - Custom GDB commands: `info blocks`, `block <name>`, `block-watch`
-- `#line` directives mapping back to `.mc` source
+- `#line` directives mapping back to `.brc` source
 
 ### 6. Memory Webview
 
-The extension adds a "Meta-C Memory" view to the VS Code debug sidebar. During a debug session, this webview shows:
+The extension adds a "Brick Memory" view to the VS Code debug sidebar. During a debug session, this webview shows:
 
 - All registered memory blocks
 - Each block's capacity and current usage
@@ -149,9 +149,9 @@ The webview reads block information via GDB's DAP (Debug Adapter Protocol) using
 
 To use the Memory Webview:
 
-1. Start a debug session (Meta-C: Debug Compiled Program)
-2. Set breakpoints in your `.mc` source
-3. Open the "Meta-C Memory" view in the debug sidebar
+1. Start a debug session (Brick: Debug Compiled Program)
+2. Set breakpoints in your `.brc` source
+3. Open the "Brick Memory" view in the debug sidebar
 4. Step through your code — the view updates to show block usage
 
 ---
@@ -166,9 +166,9 @@ vscode-ext/
 │   └── extension.ts        # Extension entry point
 ├── server/                 # LSP server (if separated)
 ├── syntaxes/
-│   └── meta-c.tmLanguage.json  # TextMate grammar for highlighting
+│   └── brick.tmLanguage.json  # TextMate grammar for highlighting
 ├── snippets/
-│   └── meta-c.code-snippets    # Code snippets
+│   └── brick.code-snippets    # Code snippets
 ├── out/                    # Compiled JavaScript
 ├── package.json            # Extension manifest
 ├── tsconfig.json           # TypeScript config
@@ -192,22 +192,22 @@ Key contributions defined in `package.json`:
 ```json
 {
     "contributes": {
-        "languages": [{ "id": "meta-c", "extensions": [".mc"] }],
-        "grammars": [{ "language": "meta-c", "scopeName": "source.mc" }],
-        "snippets": [{ "language": "meta-c" }],
-        "views": { "debug": [{ "id": "meta-c.memoryView", "name": "Meta-C Memory", "type": "webview" }] },
+        "languages": [{ "id": "brick", "extensions": [".brc"] }],
+        "grammars": [{ "language": "brick", "scopeName": "source.brc" }],
+        "snippets": [{ "language": "brick" }],
+        "views": { "debug": [{ "id": "brick.memoryView", "name": "Brick Memory", "type": "webview" }] },
         "commands": [
-            { "command": "meta-c.initWorkspace", "title": "Meta-C: Init Workspace" },
-            { "command": "meta-c.debugProgram", "title": "Meta-C: Debug Program" }
+            { "command": "brick.initWorkspace", "title": "Brick: Init Workspace" },
+            { "command": "brick.debugProgram", "title": "Brick: Debug Program" }
         ],
-        "debuggers": [{ "type": "cppdbg", "label": "Meta-C" }]
+        "debuggers": [{ "type": "cppdbg", "label": "Brick" }]
     }
 }
 ```
 
 ### Adding a New Snippet
 
-Edit `snippets/meta-c.code-snippets`:
+Edit `snippets/brick.code-snippets`:
 
 ```json
 {
@@ -226,46 +226,46 @@ Edit `snippets/meta-c.code-snippets`:
 
 1. Open the `vscode-ext/` folder in VS Code
 2. Press `F5` to launch Extension Development Host
-3. Open a `.mc` file to test highlighting and snippets
-4. Test debug configurations with a simple `.mc` program
+3. Open a `.brc` file to test highlighting and snippets
+4. Test debug configurations with a simple `.brc` program
 
 ---
 
 ## Commands
 
-Available commands (Ctrl+Shift+P → "Meta-C"):
+Available commands (Ctrl+Shift+P → "Brick"):
 
 | Command | Description |
 |---------|-------------|
-| **Meta-C: Init Workspace** | Creates `.vscode/launch.json` and `.vscode/tasks.json` with proper Meta-C debug configurations |
-| **Meta-C: Debug Program** | Compiles and debugs the current `.mc` file in one action |
+| **Brick: Init Workspace** | Creates `.vscode/launch.json` and `.vscode/tasks.json` with proper Brick debug configurations |
+| **Brick: Debug Program** | Compiles and debugs the current `.brc` file in one action |
 
 ---
 
 ## Troubleshooting
 
-### "Meta-C Memory" view is empty
+### "Brick Memory" view is empty
 
 1. Make sure you're in a debug session (not just editing)
-2. Verify the program was compiled with `-DMETA_C_TRACK_BLOCKS`
+2. Verify the program was compiled with `-DBRICK_TRACK_BLOCKS`
 3. Check that GDB supports the Python commands (GDB 7.7+)
 4. Try running `gdb -batch -ex "source debugger/.gdbinit" -ex "info blocks" ./program` manually
 
 ### Syntax highlighting not working
 
-1. Ensure the file extension is `.mc`
+1. Ensure the file extension is `.brc`
 2. Reload the window (`Ctrl+Shift+P` → `Developer: Reload Window`)
-3. Check the language mode (bottom-right): should say "Meta-C"
+3. Check the language mode (bottom-right): should say "Brick"
 
 ### Debug launch fails
 
-1. Make sure the Meta-C compiler is built: `scons` in the project root
-2. Make sure tasks are configured: run "Meta-C: Init Workspace"
+1. Make sure the Brick compiler is built: `scons` in the project root
+2. Make sure tasks are configured: run "Brick: Init Workspace"
 3. Check that `gdb` is available on your PATH
 4. Try the "Run Compiled Program" configuration (less dependencies)
 
 ### LSP diagnostics not showing
 
-1. The extension uses the compiler in `--lsp` mode — check that `build/meta-c` exists
-2. Try running `build/meta-c your_file.mc --lsp` manually to see the JSON output
-3. Check the Output panel in VS Code (View → Output → choose "Meta-C Language")
+1. The extension uses the compiler in `--lsp` mode — check that `build/brick` exists
+2. Try running `build/brick your_file.brc --lsp` manually to see the JSON output
+3. Check the Output panel in VS Code (View → Output → choose "Brick Language")

@@ -124,8 +124,8 @@ function getFilePath(uri: string): string {
     return uri.replace(/^file:\/\//, '');
 }
 
-function isMetaCFile(uri: string): boolean {
-    return uri.endsWith('.mc') || uri.includes('file:');
+function isBrickFile(uri: string): boolean {
+    return uri.endsWith('.brc') || uri.includes('file:');
 }
 
 function runFastScanner(doc: TextDocument): ScanResult {
@@ -172,7 +172,7 @@ function computeDiagnostics(doc: TextDocument): Diagnostic[] {
                 err.col
             ),
             message: err.message,
-            source: 'meta-c',
+            source: 'brick',
         });
     }
 
@@ -192,7 +192,7 @@ function computeDiagnostics(doc: TextDocument): Diagnostic[] {
                     err.col
                 ),
                 message: err.message,
-                source: 'meta-c',
+                source: 'brick',
             });
         }
     }

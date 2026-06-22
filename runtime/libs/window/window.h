@@ -1,5 +1,5 @@
-#ifndef META_C_WINDOW_H
-#define META_C_WINDOW_H
+#ifndef BRICK_WINDOW_H
+#define BRICK_WINDOW_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -60,7 +60,7 @@ typedef struct MetaWindowImpl MetaWindow;
  *
  * Returns NULL on failure.
  *
- * Example (Meta-C):
+ * Example (Brick):
  *   using Window
  *   block win = 1MB
  *   Window w = Window.create("Hello", 800, 600, Window.RESIZABLE | Window.VSYNC) @win
@@ -131,4 +131,4 @@ void* meta_window_native_handle(MetaWindow* w);
 }
 #endif
 
-#endif /* META_C_WINDOW_H */
+#endif /* BRICK_WINDOW_H */

@@ -1,0 +1,98 @@
+name: Release Linux
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            libncurses-dev \
+            libx11-dev \
+            pkg-config \
+            python3-pip
+          pip3 install scons --quiet
+
+      - name: Extract version
+        id: version
+        run: echo "tag=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release notes
+        run: |
+          VERSION="${{ steps.version.outputs.tag }}"
+          PREV=$(git tag --sort=-creatordate | head -2 | tail -1 || true)
+
+          exec 3>&1 1>/tmp/release-notes.md
+
+          echo "## Brick Compiler v${VERSION}"
+          echo ""
+          echo "### What's inside"
+          echo ""
+          echo "| Component | Description |"
+          echo "|---|---|"
+          echo "| **\`brick\`** | Compiler CLI (\`.brc\` → C) + ncurses memory visualizer |"
+          echo "| **\`brick-language.vsix\`** | VS Code extension (syntax highlight, LSP, debug webview) |"
+          echo "| **Runtime** | Block allocator, hot reload, IO, window library (X11) |"
+          echo "| **Debugger** | GDB pretty-printers, \`.gdbinit\`, \\\\#line directives |"
+          echo ""
+          echo "### Changes since last release"
+          echo ""
+
+          if [ -n "$PREV" ]; then
+            git log --oneline --no-decorate "$PREV..HEAD" 2>/dev/null || git log --oneline -20 --no-decorate
+          else
+            git log --oneline -20 --no-decorate
+          fi
+
+          echo ""
+          echo "### Features"
+          echo ""
+          echo "- **Compiled language** — OOP with structs, interfaces, inheritance, fixed-width types (u8..u64, i8..i64, f32/f64, usize/isize)"
+          echo "- **Block memory** — Arena-based bump allocator with explicit block management (no GC, no individual free)"
+          echo "- **Hot reload** — Native hot reload via dlopen + inotify, atomic function pointer swap"
+          echo "- **Memory visualizer** — ncurses TUI (\`brick --visualize\` / \`brick --attach <pid>\`)"
+          echo "- **VS Code extension** — Syntax highlighting, LSP (completions, hover, go-to-def, semantic tokens), debug webview"
+          echo "- **GDB integration** — Pretty-printers for BlockCtx/BrickString, \`info blocks\` command, \\\\#line directives"
+          echo "- **Window library** — X11 window creation with hot-reload support"
+          echo "- **IO package** — \`print()\` with format strings, type-specific output"
+          echo ""
+          echo "### Dependencies"
+          echo ""
+          echo "- gcc (or clang), make"
+          echo "- ncurses (for \`brick --visualize\` / \`brick --attach\`)"
+          echo "- libX11 (for window library)"
+
+          exec 1>&3 3>&-
+          echo "Release notes written to /tmp/release-notes.md"
+
+      - name: Build release
+        run: bash build-release.sh
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: brick-linux-${{ steps.version.outputs.tag }}
+          path: build/release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: Brick v${{ steps.version.outputs.tag }}
+          body_path: /tmp/release-notes.md
+          files: |
+            build/release/brick
+            build/release/brick-language.vsix

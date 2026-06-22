@@ -1,5 +1,5 @@
-#ifndef META_C_BLOCK_MEMORY_H
-#define META_C_BLOCK_MEMORY_H
+#ifndef BRICK_BLOCK_MEMORY_H
+#define BRICK_BLOCK_MEMORY_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -25,22 +25,22 @@ typedef struct {
     float  fragmentation_percent;
 } BlockStats;
 
-// ─── Registry API (optional — requires -DMETA_C_TRACK_BLOCKS) ─
-// ─── API do Registro (opcional — requer -DMETA_C_TRACK_BLOCKS) ─
-#ifdef META_C_TRACK_BLOCKS
+// ─── Registry API (optional — requires -DBRICK_TRACK_BLOCKS) ─
+// ─── API do Registro (opcional — requer -DBRICK_TRACK_BLOCKS) ─
+#ifdef BRICK_TRACK_BLOCKS
 
-#define META_C_BLOCK_NAME_MAX 32
-#define META_C_MAX_BLOCKS 64
+#define BRICK_BLOCK_NAME_MAX 32
+#define BRICK_MAX_BLOCKS 64
 
 typedef struct {
-    char     name[META_C_BLOCK_NAME_MAX];
+    char     name[BRICK_BLOCK_NAME_MAX];
     size_t   capacity;
     size_t   used;
     size_t   peak_used;
     size_t   allocation_count;
 } BlockInfo;
 
-#define META_C_SHM_MAGIC 0x4D455441  // "META"
+#define BRICK_SHM_MAGIC 0x4D455441  // "META"
 
 typedef struct __attribute__((packed)) {
     uint32_t magic;
@@ -48,7 +48,7 @@ typedef struct __attribute__((packed)) {
     int32_t  pid;
     uint32_t block_count;
     uint64_t timestamp_us;
-} MetaCShmHeader;
+} BrickShmHeader;
 
 void     block_register(BlockCtx* ctx, const char* name);
 void     block_unregister(BlockCtx* ctx);
@@ -59,8 +59,8 @@ int      block_shm_export(void);
 #else
 // No-op stubs — compiler optimizes these away entirely
 // Stubs no-op — compilador otimiza esses totalmente
-#define META_C_MAX_BLOCKS 1
-#define META_C_BLOCK_NAME_MAX 1
+#define BRICK_MAX_BLOCKS 1
+#define BRICK_BLOCK_NAME_MAX 1
 #define block_register(ctx, name)     ((void)(ctx), (void)(name))
 #define block_unregister(ctx)         ((void)(ctx))
 #define block_find(name)              ((void)(name), (BlockCtx*)NULL)
@@ -117,5 +117,5 @@ void block_thaw(void);
 }
 #endif
 
-#endif // META_C_BLOCK_MEMORY_H
-     // META_C_BLOCK_MEMORY_H
+#endif // BRICK_BLOCK_MEMORY_H
+     // BRICK_BLOCK_MEMORY_H

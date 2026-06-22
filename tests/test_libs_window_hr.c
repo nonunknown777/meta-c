@@ -38,15 +38,15 @@ static int x11_error_handler(Display* dpy, XErrorEvent* ev) {
 
 /* Path to the window library .so — set by build system */
 /* Caminho para o .so da biblioteca de janela — definido pelo build system */
-#ifndef META_LIB_WINDOW_SO
-#define META_LIB_WINDOW_SO "build/meta_lib_window.so"
+#ifndef BRICK_LIB_WINDOW_SO
+#define BRICK_LIB_WINDOW_SO "build/brick_lib_window.so"
 #endif
 
 TEST(test_hr_init_and_load) {
     if (meta_window_table.create != NULL)
         FAIL("test_hr_init_and_load: table should be NULL before init");
 
-    HotReloadEngine* hr = hr_create(META_LIB_WINDOW_SO);
+    HotReloadEngine* hr = hr_create(BRICK_LIB_WINDOW_SO);
     if (!hr) FAIL("test_hr_init_and_load: hr_create failed");
 
     int ret = meta_window_hr_init(hr);
@@ -71,7 +71,7 @@ TEST(test_hr_init_and_load) {
 }
 
 TEST(test_hr_create_window) {
-    HotReloadEngine* hr = hr_create(META_LIB_WINDOW_SO);
+    HotReloadEngine* hr = hr_create(BRICK_LIB_WINDOW_SO);
     if (!hr) FAIL("test_hr_create_window: hr_create failed");
     assert(meta_window_hr_init(hr) == 0);
 
@@ -107,7 +107,7 @@ TEST(test_hr_create_window) {
 }
 
 TEST(test_hr_reload) {
-    HotReloadEngine* hr = hr_create(META_LIB_WINDOW_SO);
+    HotReloadEngine* hr = hr_create(BRICK_LIB_WINDOW_SO);
     if (!hr) FAIL("test_hr_reload: hr_create failed");
     assert(meta_window_hr_init(hr) == 0);
 

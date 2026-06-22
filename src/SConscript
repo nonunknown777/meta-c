@@ -1,4 +1,4 @@
-# Build: Compiler libraries + meta-c CLI
+# Build: Compiler libraries + brick CLI
 Import('env', 'platform_libs', 'has_visualizer', 'target', 'has_x11')
 
 import sys, os
@@ -30,26 +30,26 @@ if has_x11:
 env.Command([gen_h, gen_cpp], ['#scripts/embed_runtime.py'] + runtime_deps, embed_cmd)
 
 # ─── Libraries ──────────────────────────────────────────────
-lib_lexer   = env.Library('#build/meta_lexer',   ['lexer/lexer.cpp'])
-lib_parser  = env.Library('#build/meta_parser',  ['parser/parser.cpp',
+lib_lexer   = env.Library('#build/brick_lexer',   ['lexer/lexer.cpp'])
+lib_parser  = env.Library('#build/brick_parser',  ['parser/parser.cpp',
                                                    'parser/package.cpp'])
-lib_codegen = env.Library('#build/meta_codegen', ['codegen/codegen.cpp',
+lib_codegen = env.Library('#build/brick_codegen', ['codegen/codegen.cpp',
                                                    'codegen/type_checker.cpp'])
-lib_shared  = env.Library('#build/meta_shared',  ['shared/lsp.cpp',
+lib_shared  = env.Library('#build/brick_shared',  ['shared/lsp.cpp',
                                                    gen_cpp])
 
 # ─── CLI Program ────────────────────────────────────────────
-meta_c_libs = [
-    'meta_lexer', 'meta_parser', 'meta_codegen', 'meta_shared',
-    'meta_runtime',
+brick_libs = [
+    'brick_lexer', 'brick_parser', 'brick_codegen', 'brick_shared',
+    'brick_runtime',
 ] + platform_libs
 
 if has_visualizer:
-    meta_c_libs.remove('meta_runtime')
-    meta_c_libs.append('meta_visualizer')
-    meta_c_libs.append('meta_runtime')
-    meta_c_libs.append('ncurses')
+    brick_libs.remove('brick_runtime')
+    brick_libs.append('brick_visualizer')
+    brick_libs.append('brick_runtime')
+    brick_libs.append('ncurses')
 
-meta_c = env.Program('#build/meta-c', ['main.cpp'], LIBS=meta_c_libs)
+brick = env.Program('#build/brick', ['main.cpp'], LIBS=brick_libs)
 
-Return('meta_c')
+Return('brick')

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/logo.png" alt="Meta-C Logo" width="200"/>
+  <img src="docs/logo.png" alt="Brick Logo" width="200"/>
 </p>
 
-<h1 align="center">Meta-C</h1>
+<h1 align="center">Brick</h1>
 <p align="center">
   <em>A high-performance OOP language that compiles to pure C.</em>
 </p>
@@ -26,7 +26,7 @@
 
 ## 👋 Quick Demo
 
-```meta-c
+```brick
 package DEMO
 
 using IO
@@ -71,10 +71,10 @@ fn main() {
 ## Compile & Run
 
 ```bash
-meta-c run example.mc
+brick run example.brc
 ```
 
-No manual `gcc` invocation needed — `meta-c build` and `meta-c run` handle everything automatically (compilation, runtime linking, optimization).
+No manual `gcc` invocation needed — `brick build` and `brick run` handle everything automatically (compilation, runtime linking, optimization).
 
 ---
 
@@ -86,7 +86,7 @@ No manual `gcc` invocation needed — `meta-c build` and `meta-c run` handle eve
 - **No Stack for User Data** — Everything lives in managed blocks. No stack overflow, no lifetime puzzles. Reset a block to reclaim everything instantly.
 - **Native Hot Reload** — Swap code at runtime via `dlopen` + `inotify`. Function pointer swap is atomic — update game logic without restarting.
 - **TUI Memory Visualizer** — ncurses dashboard showing live block state: capacity, usage, peak, allocation count.
-- **GDB Integration** — `#line` directives map back to `.mc` source. Custom commands (`info blocks`, `block <name>`) and Python pretty-printers.
+- **GDB Integration** — `#line` directives map back to `.brc` source. Custom commands (`info blocks`, `block <name>`) and Python pretty-printers.
 - **VS Code Extension** — Syntax highlighting, LSP, and a memory webview panel.
 - **Cross-Platform** — Linux primary. Windows via `mingw-w64`.
 - **Fixed-Width Types** — `i8/i16/i32/i64`, `u8/u16/u32/u64`, `f32/f64`, `usize`/`isize`. Full compile-time overflow checking, widening rules, and literal suffixes (`42u8`, `3.14f64`).
@@ -105,23 +105,23 @@ No manual `gcc` invocation needed — `meta-c build` and `meta-c run` handle eve
 ### Build the Compiler
 
 ```bash
-git clone https://github.com/nonunknown777/meta-c.git
-cd meta-c
+git clone https://github.com/nonunknown777/brick.git
+cd brick
 scons                        # release build (-O3)
 # or
 ./build-release.sh           # full release + VS Code extension package
 ```
 
-The `meta-c` binary will be in `build/`.
+The `brick` binary will be in `build/`.
 
 ### Run a Demo
 
 ```bash
 # Build and run in one step
-meta-c run examples/hello.mc
+brick run examples/hello.brc
 
 # Or build to binary first
-meta-c build examples/hello.mc -o hello
+brick build examples/hello.brc -o hello
 ./hello
 ```
 
@@ -134,8 +134,8 @@ scons test                   # builds and runs all unit tests
 ### Visualize Memory
 
 ```bash
-meta-c --visualize examples/hello.mc   # compile, run, show TUI
-meta-c --attach <pid>                  # attach to running process
+brick --visualize examples/hello.brc   # compile, run, show TUI
+brick --attach <pid>                  # attach to running process
 ```
 
 ---
@@ -170,7 +170,7 @@ malloc:      1,000,000 allocs of 64B in 0.039s   ← baseline
 
 ### Fixed-Width Types & Interface
 
-```meta-c
+```brick
 package TYPES_DEMO
 
 using IO
@@ -213,14 +213,14 @@ fn main() {
 
 ```bash
 # Build with hot reload support
-meta-c build game.mc --release -o game
+brick build game.brc --release -o game
 
-# Run — Meta-C watches source files via inotify
-# Edit your .mc source and save — the binary reloads automatically
+# Run — Brick watches source files via inotify
+# Edit your .brc source and save — the binary reloads automatically
 ./game
 ```
 
-See the [Hot Reload Guide](https://github.com/nonunknown777/meta-c/wiki/Hot-Reload) for details.
+See the [Hot Reload Guide](docs/hot-reload.md) for details.
 
 ---
 
@@ -232,7 +232,7 @@ See the [Hot Reload Guide](https://github.com/nonunknown777/meta-c/wiki/Hot-Relo
 | `runtime/`      | C runtime (block memory allocator, IO, hot reload)       |
 | `visualizer/`   | ncurses TUI for live memory visualization                |
 | `debugger/`     | GDB pretty-printers, custom commands, `.gdbinit`         |
-| `examples/`     | Sample `.mc` programs                                    |
+| `examples/`     | Sample `.brc` programs                                    |
 | `tests/`        | Unit tests (SCons-based)                                 |
 | `benchmarks/`   | Performance benchmarks and profiling scripts             |
 | `vscode-ext/`   | VS Code extension (syntax highlight, LSP, memory view)   |
@@ -246,10 +246,13 @@ See the [Hot Reload Guide](https://github.com/nonunknown777/meta-c/wiki/Hot-Relo
 
 ## 📚 Documentation
 
-- **[GitHub Pages](https://nonunknown777.github.io/meta-c/)** — Hosted documentation site
-- **[Wiki](https://github.com/nonunknown777/meta-c/wiki)** — Full language reference, tutorials, deep dives
-- **[Language Spec](shared-context.md)** — Complete Meta-C specification
+- **[Getting Started](docs/GETTING_STARTED.md)** — Installation, first program, CLI usage
+- **[Language Reference](docs/LANGUAGE.md)** — Complete syntax, types, packages, memory model
+- **[Architecture](docs/ARCHITECTURE.md)** — How compiler, runtime, and tools fit together
+- **[Hot Reload Guide](docs/hot-reload.md)** — Live code swapping via dlopen + inotify
+- **[Optimizations](docs/OPTIMIZATIONS.md)** — Performance tuning and benchmarks
 - **[Design Doc](DESIGN.md)** — Architecture decisions and rationale
+- 🇧🇷 **[Português](README.pt-BR.md)** — Documentação em português
 
 ---
 
@@ -259,7 +262,7 @@ The project is divided into **11 tasks**, each with its own `AGENTS.md` and `STA
 
 | #  | Task           | Description                                    |
 |----|----------------|------------------------------------------------|
-| 01 | Lexer          | Tokenizer — `.mc` → tokens                     |
+| 01 | Lexer          | Tokenizer — `.brc` → tokens                     |
 | 02 | Parser         | AST construction + package resolution          |
 | 03 | Codegen        | Type checking + C code generation with `#line` |
 | 04 | Runtime        | Block memory allocator (C)                     |
@@ -271,7 +274,19 @@ The project is divided into **11 tasks**, each with its own `AGENTS.md` and `STA
 | 10 | **Tester/Opt** | Tests, profiling, optimization, docs (senior)  |
 | 11 | Libraries      | Window, input, audio, file, net, math          |
 
-Join the discussion — open an issue or PR at [github.com/nonunknown777/meta-c](https://github.com/nonunknown777/meta-c).
+Join the discussion — open an issue or PR at [github.com/nonunknown777/brick](https://github.com/nonunknown777/brick).
+
+---
+
+## 🧱 The Name
+
+**BriCk** is a play on words in three layers:
+
+1. **Brick** (tijolo) — blocos de memória são os tijolos que constroem o runtime
+2. **C** no meio — compila para **C**
+3. **BR** na frente — **Brasil**, a origem do projeto
+
+> *BriCk — the brazilian C.*
 
 ---
 

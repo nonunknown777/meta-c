@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-using namespace meta_c;
+using namespace brick;
 
 static int tests_passed = 0;
 static int tests_failed = 0;
@@ -40,7 +40,7 @@ static bool parse_and_check(const std::string& source, ParseResult& out,
 
 static bool codegen_from_ast(ParseResult& parse_result,
                              CodegenResult& out, const std::string& label) {
-    auto packages = resolve_packages(parse_result.ast, "test.mc");
+    auto packages = resolve_packages(parse_result.ast, "test.brc");
     std::vector<std::unique_ptr<ProgramNode>> asts;
     asts.push_back(std::move(parse_result.ast));
     auto cr = generate_c(asts, packages);
@@ -91,7 +91,7 @@ fn main() {
     check(c.find("Player_Player(") != std::string::npos, "constructor call");
     check(c.find("Player_get_hp(") != std::string::npos, "method call");
     check(c.find("block_alloc(global, sizeof(Player))") != std::string::npos, "block alloc");
-    check(c.find("__meta_c_init") != std::string::npos, "block create");
+    check(c.find("__brick_init") != std::string::npos, "block create");
     check(c.find("block_create_bytes(67108864)") != std::string::npos, "block create size");
     std::cout << "  Generated C:\n" << c << "\n";
 }
@@ -241,7 +241,7 @@ fn test_string() {
     if (!codegen_from_ast(pr, cr, "string")) return;
 
     std::string c = cr.c_code;
-    check(c.find("MetaCString") != std::string::npos, "MetaCString type");
+    check(c.find("BrickString") != std::string::npos, "BrickString type");
     check(c.find("hello") != std::string::npos, "string literal");
     std::cout << "  Generated C:\n" << c << "\n";
 }
@@ -313,7 +313,7 @@ fn bad_return() -> int {
 
     ParseResult pr;
     if (!parse_and_check(source, pr, "type_error")) return;
-    auto packages = resolve_packages(pr.ast, "test.mc");
+    auto packages = resolve_packages(pr.ast, "test.brc");
     std::vector<std::unique_ptr<ProgramNode>> asts;
     asts.push_back(std::move(pr.ast));
     auto cr = generate_c(asts, packages);
@@ -339,7 +339,7 @@ fn test() {
 
     ParseResult pr;
     if (!parse_and_check(source, pr, "undef_sym")) return;
-    auto packages = resolve_packages(pr.ast, "test.mc");
+    auto packages = resolve_packages(pr.ast, "test.brc");
     std::vector<std::unique_ptr<ProgramNode>> asts;
     asts.push_back(std::move(pr.ast));
     auto cr = generate_c(asts, packages);
@@ -379,7 +379,7 @@ fn main() {
 
     ParseResult pr;
     if (!parse_and_check(source, pr, "compile_c")) return;
-    auto packages = resolve_packages(pr.ast, "test.mc");
+    auto packages = resolve_packages(pr.ast, "test.brc");
     std::vector<std::unique_ptr<ProgramNode>> asts;
     asts.push_back(std::move(pr.ast));
     auto cr = generate_c(asts, packages);
@@ -510,7 +510,7 @@ fn main() {
 
     ParseResult pr;
     if (!parse_and_check(source, pr, "print_no_using")) return;
-    auto packages = resolve_packages(pr.ast, "test.mc");
+    auto packages = resolve_packages(pr.ast, "test.brc");
     std::vector<std::unique_ptr<ProgramNode>> asts;
     asts.push_back(std::move(pr.ast));
     auto cr = generate_c(asts, packages);
@@ -603,7 +603,7 @@ fn test_overflow() {
 
     ParseResult pr;
     if (!parse_and_check(source, pr, "literal_overflow")) return;
-    auto packages = resolve_packages(pr.ast, "test.mc");
+    auto packages = resolve_packages(pr.ast, "test.brc");
     std::vector<std::unique_ptr<ProgramNode>> asts;
     asts.push_back(std::move(pr.ast));
     auto cr = generate_c(asts, packages);

@@ -1,5 +1,5 @@
-#ifndef META_C_WINDOW_HR_H
-#define META_C_WINDOW_HR_H
+#ifndef BRICK_WINDOW_HR_H
+#define BRICK_WINDOW_HR_H
 
 #include "window.h"
 
@@ -106,4 +106,4 @@ struct HotReloadEngine* meta_window_hr_start(const char* so_path);
 }
 #endif
 
-#endif /* META_C_WINDOW_HR_H */
+#endif /* BRICK_WINDOW_HR_H */

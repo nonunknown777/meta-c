@@ -2,7 +2,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-EXT_NAME="meta-c.meta-c-language"
+EXT_NAME="brick.brick-language"
 VSCODE_EXT_DIR="$HOME/.vscode-oss/extensions"
 TARGET_DIR="$VSCODE_EXT_DIR/$EXT_NAME"
 
@@ -23,5 +23,5 @@ rm -rf "$TARGET_DIR"
 ln -sf "$SCRIPT_DIR" "$TARGET_DIR"
 
 echo ""
-echo "Meta-C extension installed with LSP!"
+echo "Brick extension installed with LSP!"
 echo "Recarregue o VS Code: Ctrl+Shift+P -> Developer: Reload Window"

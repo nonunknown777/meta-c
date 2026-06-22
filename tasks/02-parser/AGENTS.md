@@ -1,11 +1,11 @@
-# Task: Parser (Meta-C)
+# Task: Parser (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em PARSER do compilador Meta-C.
+Você é o especialista em PARSER do compilador Brick.
 Responsabilidade: transformar tokens em AST + resolver packages.
-You are the PARSER specialist for the Meta-C compiler.
+You are the PARSER specialist for the Brick compiler.
 Responsibility: transform tokens into AST + resolve packages.
 
 ## Regras de Ouro
@@ -13,13 +13,13 @@ Responsibility: transform tokens into AST + resolve packages.
 
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md (raiz)
 2. ANTES DE SAIR: atualize STATE.md, PROGRESS.md, NEXT.md
-3. Código em: /mnt/Novo_volume/meta-c/src/parser/
-4. Testes em: /mnt/Novo_volume/meta-c/tests/test_parser.cpp
+3. Código em: /mnt/Novo_volume/brick/src/parser/
+4. Testes em: /mnt/Novo_volume/brick/tests/test_parser.cpp
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md (root)
 2. BEFORE LEAVING: update STATE.md, PROGRESS.md, NEXT.md
-3. Code in: /mnt/Novo_volume/meta-c/src/parser/
-4. Tests in: /mnt/Novo_volume/meta-c/tests/test_parser.cpp
+3. Code in: /mnt/Novo_volume/brick/src/parser/
+4. Tests in: /mnt/Novo_volume/brick/tests/test_parser.cpp
 
 ## Interface (parser.h)
 

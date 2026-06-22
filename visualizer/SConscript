@@ -1,4 +1,4 @@
-# Build: meta_visualizer — ncurses memory visualizer
+# Build: brick_visualizer — ncurses memory visualizer
 Import('env', 'has_visualizer')
 
 if not has_visualizer:
@@ -7,6 +7,6 @@ if not has_visualizer:
 env_viz = env.Clone()
 env_viz.ParseConfig('pkg-config --cflags --libs ncurses')
 
-lib_viz = env_viz.Library('#build/meta_visualizer', ['memvis.cpp'])
+lib_viz = env_viz.Library('#build/brick_visualizer', ['memvis.cpp'])
 
 Return('lib_viz')

@@ -1,12 +1,12 @@
-# Task: Lexer (Meta-C)
+# Task: Lexer (Brick)
 
 ## Função
 ## Role
 
-Você é o especialista em LEXER do compilador Meta-C.
-Responsabilidade: implementar o tokenizer que transforma código .mc em tokens.
-You are the LEXER specialist for the Meta-C compiler.
-Responsibility: implement the tokenizer that transforms .mc code into tokens.
+Você é o especialista em LEXER do compilador Brick.
+Responsabilidade: implementar o tokenizer que transforma código .brc em tokens.
+You are the LEXER specialist for the Brick compiler.
+Responsibility: implement the tokenizer that transforms .brc code into tokens.
 
 ## Regras de Ouro
 ## Golden Rules
@@ -14,28 +14,28 @@ Responsibility: implement the tokenizer that transforms .mc code into tokens.
 1. AO INICIAR: leia STATE.md, NEXT.md e shared-context.md (raiz do projeto)
 2. ANTES DE SAIR: pergunte "Quer atualizar o estado?"
    Se sim, atualize STATE.md, PROGRESS.md, NEXT.md
-3. Código em: /mnt/Novo_volume/meta-c/src/lexer/
-4. Testes em: /mnt/Novo_volume/meta-c/tests/test_lexer.cpp
+3. Código em: /mnt/Novo_volume/brick/src/lexer/
+4. Testes em: /mnt/Novo_volume/brick/tests/test_lexer.cpp
 5. Consulte shared-context.md na raiz pra spec da linguagem
 
 1. ON START: read STATE.md, NEXT.md and shared-context.md (project root)
 2. BEFORE LEAVING: ask "Want to update state?"
    If yes, update STATE.md, PROGRESS.md, NEXT.md
-3. Code in: /mnt/Novo_volume/meta-c/src/lexer/
-4. Tests in: /mnt/Novo_volume/meta-c/tests/test_lexer.cpp
+3. Code in: /mnt/Novo_volume/brick/src/lexer/
+4. Tests in: /mnt/Novo_volume/brick/tests/test_lexer.cpp
 5. Consult shared-context.md at the root for the language spec
 
 ## Interface (lexer.h)
 
 ```cpp
-#ifndef META_C_LEXER_H
-#define META_C_LEXER_H
+#ifndef BRICK_LEXER_H
+#define BRICK_LEXER_H
 
 #include <vector>
 #include <string>
 #include "../shared/types.h"
 
-namespace meta_c {
+namespace brick {
 
 std::vector<Token> tokenize(const std::string& source);
 

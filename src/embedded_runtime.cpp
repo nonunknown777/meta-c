@@ -1,10 +1,10 @@
 #include "embedded_runtime.h"
 
-namespace meta_c { namespace embedded {
+namespace brick { namespace embedded {
 
 const char _runtime_block_memory_h[] = R"(
-#ifndef META_C_BLOCK_MEMORY_H
-#define META_C_BLOCK_MEMORY_H
+#ifndef BRICK_BLOCK_MEMORY_H
+#define BRICK_BLOCK_MEMORY_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -30,22 +30,22 @@ typedef struct {
     float  fragmentation_percent;
 } BlockStats;
 
-// ─── Registry API (optional — requires -DMETA_C_TRACK_BLOCKS) ─
-// ─── API do Registro (opcional — requer -DMETA_C_TRACK_BLOCKS) ─
-#ifdef META_C_TRACK_BLOCKS
+// ─── Registry API (optional — requires -DBRICK_TRACK_BLOCKS) ─
+// ─── API do Registro (opcional — requer -DBRICK_TRACK_BLOCKS) ─
+#ifdef BRICK_TRACK_BLOCKS
 
-#define META_C_BLOCK_NAME_MAX 32
-#define META_C_MAX_BLOCKS 64
+#define BRICK_BLOCK_NAME_MAX 32
+#define BRICK_MAX_BLOCKS 64
 
 typedef struct {
-    char     name[META_C_BLOCK_NAME_MAX];
+    char     name[BRICK_BLOCK_NAME_MAX];
     size_t   capacity;
     size_t   used;
     size_t   peak_used;
     size_t   allocation_count;
 } BlockInfo;
 
-#define META_C_SHM_MAGIC 0x4D455441  // "META"
+#define BRICK_SHM_MAGIC 0x4D455441  // "META"
 
 typedef struct __attribute__((packed)) {
     uint32_t magic;
@@ -53,7 +53,7 @@ typedef struct __attribute__((packed)) {
     int32_t  pid;
     uint32_t block_count;
     uint64_t timestamp_us;
-} MetaCShmHeader;
+} BrickShmHeader;
 
 void     block_register(BlockCtx* ctx, const char* name);
 void     block_unregister(BlockCtx* ctx);
@@ -64,8 +64,8 @@ int      block_shm_export(void);
 #else
 // No-op stubs — compiler optimizes these away entirely
 // Stubs no-op — compilador otimiza esses totalmente
-#define META_C_MAX_BLOCKS 1
-#define META_C_BLOCK_NAME_MAX 1
+#define BRICK_MAX_BLOCKS 1
+#define BRICK_BLOCK_NAME_MAX 1
 #define block_register(ctx, name)     ((void)(ctx), (void)(name))
 #define block_unregister(ctx)         ((void)(ctx))
 #define block_find(name)              ((void)(name), (BlockCtx*)NULL)
@@ -122,8 +122,8 @@ void block_thaw(void);
 }
 #endif
 
-#endif // META_C_BLOCK_MEMORY_H
-     // META_C_BLOCK_MEMORY_H
+#endif // BRICK_BLOCK_MEMORY_H
+     // BRICK_BLOCK_MEMORY_H
 )";
 const size_t _runtime_block_memory_h_len = sizeof(_runtime_block_memory_h) - 1;
 
@@ -155,7 +155,7 @@ static atomic_int block_frozen_flag = 0;
 
 // ─── Global Block Registry ───────────────────────────────────
 // ─── Registro Global de Blocos ────────────────────────────────
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
 
 #include <pthread.h>
 #include <unistd.h>
@@ -163,10 +163,10 @@ static atomic_int block_frozen_flag = 0;
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#define REGISTRY_MAX META_C_MAX_BLOCKS
+#define REGISTRY_MAX BRICK_MAX_BLOCKS
 
 typedef struct {
-    char      name[META_C_BLOCK_NAME_MAX];
+    char      name[BRICK_BLOCK_NAME_MAX];
     BlockCtx* ctx;
     int       active;
 } RegistryEntry;
@@ -192,8 +192,8 @@ void block_register(BlockCtx* ctx, const char* name) {
     }
 
     if (slot >= 0) {
-        strncpy(registry[slot].name, name, META_C_BLOCK_NAME_MAX - 1);
-        registry[slot].name[META_C_BLOCK_NAME_MAX - 1] = '\0';
+        strncpy(registry[slot].name, name, BRICK_BLOCK_NAME_MAX - 1);
+        registry[slot].name[BRICK_BLOCK_NAME_MAX - 1] = '\0';
         registry[slot].ctx = ctx;
         registry[slot].active = 1;
     }
@@ -238,8 +238,8 @@ size_t block_snapshot(BlockInfo* out, size_t max_count) {
     size_t written = 0;
     for (int i = 0; i < REGISTRY_MAX && written < max_count; i++) {
         if (registry[i].active) {
-            strncpy(out[written].name, registry[i].name, META_C_BLOCK_NAME_MAX - 1);
-            out[written].name[META_C_BLOCK_NAME_MAX - 1] = '\0';
+            strncpy(out[written].name, registry[i].name, BRICK_BLOCK_NAME_MAX - 1);
+            out[written].name[BRICK_BLOCK_NAME_MAX - 1] = '\0';
             out[written].capacity        = registry[i].ctx->capacity;
             out[written].used            = registry[i].ctx->used;
             out[written].peak_used       = registry[i].ctx->peak_used;
@@ -256,7 +256,7 @@ size_t block_snapshot(BlockInfo* out, size_t max_count) {
 // ─── Exportacao de Memoria Compartilhada ──────────────────────
 
 static void shm_path(char* buf, size_t bufsize) {
-    snprintf(buf, bufsize, "/tmp/meta-c-mem-%d.bin", (int)getpid());
+    snprintf(buf, bufsize, "/tmp/brick-mem-%d.bin", (int)getpid());
 }
 
 int block_shm_export(void) {
@@ -271,15 +271,15 @@ int block_shm_export(void) {
     for (int i = 0; i < REGISTRY_MAX; i++)
         if (registry[i].active) count++;
 
-    size_t file_size = sizeof(MetaCShmHeader) + (size_t)count * sizeof(BlockInfo);
+    size_t file_size = sizeof(BrickShmHeader) + (size_t)count * sizeof(BlockInfo);
 
     int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) { pthread_mutex_unlock(&registry_mutex); return -1; }
 
     ftruncate(fd, (off_t)file_size);
 
-    MetaCShmHeader header;
-    header.magic   = META_C_SHM_MAGIC;
+    BrickShmHeader header;
+    header.magic   = BRICK_SHM_MAGIC;
     header.version = 1;
     header.pid     = (int32_t)getpid();
     header.block_count = (uint32_t)count;
@@ -294,8 +294,8 @@ int block_shm_export(void) {
     for (int i = 0; i < REGISTRY_MAX && written < count; i++) {
         if (registry[i].active) {
             BlockInfo info;
-            strncpy(info.name, registry[i].name, META_C_BLOCK_NAME_MAX - 1);
-            info.name[META_C_BLOCK_NAME_MAX - 1] = '\0';
+            strncpy(info.name, registry[i].name, BRICK_BLOCK_NAME_MAX - 1);
+            info.name[BRICK_BLOCK_NAME_MAX - 1] = '\0';
             info.capacity        = registry[i].ctx->capacity;
             info.used            = registry[i].ctx->used;
             info.peak_used       = registry[i].ctx->peak_used;
@@ -310,11 +310,11 @@ int block_shm_export(void) {
     return 0;
 }
 
-#endif // META_C_TRACK_BLOCKS
-     // META_C_TRACK_BLOCKS
+#endif // BRICK_TRACK_BLOCKS
+     // BRICK_TRACK_BLOCKS
 
 static void error(const char* msg) {
-    fprintf(stderr, "Meta-C runtime error: %s\n", msg);
+    fprintf(stderr, "Brick runtime error: %s\n", msg);
     exit(1);
 }
 
@@ -389,7 +389,7 @@ void* block_alloc_aligned(BlockCtx* ctx, size_t size, size_t alignment) {
 
     // Auto-export shm every 16 allocations (for visualizer attach mode)
     // Auto-exporta shm a cada 16 alocacoes (para modo attach do visualizer)
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
     static unsigned int _alloc_counter = 0;
     if ((++_alloc_counter & 0xF) == 0) {
         block_shm_export();
@@ -405,7 +405,7 @@ void block_reset(BlockCtx* ctx) {
     // Nota: allocation_count NAO e resetado aqui,
     // so we can track total allocations across resets
     // para que possamos rastrear alocacoes totais entre resets
-#ifdef META_C_TRACK_BLOCKS
+#ifdef BRICK_TRACK_BLOCKS
     block_shm_export();
 #endif
 }
@@ -451,8 +451,8 @@ void block_thaw(void) {
 const size_t _runtime_block_memory_c_len = sizeof(_runtime_block_memory_c) - 1;
 
 const char _runtime_io_h[] = R"(
-#ifndef META_C_IO_H
-#define META_C_IO_H
+#ifndef BRICK_IO_H
+#define BRICK_IO_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -464,7 +464,7 @@ extern "C" {
 typedef struct {
     char*  data;
     size_t len;
-} MetaCString;
+} BrickString;
 
 void io_print_u8(uint8_t val);
 void io_print_u16(uint16_t val);
@@ -490,8 +490,8 @@ void io_printf(const char* fmt, ...);
 }
 #endif
 
-#endif // META_C_IO_H
-     // META_C_IO_H
+#endif // BRICK_IO_H
+     // BRICK_IO_H
 )";
 const size_t _runtime_io_h_len = sizeof(_runtime_io_h) - 1;
 
@@ -553,8 +553,8 @@ void io_printf(const char* fmt, ...) {
 const size_t _runtime_io_c_len = sizeof(_runtime_io_c) - 1;
 
 const char _runtime_hot_reload_h[] = R"(
-#ifndef META_C_HOT_RELOAD_H
-#define META_C_HOT_RELOAD_H
+#ifndef BRICK_HOT_RELOAD_H
+#define BRICK_HOT_RELOAD_H
 
 #include <stddef.h>
 
@@ -617,14 +617,14 @@ void hr_destroy(HotReloadEngine* hr);
 }
 #endif
 
-#endif // META_C_HOT_RELOAD_H
-     // META_C_HOT_RELOAD_H
+#endif // BRICK_HOT_RELOAD_H
+     // BRICK_HOT_RELOAD_H
 )";
 const size_t _runtime_hot_reload_h_len = sizeof(_runtime_hot_reload_h) - 1;
 
 const char _runtime_libs_window_window_h[] = R"(
-#ifndef META_C_WINDOW_H
-#define META_C_WINDOW_H
+#ifndef BRICK_WINDOW_H
+#define BRICK_WINDOW_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -685,7 +685,7 @@ typedef struct MetaWindowImpl MetaWindow;
  *
  * Returns NULL on failure.
  *
- * Example (Meta-C):
+ * Example (Brick):
  *   using Window
  *   block win = 1MB
  *   Window w = Window.create("Hello", 800, 600, Window.RESIZABLE | Window.VSYNC) @win
@@ -756,13 +756,13 @@ void* meta_window_native_handle(MetaWindow* w);
 }
 #endif
 
-#endif /* META_C_WINDOW_H */
+#endif /* BRICK_WINDOW_H */
 )";
 const size_t _runtime_libs_window_window_h_len = sizeof(_runtime_libs_window_window_h) - 1;
 
 const char _runtime_libs_window_window_internal_h[] = R"(
-#ifndef META_C_WINDOW_INTERNAL_H
-#define META_C_WINDOW_INTERNAL_H
+#ifndef BRICK_WINDOW_INTERNAL_H
+#define BRICK_WINDOW_INTERNAL_H
 
 #include "window.h"
 #include "../../block_memory.h"
@@ -826,13 +826,13 @@ struct MetaWindowImpl {
 #endif
 };
 
-#endif /* META_C_WINDOW_INTERNAL_H */
+#endif /* BRICK_WINDOW_INTERNAL_H */
 )";
 const size_t _runtime_libs_window_window_internal_h_len = sizeof(_runtime_libs_window_window_internal_h) - 1;
 
 const char _runtime_libs_window_window_hr_h[] = R"(
-#ifndef META_C_WINDOW_HR_H
-#define META_C_WINDOW_HR_H
+#ifndef BRICK_WINDOW_HR_H
+#define BRICK_WINDOW_HR_H
 
 #include "window.h"
 
@@ -939,7 +939,7 @@ struct HotReloadEngine* meta_window_hr_start(const char* so_path);
 }
 #endif
 
-#endif /* META_C_WINDOW_HR_H */
+#endif /* BRICK_WINDOW_HR_H */
 )";
 const size_t _runtime_libs_window_window_hr_h_len = sizeof(_runtime_libs_window_window_hr_h) - 1;
 
@@ -986,7 +986,7 @@ struct HotReloadEngine {
 };
 
 static void error(const char* msg) {
-    fprintf(stderr, "Meta-C hot reload error: %s\n", msg);
+    fprintf(stderr, "Brick hot reload error: %s\n", msg);
     exit(1);
 }
 
@@ -1214,10 +1214,10 @@ const size_t _runtime_hot_reload_c_len = sizeof(_runtime_hot_reload_c) - 1;
 
 const char _runtime_libs_window_window_linux_c[] = R"(
 /**
- * window_linux.c — X11 backend for Meta-C Window library
+ * window_linux.c — X11 backend for Brick Window library
  *
  * Uses Xlib directly (no XCB) for lower overhead and simpler sync.
- * The event queue is allocated from the Meta-C block allocator.
+ * The event queue is allocated from the Brick block allocator.
  */
 
 #include "window_internal.h"
@@ -1280,7 +1280,7 @@ MetaWindow* meta_window_create(
         memcpy(w->title, title, len);
         w->title[len] = '\0';
     } else {
-        memcpy(w->title, "Meta-C", 7);
+        memcpy(w->title, "Brick", 7);
     }
 
     /* Open X display */
@@ -1511,7 +1511,7 @@ const size_t _runtime_libs_window_window_linux_c_len = sizeof(_runtime_libs_wind
 
 const char _runtime_libs_window_window_hr_c[] = R"(
 /**
- * window_hr.c — Hot reload support for Meta-C Window library
+ * window_hr.c — Hot reload support for Brick Window library
  *
  * Defines the global function pointer table and hooks into the
  * HotReloadEngine so that all window API calls can be swapped

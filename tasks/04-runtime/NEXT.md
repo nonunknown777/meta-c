@@ -16,7 +16,7 @@ Cada função usa o format specifier PRI exato do `<inttypes.h>`, eliminando
 widening implícito (ex: antes `u8` virava `(long long)` pra chamar
 `io_print_int`).
 
-### 2. `MetaCString.len` mudou de `int64_t` para `size_t`
+### 2. `BrickString.len` mudou de `int64_t` para `size_t`
 
 Consistência com o resto do runtime que já usa `size_t` (capacidade do
 bloco, índices de alocação). `io_print_string` também mudou o parâmetro
@@ -37,7 +37,7 @@ explícito quando chamado diretamente.
 
 - `gen_print_single` faz dispatch direto pra `io_print_u8`, `io_print_i32` etc
 - `gen_printf_call` usa specifiers `PRIu8/PRId32/PRIu64` etc
-- MetaCString literal gera `.len=(size_t)N`
+- BrickString literal gera `.len=(size_t)N`
 - Inclui `<inttypes.h>` no cabeçalho C gerado
 
 ### Testes

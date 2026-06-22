@@ -3,8 +3,8 @@
 
 - [ ] Executar scons test (testes unitários de cada módulo)
 - [ ] Run scons test (unit tests for each module)
-- [ ] Executar tests/test_integration.sh (integração .mc → binário)
-- [ ] Run tests/test_integration.sh (.mc → binary integration)
+- [ ] Executar tests/test_integration.sh (integração .brc → binário)
+- [ ] Run tests/test_integration.sh (.brc → binary integration)
 - [ ] Executar benchmarks/run_benchmarks.sh (performance)
 - [ ] Run benchmarks/run_benchmarks.sh (performance)
 - [ ] Ler STATE.md de tasks 01-09

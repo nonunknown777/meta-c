@@ -1,12 +1,12 @@
 #!/bin/bash
-# Meta-C: Abre TODAS as tasks em um UNICO Konsole com varias abas
+# Brick: Abre TODAS as tasks em um UNICO Konsole com varias abas
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 OPENCODE="$(which opencode 2>/dev/null || echo "$HOME/.opencode/bin/opencode")"
 
 TABS_FILE=$(mktemp)
 
-echo "Abrindo workspace Meta-C em um unico Konsole..."
+echo "Abrindo workspace Brick em um unico Konsole..."
 
 cat > "$TABS_FILE" << EOF
 title: Root ;; command: $OPENCODE ;; workdir: $SCRIPT_DIR;;

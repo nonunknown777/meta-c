@@ -3,13 +3,13 @@
 
 - [x] #line directives no codegen
 - [x] #line directives in codegen
-- [x] GDB pretty-printers (BlockCtx, MetaCString, BlockAlloc)
+- [x] GDB pretty-printers (BlockCtx, BrickString, BlockAlloc)
 - [x] GDB custom commands (info blocks, block, block-watch)
 - [x] .gdbinit com auto-load
 - [x] .gdbinit with auto-load
 - [x] VS Code debug config (launch.json + tasks.json)
-- [x] VS Code webview panel (Meta-C Memory) com dados reais
-- [x] VS Code webview panel (Meta-C Memory) with real data
+- [x] VS Code webview panel (Brick Memory) com dados reais
+- [x] VS Code webview panel (Brick Memory) with real data
 - [x] Block Data Provider para debug
 - [x] Block Data Provider for debugging
 - [x] Descoberta dinâmica de blocos (sem lista hardcoded)

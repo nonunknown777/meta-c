@@ -83,7 +83,7 @@ def main():
         h.write('#include <cstddef>\n')
         h.write('#include <cstdint>\n')
         h.write('\n')
-        h.write('namespace meta_c { namespace embedded {\n')
+        h.write('namespace brick { namespace embedded {\n')
         h.write('\n')
         h.write('struct EmbeddedFile {\n')
         h.write('    const char* name;\n')
@@ -116,7 +116,7 @@ def main():
     with open(args.out_cpp, 'w', encoding='utf-8') as cpp:
         cpp.write('#include "embedded_runtime.h"\n')
         cpp.write('\n')
-        cpp.write('namespace meta_c { namespace embedded {\n')
+        cpp.write('namespace brick { namespace embedded {\n')
         cpp.write('\n')
 
         for name, text in entries:

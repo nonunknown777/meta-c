@@ -1,13 +1,19 @@
 # Próximo Passo - Tester/Optimizer
 # Next Step - Tester/Optimizer
 
-## Sessão 6 — COMPLETA ✅
+## Sessão 8 — COMPLETA ✅
 
+- [x] Migração completa .mc → .brc
+- [x] Arquivos renomeados (.mc → .brc, mc-run.sh → brc-run.sh)
+- [x] src/main.cpp atualizado (CLI mostra .brc)
+- [x] Testes atualizados (test_lexer, test_codegen, test_integration)
+- [x] Scripts atualizados (benchmarks, brc-run.sh)
+- [x] VS Code Extension atualizada (package.json, extension.ts, server.ts, tmLanguage.json)
+- [x] docs/, wiki/, READMEs, tasks/* atualizados
+- [x] Build: sucesso, sem warnings
 - [x] Testes unitários: 151/151 passando
 - [x] Testes de integração: 5/5 passando
-- [x] Benchmarks: compile 5ms, alloc 2ms/1M (19.5× malloc)
-- [x] shared-context.md atualizado com tipos de largura fixa
-- [x] Verificação de estado de todas as tasks
+- [x] Benchmarks: compile 6ms, alloc 0.002s/1M (21× malloc)
 
 ## Próximas ações sugeridas (prioridade)
 

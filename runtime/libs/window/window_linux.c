@@ -1,8 +1,8 @@
 /**
- * window_linux.c — X11 backend for Meta-C Window library
+ * window_linux.c — X11 backend for Brick Window library
  *
  * Uses Xlib directly (no XCB) for lower overhead and simpler sync.
- * The event queue is allocated from the Meta-C block allocator.
+ * The event queue is allocated from the Brick block allocator.
  */
 
 #include "window_internal.h"
@@ -65,7 +65,7 @@ MetaWindow* meta_window_create(
         memcpy(w->title, title, len);
         w->title[len] = '\0';
     } else {
-        memcpy(w->title, "Meta-C", 7);
+        memcpy(w->title, "Brick", 7);
     }
 
     /* Open X display */

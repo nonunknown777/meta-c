@@ -1,5 +1,5 @@
-#ifndef META_C_PARSER_H
-#define META_C_PARSER_H
+#ifndef BRICK_PARSER_H
+#define BRICK_PARSER_H
 
 #include <vector>
 #include <memory>
@@ -7,7 +7,7 @@
 #include "ast.h"
 #include "../shared/types.h"
 
-namespace meta_c {
+namespace brick {
 
 struct ParseResult {
     std::unique_ptr<ProgramNode> ast;
@@ -16,6 +16,6 @@ struct ParseResult {
 
 ParseResult parse(const std::vector<Token>& tokens);
 
-} // namespace meta_c
+} // namespace brick
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef META_C_MEMVIS_H
-#define META_C_MEMVIS_H
+#ifndef BRICK_MEMVIS_H
+#define BRICK_MEMVIS_H
 
 #include "../runtime/block_memory.h"
 
@@ -20,8 +20,8 @@ typedef struct {
 // Usa blocos de demonstracao se nenhum bloco registrado existir
 void memvis_run(MemVisConfig config);
 
-// Attach to a running process by reading /tmp/meta-c-mem-<pid>.bin
-// Anexa a um processo em execucao lendo /tmp/meta-c-mem-<pid>.bin
+// Attach to a running process by reading /tmp/brick-mem-<pid>.bin
+// Anexa a um processo em execucao lendo /tmp/brick-mem-<pid>.bin
 void memvis_attach(int pid, MemVisConfig config);
 
 // Read block snapshot from a shared memory file (for external viewer)
@@ -34,5 +34,5 @@ int memvis_read_shm(int pid, BlockInfo* blocks, int max_blocks);
 }
 #endif
 
-#endif // META_C_MEMVIS_H
-     // META_C_MEMVIS_H
+#endif // BRICK_MEMVIS_H
+     // BRICK_MEMVIS_H

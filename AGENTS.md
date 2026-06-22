@@ -1,4 +1,4 @@
-# Meta-C
+# Brick
 
 ## Projeto
 ## Project
@@ -27,7 +27,7 @@ runtime/       → block memory allocator + hot reload (C)
 visualizer/    → TUI ncurses (C++)
 debugger/      → GDB pretty-printers + .gdbinit (Python)
 tasks/         → 10 tasks, cada uma com AGENTS.md + estado / each with AGENTS.md + state
-examples/      → código .mc de exemplo / example .mc code
+examples/      → código .brc de exemplo / example .brc code
 tests/         → testes unitários / unit tests
 vscode-ext/    → extensão VS Code (highlight + LSP + debug webview) / VS Code extension
 ```
@@ -39,7 +39,7 @@ Each task in tasks/ has its own AGENTS.md with specific instructions.
 Always read STATE.md and NEXT.md when starting a session.
 
 ```
-01-lexer      Tokenizer .mc -> tokens
+01-lexer      Tokenizer .brc -> tokens
 02-parser     AST + Package Resolution
 03-codegen    Type check + geracao C (com #line p/ debug)
 04-runtime    Block memory allocator (C)
