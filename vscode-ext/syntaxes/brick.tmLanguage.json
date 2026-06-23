@@ -93,7 +93,7 @@
             "patterns": [
                 {
                     "name": "storage.type.brc",
-                    "match": "\\b(u(8|16|32|64)|i(8|16|32|64)|f(32|64)|usize|isize|byte|int|float|bool|char|String|void)\\b"
+                    "match": "\\b(PoolAllocator|u(8|16|32|64)|i(8|16|32|64)|f(32|64)|usize|isize|byte|int|float|bool|char|String|void)\\b"
                 }
             ]
         },
@@ -137,7 +137,7 @@
             "patterns": [
                 {
                     "name": "storage.modifier.pointer.brc",
-                    "match": "(\\*)\\s*(?:(?:u(?:8|16|32|64)|i(?:8|16|32|64)|f(?:32|64)|usize|isize|byte|int|float|bool|char|String|void)\\b|[A-Z][a-zA-Z0-9_]*)",
+                    "match": "(\\*)\\s*(?:(?:PoolAllocator|u(?:8|16|32|64)|i(?:8|16|32|64)|f(?:32|64)|usize|isize|byte|int|float|bool|char|String|void)\\b|[A-Z][a-zA-Z0-9_]*)",
                     "captures": {
                         "1": { "name": "keyword.operator.pointer.brc" }
                     }

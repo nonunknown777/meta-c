@@ -1,7 +1,7 @@
 # Build: brick_runtime — Block memory allocator + I/O + Hot Reload (C)
 Import('env', 'has_hotreload', 'has_x11')
 
-runtime_src = ['block_memory.c', 'io.c']
+runtime_src = ['block_memory.c', 'io.c', 'pool_allocator.c']
 
 if has_hotreload:
     runtime_src.append('hot_reload.c')

@@ -85,6 +85,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            vscode-ext/package-lock.json
+            vscode-ext/server/package-lock.json
+
+      - name: Install extension dependencies
+        run: |
+          cd vscode-ext && npm ci && cd server && npm ci
 
       - name: Build release
         run: bash build-release.sh

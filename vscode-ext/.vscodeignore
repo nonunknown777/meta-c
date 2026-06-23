@@ -1,10 +1,8 @@
 .vscode/
 src/
-node_modules/
 .git/
 .gitignore
 **/*.ts
 **/*.map
 server/src/
-server/node_modules/
 server/tsconfig.json

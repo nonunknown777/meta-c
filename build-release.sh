@@ -33,39 +33,26 @@ VSIX="$RELEASE_DIR/brick-language.vsix"
 if [ -d "$SCRIPT_DIR/vscode-ext" ]; then
     cd "$SCRIPT_DIR/vscode-ext"
 
-    if [ ! -f out/extension.js ]; then
-        echo "      Compiling extension..."
-        npm install --silent 2>/dev/null
-        npm run compile --silent 2>/dev/null || true
-        if [ -d server ]; then
-            cd server
-            npm install --silent 2>/dev/null
-            npm run compile --silent 2>/dev/null || true
-            cd ..
-        fi
+    # Always compile — ensures fresh build even on CI
+    echo "      Compiling extension..."
+    cd "$SCRIPT_DIR/vscode-ext"
+    npm install 2>&1 | sed 's/^/      /'
+    npm run compile 2>&1 | sed 's/^/      /'
+    if [ -d server ]; then
+        cd server
+        npm install 2>&1 | sed 's/^/      /'
+        npm run compile 2>&1 | sed 's/^/      /'
+        cd ..
     fi
 
-    # Try vsce, fallback to manual copy
-    if command -v npx &>/dev/null && npx --yes vsce --version &>/dev/null; then
-        npx --yes vsce package --out "$VSIX" 2>&1 | sed 's/^/      /'
+    # Package .vsix with vsce (auto-installed via npx)
+    echo "      Packaging .vsix..."
+    npx --yes vsce package --out "$VSIX" 2>&1 | sed 's/^/      /'
+    if [ -f "$VSIX" ]; then
         echo "      $(basename "$VSIX")  ($(du -h "$VSIX" | cut -f1))"
     else
-        # Manual: copy extension folder (user runs npm install to activate)
-        rsync -a --exclude='node_modules' \
-                 --exclude='.vscode' \
-                 --exclude='src' \
-                 --exclude='tsconfig.json' \
-                 --exclude='package-lock.json' \
-                 "$SCRIPT_DIR/vscode-ext/" "$RELEASE_DIR/vscode-ext/"
-        if [ -d "$SCRIPT_DIR/vscode-ext/server" ]; then
-            mkdir -p "$RELEASE_DIR/vscode-ext/server"
-            rsync -a --exclude='node_modules' \
-                     --exclude='src' \
-                     --exclude='tsconfig.json' \
-                     --exclude='package-lock.json' \
-                     "$SCRIPT_DIR/vscode-ext/server/" "$RELEASE_DIR/vscode-ext/server/"
-        fi
-        echo "      vscode-ext/  (run 'npm install' inside to activate, or install vsce for .vsix)"
+        echo "      ERROR: .vsix was not created!"
+        exit 1
     fi
 fi
 

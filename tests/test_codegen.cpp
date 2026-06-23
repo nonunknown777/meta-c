@@ -90,7 +90,7 @@ fn main() {
     check(c.find("int32_t hp") != std::string::npos, "field type mapping");
     check(c.find("Player_Player(") != std::string::npos, "constructor call");
     check(c.find("Player_get_hp(") != std::string::npos, "method call");
-    check(c.find("block_alloc(global, sizeof(Player))") != std::string::npos, "block alloc");
+    check(c.find("pool_alloc(__pool_global, sizeof(Player))") != std::string::npos, "block alloc");
     check(c.find("__brick_init") != std::string::npos, "block create");
     check(c.find("block_create_bytes(67108864)") != std::string::npos, "block create size");
     std::cout << "  Generated C:\n" << c << "\n";
@@ -424,11 +424,21 @@ void* block_alloc(BlockCtx* ctx, size_t size) {
 
 void block_reset(BlockCtx* ctx) { ctx->used = 0; }
 void block_destroy(BlockCtx* ctx) { free(ctx->data); free(ctx); }
+void block_set_tls(BlockCtx* ctx) { (void)ctx; }
 #define block_register(ctx, name)     ((void)(ctx), (void)(name))
 #define block_unregister(ctx)         ((void)(ctx))
 #define block_find(name)              ((void)(name), (BlockCtx*)NULL)
 #define block_snapshot(out, max)      ((void)(out), (void)(max), (size_t)0)
 #define block_shm_export()            ((void)0)
+// Pool allocator stubs for compilation test
+// Stubs do pool allocator para o teste de compilacao
+typedef struct { void* data; } PoolBlockHeader;
+typedef struct { int dummy; } PoolAllocator;
+PoolAllocator* pool_create(void) { return (PoolAllocator*)calloc(1, 64); }
+int pool_add_slot(PoolAllocator* p, size_t bs, size_t ct) { (void)p; (void)bs; (void)ct; return 0; }
+void* pool_alloc(PoolAllocator* p, size_t s) { (void)p; return malloc(s); }
+void pool_free(PoolAllocator* p, void* ptr) { (void)p; free(ptr); }
+void pool_destroy(PoolAllocator* p) { free(p); }
 )";
     c_code += cr.c_code;
 
@@ -440,7 +450,15 @@ void block_destroy(BlockCtx* ctx) { free(ctx->data); free(ctx); }
     // Remove o include de block_memory.h ja que usamos stubs inline.
     {
         std::string needle = "#include \"block_memory.h\"\n";
-        size_t p = c_code.find(needle + "#include");
+        size_t p = c_code.find(needle);
+        if (p != std::string::npos)
+            c_code.erase(p, needle.size());
+    }
+    // Remove the pool_allocator.h include since we inline stubs.
+    // Remove o include de pool_allocator.h ja que usamos stubs inline.
+    {
+        std::string needle = "#include \"pool_allocator.h\"\n";
+        size_t p = c_code.find(needle);
         if (p != std::string::npos)
             c_code.erase(p, needle.size());
     }
@@ -638,6 +656,105 @@ fn test_promotion() -> i64 {
     std::cout << "  Generated C:\n" << c << "\n";
 }
 
+void test_optimization_inline_hints() {
+    std::cout << "=== test_optimization_inline_hints ===\n";
+    std::string source = R"(
+package TEST
+
+block global = 64MB
+
+struct Foo {
+    int x
+
+    fn get_x() -> int {
+        return x
+    }
+}
+
+fn add(int a, int b) -> int {
+    return a + b
+}
+
+fn main() {
+    int r = add(1, 2)
+}
+)";
+
+    ParseResult pr;
+    if (!parse_and_check(source, pr, "inline_hints")) return;
+    CodegenResult cr;
+    if (!codegen_from_ast(pr, cr, "inline_hints")) return;
+
+    std::string c = cr.c_code;
+    check(c.find("__attribute__((always_inline))") != std::string::npos,
+          "always_inline attribute present");
+    check(c.find("static inline") != std::string::npos,
+          "static inline present");
+    check(c.find("static inline") < c.find("main(") ||
+          c.find("__attribute__((always_inline))") < c.find("main("),
+          "inline hint before non-main functions");
+    std::cout << "  Generated C:\n" << c << "\n";
+}
+
+void test_optimization_simd_alignment() {
+    std::cout << "=== test_optimization_simd_alignment ===\n";
+    std::string source = R"(
+package TEST
+
+block global = 64MB
+
+struct Particles {
+    f32[4] positions
+    f64[2] velocities
+    f32   temperature
+    f64   mass
+    int   count
+}
+
+fn main() {}
+)";
+
+    ParseResult pr;
+    if (!parse_and_check(source, pr, "simd_alignment")) return;
+    CodegenResult cr;
+    if (!codegen_from_ast(pr, cr, "simd_alignment")) return;
+
+    std::string c = cr.c_code;
+    check(c.find("__attribute__((aligned(16)))") != std::string::npos ||
+          c.find("__attribute__((aligned(32)))") != std::string::npos,
+          "SIMD alignment attribute on float arrays");
+    check(c.find("aligned") != std::string::npos, "at least one aligned attribute");
+    std::cout << "  Generated C:\n" << c << "\n";
+}
+
+void test_optimization_constant_folding() {
+    std::cout << "=== test_optimization_constant_folding ===\n";
+    std::string source = R"(
+package TEST
+
+block global = 64MB
+
+fn main() {
+    int x = 10 + 20
+    int y = 100 - 30
+    int z = 5 * 7
+}
+)";
+
+    ParseResult pr;
+    if (!parse_and_check(source, pr, "constant_folding")) return;
+    CodegenResult cr;
+    if (!codegen_from_ast(pr, cr, "constant_folding")) return;
+
+    std::string c = cr.c_code;
+    // The folded constants should be integers, not expressions
+    check(c.find("= (10 + 20)") == std::string::npos, "10+20 folded (no expression)");
+    check(c.find("= 30") != std::string::npos, "10+20 -> 30");
+    check(c.find("= 70") != std::string::npos, "100-30 -> 70");
+    check(c.find("= 35") != std::string::npos, "5*7 -> 35");
+    std::cout << "  Generated C:\n" << c << "\n";
+}
+
 int main() {
     test_codegen_simple();
     test_codegen_extends();
@@ -655,6 +772,11 @@ int main() {
     test_codegen_literal_suffix();
     test_codegen_literal_overflow();
     test_codegen_type_promotion();
+
+    // Optimization tests
+    test_optimization_inline_hints();
+    test_optimization_simd_alignment();
+    test_optimization_constant_folding();
 
     std::cout << "\n=== Results ===\n";
     std::cout << "Passed: " << tests_passed << "\n";

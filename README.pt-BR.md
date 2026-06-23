@@ -20,6 +20,8 @@ package DEMO
 
 using IO
 
+block global = 64MB
+
 interface Damageable {
     fn take_damage(i32 dmg)
 }
@@ -151,6 +153,8 @@ malloc:      1.000.000 allocs de 64B em 0.039s   ← baseline
 package EXEMPLO
 
 using IO
+
+block global = 64MB
 
 interface Desenhavel {
     fn desenhar()

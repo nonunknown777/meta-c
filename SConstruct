@@ -31,9 +31,11 @@ Cross-compilacao:
 
 Profiles:
 Perfis:
-  release   -std=c++20 -O3 -Wall
-  debug     -std=c++20 -g -O0 -DDEBUG
-  sanitize  -std=c++20 -g -O1 -fsanitize=address,undefined
+  release     -std=c++20 -O3 -Wall
+  debug       -std=c++20 -g -O0 -DDEBUG
+  sanitize    -std=c++20 -g -O1 -fsanitize=address,undefined
+  pgo-gen     -std=c++20 -O3 -Wall -fprofile-generate (PGO generate)
+  pgo-use     -std=c++20 -O3 -Wall -fprofile-use (PGO use)
 
 Options:
 Opcoes:
@@ -127,6 +129,18 @@ elif profile == 'sanitize':
     env.Append(CXXFLAGS=['-g', '-O1', '-fsanitize=address', '-fsanitize=undefined'],
                CFLAGS=['-g', '-O1', '-fsanitize=address', '-fsanitize=undefined'],
                LINKFLAGS=['-fsanitize=address', '-fsanitize=undefined'])
+elif profile == 'pgo-gen':
+    print("[build] PGO generate mode")
+    print("[build] Modo PGO generate")
+    env.Append(CXXFLAGS=['-O3', '-fprofile-generate'],
+               CFLAGS=['-O3', '-fprofile-generate'],
+               LINKFLAGS=['-fprofile-generate'])
+elif profile == 'pgo-use':
+    print("[build] PGO use mode")
+    print("[build] Modo PGO use")
+    env.Append(CXXFLAGS=['-O3', '-fprofile-use', '-fprofile-correction'],
+               CFLAGS=['-O3', '-fprofile-use', '-fprofile-correction'],
+               LINKFLAGS=['-fprofile-use', '-fprofile-correction'])
 else:
     print(f"[build] Unknown profile '{profile}', falling back to release")
     print(f"[build] Perfil desconhecido '{profile}', usando release como fallback")

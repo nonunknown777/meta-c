@@ -3,7 +3,7 @@
     "name": "brick-language",
     "displayName": "Brick Language",
     "description": "Brick language support: syntax highlighting, snippets, LSP, and debugger",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "license": "MIT",
     "repository": {
         "type": "git",

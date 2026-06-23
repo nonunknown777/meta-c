@@ -96,11 +96,23 @@ const KEYWORD_DOCS: Record<string, string> = {
     link: 'Link a C library. Example: `link m` or `link SDL2`',
     extern: 'Declare an external C function. Example: `extern fn sqrt(f64 x) -> f64`',
     and: 'Connects include and link: `include "math.h" and link m`',
+    PoolAllocator: 'Pool allocator type for fixed-size slot allocation. Created via `pool_create()`.',
+    block_set_tls: 'Sets the thread-local storage block context. Used for per-thread memory blocks.',
+    block_get_tls: 'Returns the thread-local storage block context.',
+    block_alloc_tls: 'Allocates memory from the thread-local storage block.',
+    pool_create: 'Creates a new pool allocator with the given total size and slot size.',
+    pool_add_slot: 'Adds a pre-allocated data slot to the pool.',
+    pool_alloc: 'Allocates a slot from the pool. Returns NULL if full.',
+    pool_free: 'Frees a slot back to the pool for reuse.',
+    pool_destroy: 'Destroys the pool allocator and frees all memory.',
+    block_enable_double_buffer: 'Enables double-buffering on a block, keeping active and shadow buffers.',
+    block_swap_buffers: 'Swaps the active and shadow buffers of a double-buffered block.',
+    block_alloc_db: 'Allocates memory in a double-buffered block, returning a pointer valid in both buffers.',
 };
 
 const FIXED_WIDTH_TYPES = new Set(['u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64', 'usize', 'isize', 'byte']);
 
-const BUILTIN_TYPES = new Set(['int', 'float', 'bool', 'char', 'String', 'void', ...FIXED_WIDTH_TYPES]);
+const BUILTIN_TYPES = new Set(['int', 'float', 'bool', 'char', 'String', 'void', 'PoolAllocator', ...FIXED_WIDTH_TYPES]);
 
 export function scanDocument(text: string): ScanResult {
     const tokens: MCToken[] = [];

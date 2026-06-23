@@ -23,6 +23,26 @@ static inline size_t optimal_alignment(size_t size) {
 
 static atomic_int block_frozen_flag = 0;
 
+// Thread-local current block
+// Bloco atual thread-local
+__thread BlockCtx* _tls_current_block = NULL;
+
+// Double-buffer support
+// Suporte a double-buffer
+typedef struct {
+    uint8_t* shadow_data;
+    size_t   shadow_capacity;
+    size_t   shadow_used;
+    int      active_buffer; // 0 = primary, 1 = shadow
+                            // 0 = primario, 1 = sombra
+} BlockDoubleBuffer;
+
+#define DB_MAGIC 0xDBDBDBDB
+typedef struct {
+    uint32_t          magic;
+    BlockDoubleBuffer db;
+} BlockExtension;
+
 // ─── Global Block Registry ───────────────────────────────────
 // ─── Registro Global de Blocos ────────────────────────────────
 #ifdef BRICK_TRACK_BLOCKS
@@ -316,4 +336,115 @@ void block_freeze(void) {
 
 void block_thaw(void) {
     atomic_store_explicit(&block_frozen_flag, 0, memory_order_release);
+}
+
+// ─── Thread-Local Block API ──────────────────────────────────
+// ─── API de Bloco Thread-Local ────────────────────────────────
+
+void block_set_tls(BlockCtx* ctx) {
+    _tls_current_block = ctx;
+}
+
+BlockCtx* block_get_tls(void) {
+    return _tls_current_block;
+}
+
+// ─── Double-Buffer API (Pauseless Hot Reload) ───────────────
+// ─── API de Double-Buffer (Hot Reload sem Pausa) ─────────────
+
+static BlockCtx*    _db_ctx_table[64] = {NULL};
+static BlockExtension* _db_ext_table[64] = {NULL};
+static int          _db_table_count = 0;
+
+static BlockExtension* find_db_ext(BlockCtx* ctx) {
+    for (int i = 0; i < _db_table_count; i++) {
+        if (_db_ctx_table[i] == ctx) return _db_ext_table[i];
+    }
+    return NULL;
+}
+
+int block_enable_double_buffer(BlockCtx* ctx) {
+    BlockExtension* ext = (BlockExtension*)malloc(sizeof(BlockExtension));
+    if (!ext) return -1;
+
+    ext->magic = DB_MAGIC;
+    ext->db.shadow_capacity = ctx->capacity;
+    ext->db.shadow_used = 0;
+    ext->db.active_buffer = 0;
+
+    if (ctx->capacity >= 65536) {
+        ext->db.shadow_data = (uint8_t*)mmap(NULL, ctx->capacity,
+                                             PROT_READ | PROT_WRITE,
+                                             MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE,
+                                             -1, 0);
+        if (ext->db.shadow_data == MAP_FAILED) { free(ext); return -1; }
+    } else {
+        ext->db.shadow_data = (uint8_t*)malloc(ctx->capacity);
+        if (!ext->db.shadow_data) { free(ext); return -1; }
+    }
+
+    if (_db_table_count >= 64) { free(ext); return -1; }
+
+    _db_ctx_table[_db_table_count] = ctx;
+    _db_ext_table[_db_table_count] = ext;
+    _db_table_count++;
+    return 0;
+}
+
+void block_swap_buffers(BlockCtx* ctx) {
+    BlockExtension* ext = find_db_ext(ctx);
+    if (!ext) return;
+
+    // Atomically swap the active buffer
+    // Troca atomicamente o buffer ativo
+    int old_active = __sync_fetch_and_xor(&ext->db.active_buffer, 1);
+
+    if (old_active == 0) {
+        // Was using primary, now use shadow
+        // Estava usando primario, agora usa sombra
+        // Copy used count from active to shadow
+        // Copia contagem usada do ativo para sombra
+        ext->db.shadow_used = ctx->used;
+
+        // Swap data pointers atomically
+        // Troca ponteiros de dados atomicamente
+        uint8_t* temp_data = ctx->data;
+        ctx->data = ext->db.shadow_data;
+        ext->db.shadow_data = temp_data;
+
+        size_t temp_cap = ctx->capacity;
+        ctx->capacity = ext->db.shadow_capacity;
+        ext->db.shadow_capacity = temp_cap;
+    }
+}
+
+void* block_alloc_db(BlockCtx* ctx, size_t size) {
+    // Same as block_alloc_aligned but works with the active buffer
+    // Mesmo que block_alloc_aligned mas funciona com o buffer ativo
+    // No spin-wait for frozen flag needed — double-buffer eliminates the pause
+    // Sem espera ocupada para flag frozen — double-buffer elimina a pausa
+    size_t alignment = size >= 8 ? (size_t)8
+                    : size >= 4 ? (size_t)4
+                    : size >= 2 ? (size_t)2
+                    :             (size_t)1;
+
+    size_t current = ctx->used;
+    size_t aligned = (current + alignment - 1) & ~(alignment - 1);
+
+    if (aligned + size > ctx->capacity) {
+        error("block overflow: out of memory in block");
+    }
+
+    ctx->used = aligned + size;
+    ctx->allocation_count++;
+
+    if (ctx->used > ctx->peak_used) {
+        ctx->peak_used = ctx->used;
+    }
+
+    return ctx->data + aligned;
+}
+
+int block_has_double_buffer(BlockCtx* ctx) {
+    return find_db_ext(ctx) != NULL;
 }

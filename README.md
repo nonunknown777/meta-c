@@ -31,6 +31,8 @@ package DEMO
 
 using IO
 
+block global = 64MB
+
 interface Damageable {
     fn take_damage(i32 dmg)
 }
@@ -157,6 +159,22 @@ Block alloc: 1,000,000 allocs of 64B in 0.002s   ← 19.5× faster
 malloc:      1,000,000 allocs of 64B in 0.039s   ← baseline
 ```
 
+### Beyond the Bump
+
+Brick applies **7 optimizations** automatically:
+
+| Optimization | What it does | When |
+|---|---|---|
+| **Constant Folding** | Pre-computes `60 * 1000` → `60000` at compile time | Always |
+| **Inline Hints** | `__attribute__((always_inline))` on every function | Always |
+| **SIMD Alignment** | `aligned(16/32)` on float fields for SSE/AVX | Structs with f32/f64 |
+| **Pool Allocator** | O(1) pool_alloc for types ≤ 64 bytes | Every block |
+| **TLS Blocks** | `block_set_tls()` wired in `__brick_init()` | Main thread auto |
+| **Double-Buffer** | Atomic block swap for zero-pause hot reload | On request |
+| **PGO** | Profile-guided optimization via `scons profile=pgo-*` | Release builds |
+
+See [docs/OPTIMIZATIONS.md](docs/OPTIMIZATIONS.md) for deep-dive explanations with examples.
+
 ### Compiler
 
 | Input         | Compile Time |
@@ -174,6 +192,8 @@ malloc:      1,000,000 allocs of 64B in 0.039s   ← baseline
 package TYPES_DEMO
 
 using IO
+
+block global = 64MB
 
 interface Drawable {
     fn draw()

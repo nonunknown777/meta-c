@@ -113,6 +113,46 @@ void block_freeze(void);
 // Descongela alocacoes de bloco apos troca de hot reload
 void block_thaw(void);
 
+// ─── Thread-Local Blocks ─────────────────────────────────────
+// Blocos com thread-local
+// ──────────────────────────────────────────────────────────────
+
+// Declare a thread-local current block pointer
+// Declara um ponteiro de bloco atual thread-local
+// Each thread can have its own current block, avoiding locks
+// Cada thread pode ter seu proprio bloco atual, evitando locks
+extern __thread BlockCtx* _tls_current_block;
+
+// Set the current thread-local block
+// Define o bloco atual thread-local
+void block_set_tls(BlockCtx* ctx);
+
+// Get the current thread-local block
+// Obtem o bloco atual thread-local
+BlockCtx* block_get_tls(void);
+
+// ─── Pauseless Hot Reload: Block Double-Buffering ───────────
+// Hot Reload sem pausa: Double-buffer de blocos
+// ──────────────────────────────────────────────────────────────
+
+// Enable double-buffer mode on a block
+// Ativa modo double-buffer em um bloco
+// Maintains two copies of block data; on hot reload, swaps atomically
+// Mantem duas copias dos dados do bloco; no hot reload, troca atomicamente
+int  block_enable_double_buffer(BlockCtx* ctx);
+
+// Swap the active and shadow buffers atomically (called by hot reload)
+// Troca os buffers ativo e sombra atomicamente (chamado pelo hot reload)
+void block_swap_buffers(BlockCtx* ctx);
+
+// Allocate from the active buffer (same as block_alloc but aware of double-buffer)
+// Aloca do buffer ativo (mesmo que block_alloc mas ciente de double-buffer)
+void* block_alloc_db(BlockCtx* ctx, size_t size);
+
+// Check if a block has double-buffer enabled (for debugger)
+// Verifica se um bloco tem double-buffer ativado (para o debugger)
+int block_has_double_buffer(BlockCtx* ctx);
+
 #ifdef __cplusplus
 }
 #endif

@@ -62,4 +62,7 @@ set $_brick_loaded = 1
 
 # Aliases
 # Aliases
-alias ib = info blocks
+alias ib   = info blocks
+alias ibp  = info blocks -p
+alias bw   = block-watch
+alias bd   = brick debug

@@ -1,4 +1,4 @@
-# Brick Language Specification v0.3.0
+# Brick Language Specification v0.4.0
 
 ## Filosofia
 ## Philosophy

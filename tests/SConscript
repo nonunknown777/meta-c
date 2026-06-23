@@ -32,6 +32,14 @@ if has_hotreload:
     test_bins.append(build_test('test_hot_reload', ['test_hot_reload.c'],
                                 ['brick_runtime']))
 
+# ─── Optimization tests ──────────────────────────────────────
+test_bins.append(build_test('test_pool_allocator', ['test_pool_allocator.c'],
+                            ['brick_runtime']))
+test_bins.append(build_test('test_tls_block', ['test_tls_block.c'],
+                            ['brick_runtime']))
+test_bins.append(build_test('test_double_buffer', ['test_double_buffer.c'],
+                            ['brick_runtime']))
+
 # ─── Window library tests (X11) ─────────────────────────────
 if has_x11:
     env_win = env.Clone()

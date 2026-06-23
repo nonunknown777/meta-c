@@ -255,6 +255,52 @@ cd brick</pre></div>
   </div>
 </section>
 
+<!-- Optimizations -->
+<section>
+  <div class="container">
+    <h2 class="section-title fade-in">Optimizations</h2>
+    <p class="section-sub fade-in">7 techniques applied — from compile-time math to thread-local blocks.</p>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <span class="icon">🧮</span>
+        <h3>Constant Folding</h3>
+        <p>The compiler pre-computes constant expressions (<code>60 * 1000</code> → <code>60000</code>) so the CPU never has to.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <span class="icon">⚡</span>
+        <h3>Inline Hints</h3>
+        <p>Every non-main function gets <code>__attribute__((always_inline))</code>. Zero call overhead for methods and small functions.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <span class="icon">📏</span>
+        <h3>SIMD Alignment</h3>
+        <p>Float/f64 fields are <code>aligned(16)</code> or <code>aligned(32)</code> so GCC uses aligned SSE/AVX moves — up to 2× faster math.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <span class="icon">📦</span>
+        <h3>Pool Allocator</h3>
+        <p>Every block gets a pool for types ≤ 64 bytes. Small allocations use O(1) pool_alloc instead of the bump allocator, freeing memory individually.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <span class="icon">🧵</span>
+        <h3>TLS Blocks</h3>
+        <p>Thread-local current block via <code>__thread</code>. Each thread allocates without locks — zero contention, zero cache-line bouncing.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <span class="icon">🔄</span>
+        <h3>Double-Buffer</h3>
+        <p>Hot reload with zero pause. Block double-buffering swaps atomically — no frame skip, no visible stutter.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <span class="icon">📊</span>
+        <h3>PGO Builds</h3>
+        <p>Profile-guided optimization: compile with <code>profile=pgo-gen</code>, run benchmarks, rebuild with <code>profile=pgo-use</code>. Up to 15% faster code.</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;"><a href="OPTIMIZATIONS.md" class="btn">View Full Details →</a></p>
+  </div>
+</section>
+
 <!-- Documentation -->
 <section>
   <div class="container">

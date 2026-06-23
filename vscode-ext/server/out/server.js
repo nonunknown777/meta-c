@@ -19,7 +19,7 @@ const legend = {
     tokenTypes: tokenTypes,
     tokenModifiers: tokenModifiers,
 };
-const typeKeywordSet = new Set(['int', 'float', 'bool', 'char', 'String', 'void', 'u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64', 'usize', 'isize', 'byte']);
+const typeKeywordSet = new Set(['int', 'float', 'bool', 'char', 'String', 'void', 'PoolAllocator', 'u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64', 'usize', 'isize', 'byte']);
 const keywordSet = new Set([
     'package', 'using', 'private', 'public',
     'struct', 'extends', 'interface', 'fn', 'return',
@@ -71,6 +71,19 @@ const keywordCompletions = [
     { label: 'link', kind: node_1.CompletionItemKind.Keyword, detail: 'link C library', insertText: 'link ${1:libname}', insertTextFormat: 2 },
     { label: 'extern', kind: node_1.CompletionItemKind.Keyword, detail: 'declare external C function', insertText: 'extern fn ${1:name}(${2:params}) -> ${3:ret}', insertTextFormat: 2 },
     { label: 'and', kind: node_1.CompletionItemKind.Keyword, detail: 'connects include and link' },
+];
+const runtimeFunctionCompletions = [
+    { label: 'block_set_tls', kind: node_1.CompletionItemKind.Function, detail: '(BlockCtx* ctx) → void', insertText: 'block_set_tls(${1:ctx})', insertTextFormat: 2 },
+    { label: 'block_get_tls', kind: node_1.CompletionItemKind.Function, detail: '() → BlockCtx*', insertText: 'block_get_tls()', insertTextFormat: 1 },
+    { label: 'block_alloc_tls', kind: node_1.CompletionItemKind.Function, detail: '(usize size) → void*', insertText: 'block_alloc_tls(${1:size})', insertTextFormat: 2 },
+    { label: 'pool_create', kind: node_1.CompletionItemKind.Function, detail: '(usize size, usize slot_size) → PoolAllocator*', insertText: 'pool_create(${1:size}, ${2:slot_size})', insertTextFormat: 2 },
+    { label: 'pool_add_slot', kind: node_1.CompletionItemKind.Function, detail: '(PoolAllocator* pool, void* data) → void', insertText: 'pool_add_slot(${1:pool}, ${2:data})', insertTextFormat: 2 },
+    { label: 'pool_alloc', kind: node_1.CompletionItemKind.Function, detail: '(PoolAllocator* pool) → void*', insertText: 'pool_alloc(${1:pool})', insertTextFormat: 2 },
+    { label: 'pool_free', kind: node_1.CompletionItemKind.Function, detail: '(PoolAllocator* pool, void* ptr) → void', insertText: 'pool_free(${1:pool}, ${2:ptr})', insertTextFormat: 2 },
+    { label: 'pool_destroy', kind: node_1.CompletionItemKind.Function, detail: '(PoolAllocator* pool) → void', insertText: 'pool_destroy(${1:pool})', insertTextFormat: 2 },
+    { label: 'block_enable_double_buffer', kind: node_1.CompletionItemKind.Function, detail: '(BlockCtx* ctx) → void', insertText: 'block_enable_double_buffer(${1:ctx})', insertTextFormat: 2 },
+    { label: 'block_swap_buffers', kind: node_1.CompletionItemKind.Function, detail: '(BlockCtx* ctx) → void', insertText: 'block_swap_buffers(${1:ctx})', insertTextFormat: 2 },
+    { label: 'block_alloc_db', kind: node_1.CompletionItemKind.Function, detail: '(BlockCtx* ctx, usize size) → void*', insertText: 'block_alloc_db(${1:ctx}, ${2:size})', insertTextFormat: 2 },
 ];
 const snippetCompletions = [
     { label: 'struct', kind: node_1.CompletionItemKind.Snippet, detail: 'struct declaration', insertText: 'struct $1 {\n\t$0\n}', insertTextFormat: 2 },
@@ -316,10 +329,15 @@ connection.onCompletion((params) => {
             return items;
         }
     }
-    // Default: keywords + snippets + document symbols
+    // Default: keywords + runtime functions + snippets + document symbols
     for (const kw of keywordCompletions) {
         if (!context.currentWord || kw.label.startsWith(context.currentWord) || context.currentWord.startsWith(kw.label)) {
             items.push(kw);
+        }
+    }
+    for (const fn of runtimeFunctionCompletions) {
+        if (!context.currentWord || fn.label.startsWith(context.currentWord) || context.currentWord.startsWith(fn.label)) {
+            items.push(fn);
         }
     }
     for (const snip of snippetCompletions) {

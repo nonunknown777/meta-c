@@ -7,6 +7,17 @@ interface BlockInfo {
     unit: string;
     allocs: number;
     peak: number;
+    doubleBuffered?: boolean;
+    activeBuffer?: number;
+}
+
+interface PoolInfo {
+    name: string;
+    slots: number;
+    blockSize: number;
+    capacity: number;
+    used: number;
+    unit: string;
 }
 
 // GDB convenience function $block_names provides dynamic block discovery
@@ -37,10 +48,13 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
             console.log('[Brick Mem] session:', session ? session.id : 'none');
             if (session) {
                 try {
-                    const blocks = await this._readBlocksFromSession(session);
-                    console.log('[Brick Mem] blocks count:', blocks.length);
-                    if (blocks.length > 0) {
-                        this._view.webview.postMessage({ command: 'update', blocks });
+                    const [blocks, pools] = await Promise.all([
+                        this._readBlocksFromSession(session),
+                        this._readPoolsFromSession(session),
+                    ]);
+                    console.log('[Brick Mem] blocks count:', blocks.length, 'pools count:', pools.length);
+                    if (blocks.length > 0 || pools.length > 0) {
+                        this._view.webview.postMessage({ command: 'update', blocks, pools });
                         return;
                     }
                 } catch (e) {
@@ -181,6 +195,115 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
         return nm ? parseInt(nm[1], 10) : NaN;
     }
 
+    private async _getDoubleBufferInfo(session: vscode.DebugSession, frameId: number, blockNames: string[]): Promise<Record<string, { doubleBuffered: boolean; activeBuffer: number }>> {
+        const result: Record<string, { doubleBuffered: boolean; activeBuffer: number }> = {};
+        for (const name of blockNames) {
+            result[name] = { doubleBuffered: false, activeBuffer: 0 };
+        }
+
+        // Check if double-buffer table exists
+        const countR = await this._evalExpr(session, '(int)_db_table_count', frameId);
+        if (!countR || countR.result === undefined) return result;
+        const count = this._extractNum(countR.result);
+        if (isNaN(count) || count <= 0) return result;
+
+        console.log(`[Brick Mem] Double-buffer table count: ${count}`);
+
+        for (const name of blockNames) {
+            for (let i = 0; i < count; i++) {
+                const matchR = await this._evalExpr(session, `(int)(${name} == _db_ctx_table[${i}])`, frameId);
+                if (matchR && matchR.result) {
+                    const matchVal = this._extractNum(matchR.result);
+                    if (matchVal === 1) {
+                        const bufR = await this._evalExpr(session, `_db_ext_table[${i}]->db.active_buffer`, frameId);
+                        const activeBuf = bufR ? this._extractNum(bufR.result) : 0;
+                        result[name] = { doubleBuffered: true, activeBuffer: isNaN(activeBuf) ? 0 : activeBuf };
+                        console.log(`[Brick Mem] ${name}: double-buffered, active buffer ${result[name].activeBuffer}`);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private async _getPoolNames(session: vscode.DebugSession, frameId: number): Promise<string[]> {
+        // Find PoolAllocator* variables via GDB
+        {
+            const r = await this._evalCommand(session, 'info variables -t PoolAllocator');
+            console.log('[Brick Mem] Pool A1 raw:', JSON.stringify(r));
+            if (r && r.result) {
+                const names: string[] = [];
+                for (const rawLine of String(r.result).split('\n')) {
+                    const m = this._cleanMiLine(rawLine).match(/PoolAllocator\s*\*?\s*(\w+);/);
+                    if (m) names.push(m[1]);
+                }
+                if (names.length > 0) { console.log('[Brick Mem] Pool names:', [...new Set(names)]); return [...new Set(names)]; }
+            }
+        }
+        return [];
+    }
+
+    private async _readPoolsFromSession(session: vscode.DebugSession): Promise<PoolInfo[]> {
+        const frameId = await this._getDAPFrameId(session);
+        if (frameId === undefined) return [];
+
+        const names = await this._getPoolNames(session, frameId);
+        console.log('[Brick Mem] Pools found:', names);
+        if (names.length === 0) return [];
+
+        const pools: PoolInfo[] = [];
+
+        for (const name of names) {
+            try {
+                const slotCountR = await this._evalExpr(session, `${name}->slot_count`, frameId);
+                if (!slotCountR || slotCountR.result === undefined) continue;
+                const slotCount = this._extractNum(slotCountR.result);
+                if (isNaN(slotCount) || slotCount <= 0) continue;
+
+                let totalCapacity = 0;
+                let totalUsed = 0;
+                let blockSize = 0;
+
+                for (let s = 0; s < slotCount; s++) {
+                    const bsR = await this._evalExpr(session, `${name}->slots[${s}].block_size`, frameId);
+                    const capR = await this._evalExpr(session, `${name}->slots[${s}].capacity`, frameId);
+                    const cntR = await this._evalExpr(session, `${name}->slots[${s}].count`, frameId);
+
+                    const bs = bsR ? this._extractNum(bsR.result) : 0;
+                    const cap = capR ? this._extractNum(capR.result) : 0;
+                    const cnt = cntR ? this._extractNum(cntR.result) : 0;
+
+                    if (bs > 0 && cap > 0) {
+                        totalCapacity += cap * bs;
+                        totalUsed += (cap - cnt) * bs;
+                        if (bs > blockSize) blockSize = bs;
+                    }
+                }
+
+                if (totalCapacity === 0) continue;
+
+                const unit = totalCapacity >= 1024 * 1024 ? 'MB' : totalCapacity >= 1024 ? 'KB' : 'B';
+                const divisor = unit === 'MB' ? 1024 * 1024 : unit === 'KB' ? 1024 : 1;
+
+                pools.push({
+                    name,
+                    slots: slotCount,
+                    blockSize,
+                    capacity: Math.round(totalCapacity / divisor),
+                    used: Math.round(totalUsed / divisor),
+                    unit,
+                });
+            } catch (e) {
+                console.log(`[Brick Mem] Pool ${name} error:`, e);
+            }
+        }
+
+        console.log('[Brick Mem] Pools data:', pools);
+        return pools;
+    }
+
     private async _readBlocksFromSession(session: vscode.DebugSession): Promise<BlockInfo[]> {
         const frameId = await this._getDAPFrameId(session);
         if (frameId === undefined) {
@@ -193,6 +316,7 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
         console.log('[Brick Mem] Blocks found:', names);
         if (names.length === 0) return [];
 
+        const dbInfo = await this._getDoubleBufferInfo(session, frameId, names);
         const blocks: BlockInfo[] = [];
 
         for (const name of names) {
@@ -220,13 +344,16 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
 
                 console.log(`[Brick Mem] ${name}: cap=${capacity} used=${used} peak=${peak} allocs=${allocs}`);
 
+                const blockDb = dbInfo[name];
                 blocks.push({
                     name,
                     size: Math.round(capacity / divisor),
                     used: Math.round(used / divisor),
                     peak: Math.round(peak / divisor),
                     unit,
-                    allocs
+                    allocs,
+                    doubleBuffered: blockDb?.doubleBuffered ?? false,
+                    activeBuffer: blockDb?.activeBuffer ?? 0,
                 });
             } catch (e) {
                 console.log(`[Brick Mem] ${name} error:`, e);
@@ -331,36 +458,69 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
     <script>
         const vscode = acquireVsCodeApi();
 
-        function renderBlocks(blocks, msg) {
+        function renderBlocks(blocks, pools, msg) {
             const container = document.getElementById('blocks');
 
-            if (!blocks || blocks.length === 0) {
+            if ((!blocks || blocks.length === 0) && (!pools || pools.length === 0)) {
                 container.innerHTML = '<div class="empty">' + (msg || 'No memory blocks found') + '</div>';
                 return;
             }
 
-            container.innerHTML = blocks.map(block => {
-                const pct = (block.used / block.size) * 100;
-                const barClass = pct > 90 ? 'critical' : pct > 75 ? 'warning' : '';
-                const warning = pct > 80 ? '\\u26A0' : '';
+            let html = '';
 
-                return \`
-                    <div class="block">
-                        <div class="block-header">
-                            <span class="block-name">\${block.name}</span>
-                            <span class="block-size">\${block.size}\${block.unit}</span>
+            if (blocks && blocks.length > 0) {
+                html += '<div class="header">BLOCKS</div>';
+                html += blocks.map(block => {
+                    const pct = (block.used / block.size) * 100;
+                    const barClass = pct > 90 ? 'critical' : pct > 75 ? 'warning' : '';
+                    const warning = pct > 80 ? '\\u26A0' : '';
+
+                    const dbBadge = block.doubleBuffered ? '<span style="color: #4ec9b0; font-size: 10px; margin-left: 8px;">DB BUF ' + block.activeBuffer + '</span>' : '';
+                    return \`
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-name">\${block.name}\${dbBadge}</span>
+                                <span class="block-size">\${block.size}\${block.unit}</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill \${barClass}" style="width: \${pct}%"></div>
+                            </div>
+                            <div class="block-details">
+                                <span>\${block.used}\${block.unit} used (\${pct.toFixed(0)}%)</span>
+                                <span>\${block.allocs} allocs</span>
+                                \${warning ? '<span style="color: var(--warn)">' + warning + ' near capacity!</span>' : ''}
+                            </div>
                         </div>
-                        <div class="bar-container">
-                            <div class="bar-fill \${barClass}" style="width: \${pct}%"></div>
+                    \`;
+                }).join('');
+            }
+
+            if (pools && pools.length > 0) {
+                html += '<div class="header" style="margin-top: 12px;">POOL ALLOCATORS</div>';
+                html += pools.map(pool => {
+                    const pct = (pool.used / pool.capacity) * 100;
+                    const barClass = pct > 90 ? 'critical' : pct > 75 ? 'warning' : '';
+
+                    return \`
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-name">\${pool.name}</span>
+                                <span class="block-size">\${pool.capacity}\${pool.unit}</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill \${barClass}" style="width: \${pct}%"></div>
+                            </div>
+                            <div class="block-details">
+                                <span>\${pool.used}\${pool.unit} used (\${pct.toFixed(0)}%)</span>
+                                <span>\${pool.slots} slots</span>
+                                <span>\${pool.blockSize}B blocks</span>
+                            </div>
                         </div>
-                        <div class="block-details">
-                            <span>\${block.used}\${block.unit} used (\${pct.toFixed(0)}%)</span>
-                            <span>\${block.allocs} allocs</span>
-                            \${warning ? '<span style="color: var(--warn)">' + warning + ' near capacity!</span>' : ''}
-                        </div>
-                    </div>
-                \`;
-            }).join('');
+                    \`;
+                }).join('');
+            }
+
+            container.innerHTML = html;
         }
 
         // Listen for updates from extension
@@ -368,10 +528,10 @@ export class MemoryViewProvider implements vscode.WebviewViewProvider {
             const message = event.data;
             switch (message.command) {
                 case 'update':
-                    renderBlocks(message.blocks);
+                    renderBlocks(message.blocks, message.pools);
                     break;
                 case 'clear':
-                    renderBlocks(null, message.msg || 'No memory blocks found');
+                    renderBlocks(null, null, message.msg || 'No memory blocks found');
                     break;
             }
         });

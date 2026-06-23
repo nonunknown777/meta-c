@@ -65,7 +65,8 @@ public:
             out << "#include <stdio.h>\n";
             out << "#include <stdlib.h>\n";
             out << "#include \"block_memory.h\"\n";
-            out << "#include \"io.h\"\n\n";
+            out << "#include \"io.h\"\n";
+            out << "#include \"pool_allocator.h\"\n\n";
 
             for (const auto& ast : asts) {
                 for (const auto& decl : ast->declarations) {
@@ -133,6 +134,8 @@ private:
     std::unordered_set<std::string> declared_vars;
     std::unordered_map<std::string, bool> pointer_vars;
     bool has_blocks_ = false;
+    bool has_pool_ = false;
+    std::unordered_set<std::string> pool_blocks_;
     int scope_depth = 0;
 
     std::string current_struct_name;
@@ -174,6 +177,88 @@ private:
         return size;
     }
 
+    // Check if a type is a float type (f32/f32/float/double)
+    // Verifica se um tipo e float (f32/f32/float/double)
+    bool is_float_type_for_simd(const std::string& t) {
+        return t == "f32" || t == "f64" || t == "float" || t == "double";
+    }
+
+    // Check if a type is a float array like "f32[4]"
+    // Verifica se um tipo e array de float como "f32[4]"
+    bool is_float_array(const std::string& t) {
+        auto bracket = t.find('[');
+        if (bracket == std::string::npos) return false;
+        return is_float_type_for_simd(t.substr(0, bracket));
+    }
+
+    // Get SIMD alignment for a float type: f32→16, f64→16, f32[4]→16, f64[4]→32
+    // Obtem alinhamento SIMD para um tipo float: f32→16, f64→16, f32[4]→16, f64[4]→32
+    int get_simd_alignment(const std::string& type_name) {
+        auto bracket = type_name.find('[');
+        if (bracket != std::string::npos) {
+            std::string base = type_name.substr(0, bracket);
+            std::string count_str = type_name.substr(bracket + 1, type_name.find(']') - bracket - 1);
+            int count = std::stoi(count_str);
+            if (base == "f64" || base == "double") return count >= 2 ? 32 : 16;
+            return count >= 4 ? 16 : 8;
+        }
+        if (type_name == "f64" || type_name == "double") return 16;
+        return 8;
+    }
+
+    // Estimate byte size of a Brick type for pool allocator decision
+    // Estima tamanho em bytes de um tipo Brick para decisao do pool
+    int type_size_estimate(const std::string& type_name) {
+        std::unordered_set<std::string> visited;
+        return type_size_estimate_impl(type_name, visited);
+    }
+
+    int type_size_estimate_impl(const std::string& type_name, std::unordered_set<std::string>& visited) {
+        // Array type: base_type[count]
+        // Tipo array: base_type[count]
+        auto bracket = type_name.find('[');
+        if (bracket != std::string::npos) {
+            std::string base = type_name.substr(0, bracket);
+            std::string count_str = type_name.substr(bracket + 1, type_name.find(']') - bracket - 1);
+            int count = std::stoi(count_str);
+            return type_size_estimate_impl(base, visited) * count;
+        }
+        // Pointer type: *T
+        if (!type_name.empty() && type_name[0] == '*') {
+            return 8; // pointer is 8 bytes on 64-bit
+        }
+        std::string n = normalize_type_name(type_name);
+        if (n == "u8" || n == "i8" || n == "bool" || n == "char") return 1;
+        if (n == "u16" || n == "i16") return 2;
+        if (n == "u32" || n == "i32" || n == "f32") return 4;
+        if (n == "u64" || n == "i64" || n == "f64" || n == "usize" || n == "isize") return 8;
+        if (n == "String") return 16; // BrickString { char*, size_t }
+        // Struct: sum of field sizes
+        if (struct_map.count(n)) {
+            if (visited.count(n)) return 64; // circular, cap at threshold
+            visited.insert(n);
+            int total = 0;
+            auto* sd = struct_map[n];
+            for (auto& f : sd->fields) {
+                if (f->type == ASTNodeType::FIELD_DECL) {
+                    auto* fd = static_cast<FieldDecl*>(f.get());
+                    total += type_size_estimate_impl(fd->type_name, visited);
+                }
+            }
+            return total;
+        }
+        return 64; // unknown, assume threshold
+    }
+
+    static constexpr int POOL_SIZE_THRESHOLD = 64;
+
+    // Decide if a type should use the pool allocator
+    // Decide se um tipo deve usar o pool allocator
+    bool should_use_pool(const std::string& type_name) {
+        if (type_name.empty()) return false;
+        return type_size_estimate(type_name) <= POOL_SIZE_THRESHOLD;
+    }
+
     void gen_struct(StructDecl* sd) {
         emit_line(sd->location);
         indent(); out << "typedef struct " << sd->name << " {\n";
@@ -186,6 +271,13 @@ private:
         for (const auto& field : sd->fields) {
             if (field->type == ASTNodeType::FIELD_DECL) {
                 auto* fd = static_cast<FieldDecl*>(field.get());
+                // [OPTIMIZATION] SIMD alignment for float types
+                // Add alignment attribute to float/f64 fields and float arrays
+                // Adiciona atributo de alinhamento para campos float/f64 e arrays float
+                if (is_float_type_for_simd(fd->type_name) || is_float_array(fd->type_name)) {
+                    indent(); out << "__attribute__((aligned("
+                                  << get_simd_alignment(fd->type_name) << ")))\n";
+                }
                 indent(); out << map_type(fd->type_name) << " " << fd->name << ";\n";
             }
         }
@@ -201,6 +293,12 @@ private:
                     auto* bd = static_cast<BlockDecl*>(decl.get());
                     indent();
                     out << "BlockCtx* " << bd->name << ";\n";
+                    // Every block gets a pool for small allocations
+                    // Todo bloco ganha um pool para alocacoes pequenas
+                    indent();
+                    out << "PoolAllocator* __pool_" << bd->name << ";\n";
+                    pool_blocks_.insert(bd->name);
+                    has_pool_ = true;
                 }
             }
         }
@@ -228,6 +326,12 @@ private:
                     out << bd->name << " = block_create_bytes(" << bytes << ");\n";
                     indent();
                     out << "block_register(" << bd->name << ", \"" << bd->name << "\");\n";
+                    // Create pool for small allocations in this block
+                    // Cria pool para alocacoes pequenas neste bloco
+                    indent();
+                    out << "__pool_" << bd->name << " = pool_create();\n";
+                    indent();
+                    out << "pool_add_slot(__pool_" << bd->name << ", 64, 4096);\n";
                 }
             }
         }
@@ -246,6 +350,21 @@ private:
 
         indent(); out << "block_shm_export();\n";
 
+        // Set up TLS for the main thread
+        // Configura TLS para a thread principal
+        indent(); out << "block_set_tls(_current_block);\n";
+
+        indent_level--;
+        indent(); out << "}\n\n";
+
+        // Cleanup: destroy pools
+        // Limpeza: destroi os pools
+        indent(); out << "void __brick_cleanup() {\n";
+        indent_level++;
+        for (const auto& name : pool_blocks_) {
+            indent(); out << "pool_destroy(__pool_" << name << ");\n";
+            indent(); out << "__pool_" << name << " = NULL;\n";
+        }
         indent_level--;
         indent(); out << "}\n\n";
     }
@@ -275,6 +394,15 @@ private:
         bool is_main = (func_name == "main");
         std::string ret_type = is_main ? "int" : map_type(
             fd->return_type.empty() ? "void" : fd->return_type);
+
+        // [OPTIMIZATION] Inline hints for gcc
+        // Add __attribute__((always_inline)) to non-main, non-extern functions
+        // Adiciona __attribute__((always_inline)) para funcoes que nao sao main nem extern
+        if (!is_main && !fd->is_extern) {
+            indent(); out << "__attribute__((always_inline))\n";
+            indent(); out << "static inline\n";
+        }
+
         indent();
         out << ret_type << " " << func_name << "(";
 
@@ -332,6 +460,9 @@ private:
         }
 
         if (is_main) {
+            if (has_pool_) {
+                indent(); out << "__brick_cleanup();\n";
+            }
             indent(); out << "return 0;\n";
         }
 
@@ -493,8 +624,13 @@ private:
                                 auto* callee_ident = static_cast<IdentExpr*>(call->callee.get());
                                 if (struct_map.count(callee_ident->name)) {
                                     std::string struct_name = callee_ident->name;
-                                    out << " = block_alloc(" << ai->block_name
-                                        << ", sizeof(" << struct_name << "));\n";
+                                    if (should_use_pool(struct_name)) {
+                                        out << " = pool_alloc(__pool_" << ai->block_name
+                                            << ", sizeof(" << struct_name << "));\n";
+                                    } else {
+                                        out << " = block_alloc(" << ai->block_name
+                                            << ", sizeof(" << struct_name << "));\n";
+                                    }
                                     indent();
                                     out << mangle_name(struct_name, struct_name)
                                         << "(" << ident->name;
@@ -509,7 +645,11 @@ private:
                         }
                         // Generic block alloc
                         // Alocacao generica de bloco
-                        out << " = block_alloc(" << ai->block_name << ", sizeof(";
+                        if (should_use_pool(ai->expr->resolved_type)) {
+                            out << " = pool_alloc(__pool_" << ai->block_name << ", sizeof(";
+                        } else {
+                            out << " = block_alloc(" << ai->block_name << ", sizeof(";
+                        }
                         gen_expression(ai->expr.get());
                         out << "));\n";
                         indent();
@@ -643,6 +783,52 @@ private:
             }
             case ASTNodeType::BINARY_OP: {
                 auto* bin = static_cast<BinaryOp*>(node);
+                // [OPTIMIZATION] Constant folding: pre-compute constant expressions
+                // If both operands are literals, compute at compile time
+                auto* left = bin->left.get();
+                auto* right = bin->right.get();
+                if (left->type == ASTNodeType::INT_LITERAL &&
+                    right->type == ASTNodeType::INT_LITERAL) {
+                    auto* lil = static_cast<IntLiteral*>(left);
+                    auto* ril = static_cast<IntLiteral*>(right);
+                    int64_t result = 0;
+                    bool can_fold = true;
+                    switch (bin->op) {
+                        case TokenType::PLUS:  result = lil->value + ril->value; break;
+                        case TokenType::MINUS: result = lil->value - ril->value; break;
+                        case TokenType::STAR:  result = lil->value * ril->value; break;
+                        case TokenType::SLASH:
+                            if (ril->value != 0) result = lil->value / ril->value;
+                            else can_fold = false;
+                            break;
+                        default: can_fold = false; break;
+                    }
+                    if (can_fold) {
+                        out << result;
+                        break;
+                    }
+                }
+                if (left->type == ASTNodeType::FLOAT_LITERAL &&
+                    right->type == ASTNodeType::FLOAT_LITERAL) {
+                    auto* lfl = static_cast<FloatLiteral*>(left);
+                    auto* rfl = static_cast<FloatLiteral*>(right);
+                    double result = 0;
+                    bool can_fold = true;
+                    switch (bin->op) {
+                        case TokenType::PLUS:  result = lfl->value + rfl->value; break;
+                        case TokenType::MINUS: result = lfl->value - rfl->value; break;
+                        case TokenType::STAR:  result = lfl->value * rfl->value; break;
+                        case TokenType::SLASH:
+                            if (rfl->value != 0.0) result = lfl->value / rfl->value;
+                            else can_fold = false;
+                            break;
+                        default: can_fold = false; break;
+                    }
+                    if (can_fold) {
+                        out << result;
+                        break;
+                    }
+                }
                 out << "(";
                 gen_expression(bin->left.get());
                 out << " " << token_type_to_op(bin->op) << " ";
@@ -819,7 +1005,11 @@ private:
             }
             case ASTNodeType::ALLOC_INLINE: {
                 auto* ai = static_cast<AllocInline*>(node);
-                out << "(*block_alloc(" << ai->block_name << ", sizeof(";
+                if (should_use_pool(ai->expr->resolved_type)) {
+                    out << "(*pool_alloc(__pool_" << ai->block_name << ", sizeof(";
+                } else {
+                    out << "(*block_alloc(" << ai->block_name << ", sizeof(";
+                }
                 gen_expression(ai->expr.get());
                 out << ")))";
                 break;

@@ -42,7 +42,7 @@ const node_1 = require("vscode-languageclient/node");
 const memoryWebview_1 = require("./memoryWebview");
 let client;
 const LAUNCH_TEMPLATE = {
-    version: '0.2.0',
+    version: '0.3.0',
     configurations: [
         {
             name: 'Debug Compiler (current file)',
@@ -69,7 +69,7 @@ const LAUNCH_TEMPLATE = {
                 { description: 'Enable pretty-printing', text: '-enable-pretty-printing', ignoreFailures: true },
                 { description: 'Load Brick printers', text: 'source ${workspaceFolder}/debugger/.gdbinit', ignoreFailures: true },
             ],
-            preLaunchTask: 'Compile this .mc file',
+            preLaunchTask: 'Compile this .brc file',
         },
         {
             name: 'Run Compiled Program',
@@ -79,7 +79,7 @@ const LAUNCH_TEMPLATE = {
             args: [],
             cwd: '${workspaceFolder}',
             MIMode: 'gdb',
-            preLaunchTask: 'Compile this .mc file (release)',
+            preLaunchTask: 'Compile this .brc file (release)',
         },
     ],
 };
@@ -101,19 +101,19 @@ const TASKS_TEMPLATE = {
             problemMatcher: ['$gcc'],
         },
         {
-            label: 'Compile this .mc file',
+            label: 'Compile this .brc file',
             type: 'shell',
             command: './build/brick "${file}" -o "build/${fileBasenameNoExtension}.c" && gcc -g -Iruntime "build/${fileBasenameNoExtension}.c" runtime/block_memory.c runtime/io.c runtime/hot_reload.c -o "build/${fileBasenameNoExtension}" -ldl',
             problemMatcher: ['$gcc'],
         },
         {
-            label: 'Compile this .mc file (release)',
+            label: 'Compile this .brc file (release)',
             type: 'shell',
             command: './build/brick "${file}" -o "build/${fileBasenameNoExtension}.c" && gcc -O3 -Iruntime "build/${fileBasenameNoExtension}.c" runtime/block_memory.c runtime/io.c -o "build/${fileBasenameNoExtension}"',
             problemMatcher: ['$gcc'],
         },
         {
-            label: 'Run this .mc file',
+            label: 'Run this .brc file',
             type: 'shell',
             command: './build/brick "${file}" -o "${fileBasenameNoExtension}.c" && gcc -O3 "build/${fileBasenameNoExtension}.c" runtime/block_memory.c runtime/io.c -o "build/${fileBasenameNoExtension}" && "build/${fileBasenameNoExtension}"',
             problemMatcher: [],
@@ -150,7 +150,7 @@ function activate(context) {
         const editor = vscode.window.activeTextEditor;
         if (editor && editor.document.languageId === 'brick') {
             const filePath = editor.document.uri.fsPath;
-            const fileName = path.basename(filePath, '.mc');
+            const fileName = path.basename(filePath, '.brc');
             vscode.debug.startDebugging(undefined, {
                 type: 'cppdbg',
                 name: 'Debug Brick Program',
@@ -167,10 +167,10 @@ function activate(context) {
             });
         }
         else {
-            vscode.window.showErrorMessage('Open a .mc file first');
+            vscode.window.showErrorMessage('Open a .brc file first');
         }
     }));
-    // Suggest workspace setup when opening .mc files without config
+    // Suggest workspace setup when opening .brc files without config
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(doc => {
         if (doc.languageId === 'brick' && vscode.workspace.workspaceFolders) {
             const wsPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
@@ -227,7 +227,7 @@ function startLanguageClient(context) {
     const clientOptions = {
         documentSelector: [{ scheme: 'file', language: 'brick' }],
         synchronize: {
-            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.mc'),
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.brc'),
         },
     };
     client = new node_1.LanguageClient('brick-language-server', 'Brick Language Server', serverOptions, clientOptions);

@@ -68,6 +68,45 @@ class BrickStringPrinter:
             # <string invalida>
 
 
+class PoolAllocatorPrinter:
+    """Pretty-printer for Brick PoolAllocator"""
+    """Pretty-printer para Brick PoolAllocator"""
+
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        try:
+            slot_count = int(self.val['slot_count'])
+            slots = self.val['slots']
+            lines = []
+            total_free = 0
+            total_cap = 0
+            for i in range(slot_count):
+                slot = slots[i]
+                bs = int(slot['block_size'])
+                cap = int(slot['capacity'])
+                free = int(slot['count'])
+                used = cap - free
+                total_free += free
+                total_cap += cap
+                pct = (used / cap * 100) if cap > 0 else 0
+                bar_len = 10
+                filled = int(pct / 100 * bar_len)
+                bar = '\u2588' * filled + '\u2591' * (bar_len - filled)
+                lines.append(f"  slot[{i}]: {bs}B blocks, cap={cap}, used={used}/{cap} ({pct:.0f}%)\n  [{bar}]")
+            total_used = total_cap - total_free
+            summary = f"PoolAllocator {{ slots: {slot_count}, blocks: {total_cap}, used: {total_used}, free: {total_free} }}"
+            if lines:
+                summary += "\n" + "\n".join(lines)
+            return summary
+        except Exception:
+            return "PoolAllocator { <error reading> }"
+
+    def display_hint(self):
+        return 'string'
+
+
 class BlockAllocPrinter:
     """Shows offset within block for block-allocated pointers"""
     """Mostra offset dentro do bloco para ponteiros alocados em bloco"""
@@ -213,8 +252,16 @@ def register_printers():
             return BrickStringPrinter(val)
         return None
 
+    def pool_lookup(val):
+        if val.type.name in ('PoolAllocator', 'struct PoolAllocator', 'PoolAllocator*'):
+            if val.type.code == gdb.TYPE_CODE_PTR:
+                return PoolAllocatorPrinter(val.dereference())
+            return PoolAllocatorPrinter(val)
+        return None
+
     gdb.pretty_printers.append(block_ctx_lookup)
     gdb.pretty_printers.append(brick_string_lookup)
+    gdb.pretty_printers.append(pool_lookup)
     gdb.pretty_printers.append(block_alloc_lookup)
 
 
