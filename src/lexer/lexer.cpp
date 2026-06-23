@@ -47,8 +47,9 @@ static const std::unordered_map<std::string, TokenType> keywords = {
     {"extern",  TokenType::EXTERN},
     {"include", TokenType::INCLUDE},
     {"link",    TokenType::LINK},
-        // "and" is NOT a keyword — handled contextually in parser
-        // "and" NAO eh keyword — tratado contextualmente no parser
+    {"macro",   TokenType::MACRO},
+    {"build",   TokenType::BUILD},
+    {"emit",    TokenType::EMIT},
 };
 
 class Lexer {
@@ -108,8 +109,6 @@ private:
         SourceLocation loc = location();
         char c = advance();
 
-        // Single-char tokens
-        // Tokens de caractere unico
         switch (c) {
             case '{': return {TokenType::LBRACE, "{", loc};
             case '}': return {TokenType::RBRACE, "}", loc};
@@ -120,12 +119,20 @@ private:
             case ';': return {TokenType::SEMICOLON, ";", loc};
             case ',': return {TokenType::COMMA, ",", loc};
             case '@': return {TokenType::AT, "@", loc};
-            case '.': return {TokenType::DOT, ".", loc};
+            case '.': {
+                if (pos + 1 < source.size() && source[pos] == '.' && source[pos + 1] == '.') {
+                    advance(); advance();
+                    return {TokenType::ELLIPSIS, "...", loc};
+                }
+                return {TokenType::DOT, ".", loc};
+            }
             case '~': return {TokenType::BIT_NOT, "~", loc};
         }
 
-        // Operators with possible multi-char
-        // Operadores com possivel multi-caractere
+        if (c == '$') {
+            return {TokenType::DOLLAR, "$", loc};
+        }
+
         if (c == '+') {
             if (peek() == '=') { advance(); return {TokenType::PLUS_ASSIGN, "+=", loc}; }
             if (peek() == '+') { advance(); return {TokenType::PLUS, "++", loc}; }
@@ -174,27 +181,17 @@ private:
             return {TokenType::BIT_OR, "|", loc};
         }
 
-        // String literal
-        // Literal de string
         if (c == '"') return string_literal(loc);
-        // Char literal
-        // Literal de char
         if (c == '\'') return char_literal(loc);
 
-        // Number literal
-        // Literal numerico
         if (std::isdigit(c)) {
             Token t = number_literal(c, loc);
             t.literal_type = parse_literal_suffix();
             return t;
         }
 
-        // Identifier or keyword
-        // Identificador ou palavra-chave
         if (std::isalpha(c) || c == '_') return identifier_or_keyword(c, loc);
 
-        // Unexpected character
-        // Caractere inesperado
         std::string msg = "unexpected character '" + std::string(1, c) + "'";
         throw std::runtime_error(msg);
     }
@@ -216,8 +213,7 @@ private:
             }
         }
         if (pos >= source.size()) throw std::runtime_error("unterminated string literal");
-        advance(); // closing "
-                   // fechamento "
+        advance();
         return {TokenType::STRING_LITERAL, value, loc};
     }
 
@@ -302,4 +298,3 @@ std::vector<Token> tokenize(const std::string& source, const std::string& filena
 }
 
 } // namespace brick
-  // namespace brick

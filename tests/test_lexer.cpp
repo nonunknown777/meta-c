@@ -235,12 +235,24 @@ TEST(test_invalid_escape_char) {
 
 TEST(test_unexpected_char) {
     try {
-        tokenize("$");
+        tokenize("#");
         assert(false && "expected exception");
     } catch (const std::runtime_error&) {
         // expected
         // esperado
     }
+}
+
+TEST(test_dollar_token) {
+    auto tokens = tokenize("$");
+    assert(tokens.size() >= 2);
+    assert(tokens[0].type == TokenType::DOLLAR);
+}
+
+TEST(test_ellipsis_token) {
+    auto tokens = tokenize("...");
+    assert(tokens.size() >= 2);
+    assert(tokens[0].type == TokenType::ELLIPSIS);
 }
 
 TEST(test_source_locations) {

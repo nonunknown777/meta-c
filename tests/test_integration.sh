@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$PROJECT_DIR/build"
 BRICK="$BUILD_DIR/brick"
-RUNTIME="$PROJECT_DIR/runtime/block_memory.c $PROJECT_DIR/runtime/hot_reload.c $PROJECT_DIR/runtime/io.c"
+RUNTIME="$PROJECT_DIR/runtime/block_memory.c $PROJECT_DIR/runtime/hot_reload.c $PROJECT_DIR/runtime/io.c $PROJECT_DIR/runtime/pool_allocator.c"
 PASS=0
 FAIL=0
 
@@ -247,6 +247,118 @@ else
     echo -e "${RED}FAIL (should have errored)${NC}"
     FAIL=$((FAIL + 1))
 fi
+
+echo ""
+echo "Testing macros..."
+echo "Testando macros..."
+
+cat > "$BUILD_DIR/test_macro_swap.brc" << 'EOF'
+package TEST_MACRO
+
+using IO
+
+macro swap(a, b) {
+    tmp = $a
+    $a = $b
+    $b = tmp
+}
+
+fn main() {
+    int x = 10
+    int y = 20
+    swap(x, y)
+    print("x={0}, y={1}", x, y)
+}
+EOF
+
+test_compile_and_expect "test_macro_swap" "$BUILD_DIR/test_macro_swap.brc" \
+"x=20, y=10"
+
+cat > "$BUILD_DIR/test_macro_no_params.brc" << 'EOF'
+package TEST_MACRO_NOPARAM
+
+using IO
+
+macro say_hello() {
+    print("hello from macro")
+}
+
+fn main() {
+    say_hello()
+    say_hello()
+}
+EOF
+
+test_compile_and_expect "test_macro_no_params" "$BUILD_DIR/test_macro_no_params.brc" \
+"hello from macro
+hello from macro"
+
+cat > "$BUILD_DIR/test_build_const.brc" << 'EOF'
+package TEST_BUILD
+
+using IO
+
+build {
+    // Build block runs at compile time
+    // The emit generates the actual runtime code
+    emit {
+        fn main() {
+            print("built at compile time")
+        }
+    }
+}
+EOF
+
+test_compile_and_expect "test_build_const" "$BUILD_DIR/test_build_const.brc" \
+"built at compile time"
+
+cat > "$BUILD_DIR/test_macro_vec2.brc" << 'EOF'
+package TEST_VEC2
+
+using IO
+
+macro vec2_add_pair() {
+    emit {
+        fn add_pair(i32 ax, i32 ay, i32 bx, i32 by) {
+            i32 rx = ax + bx
+            i32 ry = ay + by
+            print("x={0}, y={1}", rx, ry)
+        }
+    }
+}
+
+vec2_add_pair()
+
+fn main() {
+    add_pair(1, 2, 3, 4)
+}
+EOF
+
+test_compile_and_expect "test_macro_vec2" "$BUILD_DIR/test_macro_vec2.brc" \
+"x=4, y=6"
+
+cat > "$BUILD_DIR/test_macro_enum.brc" << 'EOF'
+package TEST_ENUM
+
+using IO
+
+macro make_const(name, value) {
+    emit {
+        i32 $name = $value
+    }
+}
+
+fn main() {
+    make_const(W_FIST, 0)
+    make_const(W_GUN, 1)
+    make_const(W_RIFLE, 2)
+    make_const(W_ROCKET, 3)
+    print("fist={0} gun={1} rifle={2} rocket={3}", W_FIST, W_GUN, W_RIFLE, W_ROCKET)
+}
+EOF
+
+test_compile_and_expect "test_macro_enum" "$BUILD_DIR/test_macro_enum.brc" \
+"fist=0 gun=1 rifle=2 rocket=3"
 
 echo ""
 echo -e "${CYAN}========================================${NC}"

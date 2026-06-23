@@ -97,6 +97,11 @@
         <p>Structs with methods, constructors, inheritance, and interface support. Clean GDScript-inspired syntax that compiles to C.</p>
       </div>
       <div class="feature-card fade-in">
+        <span class="icon">🔧</span>
+        <h3>Compile-Time Macros</h3>
+        <p><code>macro</code> templates, <code>build</code> comptime evaluation, <code>emit</code> code generation. Swap variables, generate enums, serialize structs — all at compile time with zero runtime cost.</p>
+      </div>
+      <div class="feature-card fade-in">
         <span class="icon">🧱</span>
         <h3>Block Memory</h3>
         <p>Declare named memory blocks (8KB – 256MB+). All allocations go into blocks. No malloc/free per object — just <code>block.reset()</code>.</p>
@@ -235,6 +240,8 @@ cd brick</pre></div>
         <span class="pipe-arrow">→</span>
         <div class="pipe-step"><div class="label">Parser</div><div class="sub">src/parser</div></div>
         <span class="pipe-arrow">→</span>
+        <div class="pipe-step"><div class="label">Macros</div><div class="sub">collect + expand + build</div></div>
+        <span class="pipe-arrow">→</span>
         <div class="pipe-step"><div class="label">Codegen</div><div class="sub">src/codegen</div></div>
         <span class="pipe-arrow">→</span>
         <div class="pipe-step"><div class="label">C Code</div><div class="sub">with #line</div></div>
@@ -261,6 +268,11 @@ cd brick</pre></div>
     <h2 class="section-title fade-in">Optimizations</h2>
     <p class="section-sub fade-in">7 techniques applied — from compile-time math to thread-local blocks.</p>
     <div class="features-grid">
+      <div class="feature-card fade-in">
+        <span class="icon">🔧</span>
+        <h3>Compile-Time Macros</h3>
+        <p>Generate code with <code>macro</code>, compute at compile time with <code>build</code> + <code>emit</code>. Supports <code>$</code> interpolation, varargs, hygiene, and type reflection.</p>
+      </div>
       <div class="feature-card fade-in">
         <span class="icon">🧮</span>
         <h3>Constant Folding</h3>
@@ -318,6 +330,10 @@ cd brick</pre></div>
       <a href="ARCHITECTURE.md" class="doc-link fade-in">
         <h4>Architecture</h4>
         <p>How the compiler, runtime, and tools fit together.</p>
+      </a>
+      <a href="MACROS.md" class="doc-link fade-in">
+        <h4>Macros</h4>
+        <p>Compile-time code generation — <code>macro</code>, <code>build</code>, <code>emit</code>, and interpolation.</p>
       </a>
       <a href="OPTIMIZATIONS.md" class="doc-link fade-in">
         <h4>Optimizations</h4>

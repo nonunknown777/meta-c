@@ -32,6 +32,10 @@ if has_hotreload:
     test_bins.append(build_test('test_hot_reload', ['test_hot_reload.c'],
                                 ['brick_runtime']))
 
+# ─── Macro tests ────────────────────────────────────────────
+test_bins.append(build_test('test_macros',  ['test_macros.cpp'],
+                            ['brick_parser', 'brick_lexer']))
+
 # ─── Optimization tests ──────────────────────────────────────
 test_bins.append(build_test('test_pool_allocator', ['test_pool_allocator.c'],
                             ['brick_runtime']))

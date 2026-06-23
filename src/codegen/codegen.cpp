@@ -33,25 +33,34 @@ public:
             for (const auto& ast : asts) {
                 for (const auto& decl : ast->declarations) {
                     switch (decl->type) {
-                        case ASTNodeType::INCLUDE_DECL: {
-                            auto* inc = static_cast<IncludeDecl*>(decl.get());
-                            out << "#include <" << inc->header << ">\n";
-                            if (!inc->link_lib.empty())
-                                result.link_flags.push_back(inc->link_lib);
-                            break;
-                        }
-                        case ASTNodeType::LINK_DECL: {
-                            auto* ld = static_cast<LinkDecl*>(decl.get());
-                            result.link_flags.push_back(ld->lib);
-                            break;
-                        }
-                        case ASTNodeType::FUNC_DECL: {
-                            auto* fd = static_cast<FuncDecl*>(decl.get());
-                            if (fd->is_extern)
-                                extern_funcs[fd->name] = fd;
-                            break;
-                        }
-                        default: break;
+            case ASTNodeType::INCLUDE_DECL: {
+                auto* inc = static_cast<IncludeDecl*>(decl.get());
+                out << "#include <" << inc->header << ">\n";
+                if (!inc->link_lib.empty())
+                    result.link_flags.push_back(inc->link_lib);
+                break;
+            }
+            case ASTNodeType::LINK_DECL: {
+                auto* ld = static_cast<LinkDecl*>(decl.get());
+                result.link_flags.push_back(ld->lib);
+                break;
+            }
+            case ASTNodeType::FUNC_DECL: {
+                auto* fd = static_cast<FuncDecl*>(decl.get());
+                if (fd->is_extern)
+                    extern_funcs[fd->name] = fd;
+                break;
+            }
+            case ASTNodeType::MACRO_DECL:
+            case ASTNodeType::BUILD_BLOCK:
+            case ASTNodeType::EMIT_STMT:
+            case ASTNodeType::MACRO_CALL:
+            case ASTNodeType::INTERPOLATE:
+            case ASTNodeType::VALUE_PLACEHOLDER:
+                // These should be resolved before codegen — skip silently
+                // Estes devem ser resolvidos antes do codegen — pula silenciosamente
+                break;
+            default: break;
                     }
                 }
             }

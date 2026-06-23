@@ -8,7 +8,6 @@ namespace brick {
 
 enum class TokenType {
     // Keywords
-    // Palavras-chave
     PACKAGE, USING, PRIVATE, PUBLIC,
     STRUCT, EXTENDS, INTERFACE, FN, RETURN,
     IF, ELSE, WHILE, FOR,
@@ -22,16 +21,16 @@ enum class TokenType {
     BYTE,
     EXTERN, INCLUDE, LINK,
 
+    // Macro keywords
+    MACRO, BUILD, EMIT,
+
     // Literals
-    // Literais
     INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, CHAR_LITERAL,
 
     // Identifier
-    // Identificador
     IDENTIFIER,
 
     // Operators
-    // Operadores
     PLUS, MINUS, STAR, SLASH, ASSIGN,
     PLUS_ASSIGN, MINUS_ASSIGN, STAR_ASSIGN, SLASH_ASSIGN,
     EQ, NEQ, LT, GT, LEQ, GEQ,
@@ -40,12 +39,13 @@ enum class TokenType {
     DOT, ARROW, AT, PIPE,
 
     // Delimiters
-    // Delimitadores
     LBRACE, RBRACE, LPAREN, RPAREN,
     LBRACKET, RBRACKET, SEMICOLON, COMMA,
 
+    // Macro symbols
+    DOLLAR, ELLIPSIS,
+
     // Special
-    // Especial
     EOF_
 };
 
@@ -67,6 +67,5 @@ struct Token {
 };
 
 } // namespace brick
-  // namespace brick
 
 #endif

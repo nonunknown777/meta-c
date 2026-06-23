@@ -18,27 +18,27 @@ enum class ASTNodeType {
     INCLUDE_DECL, LINK_DECL,
 
     // Statements
-    // Statements (comandos)
     BLOCK_STMT, IF_STMT, WHILE_STMT, FOR_STMT, RETURN_STMT, EXPR_STMT,
 
     // Expressions
-    // Expressions (expressoes)
     INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, BOOL_LITERAL, CHAR_LITERAL, NULL_LITERAL,
     IDENT_EXPR, CALL_EXPR, MEMBER_EXPR, INDEX_EXPR,
     BINARY_OP, UNARY_OP, ASSIGNMENT,
+
+    // Macro nodes
+    MACRO_DECL, MACRO_CALL, BUILD_BLOCK, EMIT_STMT,
+    INTERPOLATE, VALUE_PLACEHOLDER,
 };
 
 struct ASTNode {
     ASTNodeType type;
     SourceLocation location;
-    std::string resolved_type; // filled by TypeChecker
-                               // preenchido pelo TypeChecker
+    std::string resolved_type;
     virtual ~ASTNode() = default;
     ASTNode(ASTNodeType t, SourceLocation loc) : type(t), location(loc) {}
 };
 
 // ─── Declarations ───
-// ─── Declaracoes ───
 
 struct ProgramNode : ASTNode {
     std::vector<std::unique_ptr<ASTNode>> declarations;
@@ -59,7 +59,7 @@ struct UsingDecl : ASTNode {
 
 struct IncludeDecl : ASTNode {
     std::string header;
-    std::string link_lib; // "m" if "and link m", empty otherwise
+    std::string link_lib;
 
     IncludeDecl(std::string h, SourceLocation loc)
         : ASTNode(ASTNodeType::INCLUDE_DECL, loc), header(std::move(h)) {}
@@ -74,8 +74,7 @@ struct LinkDecl : ASTNode {
 
 struct StructDecl : ASTNode {
     std::string name;
-    std::string extends; // empty if no extends
-                         // vazio se nao tiver extends
+    std::string extends;
     std::vector<std::string> interfaces;
     std::vector<std::unique_ptr<ASTNode>> fields;
     std::vector<std::unique_ptr<ASTNode>> methods;
@@ -111,12 +110,10 @@ struct ParamDecl : ASTNode {
 };
 
 struct FuncDecl : ASTNode {
-    std::string return_type; // empty = void
-                             // vazio = void
+    std::string return_type;
     std::string name;
     std::vector<std::unique_ptr<ASTNode>> params;
-    std::unique_ptr<ASTNode> body; // BlockStmt
-                                   // BlockStmt
+    std::unique_ptr<ASTNode> body;
     bool is_private = false;
     bool is_constructor = false;
     bool is_extern = false;
@@ -126,13 +123,11 @@ struct FuncDecl : ASTNode {
 };
 
 // ─── Block Memory ───
-// ─── Memoria de Bloco ───
 
 struct BlockDecl : ASTNode {
     std::string name;
     int64_t size;
-    std::string unit; // KB, MB, GB
-                      // KB, MB, GB
+    std::string unit;
 
     BlockDecl(std::string n, int64_t s, std::string u, SourceLocation loc)
         : ASTNode(ASTNodeType::BLOCK_DECL, loc), name(std::move(n)), size(s), unit(std::move(u)) {}
@@ -162,7 +157,6 @@ struct ResetExpr : ASTNode {
 };
 
 // ─── Statements ───
-// ─── Statements (comandos) ───
 
 struct BlockStmt : ASTNode {
     std::vector<std::unique_ptr<ASTNode>> statements;
@@ -205,7 +199,6 @@ struct ExprStmt : ASTNode {
 };
 
 // ─── Expressions ───
-// ─── Expressions (expressoes) ───
 
 struct IntLiteral : ASTNode {
     int64_t value;
@@ -245,8 +238,7 @@ struct NullLiteral : ASTNode {
 
 struct IdentExpr : ASTNode {
     std::string name;
-    std::string declared_type; // type annotation from parser (e.g., "int" from "int x = 5")
-                               // anotacao de tipo do parser (ex.: "int" de "int x = 5")
+    std::string declared_type;
     IdentExpr(std::string n, SourceLocation loc)
         : ASTNode(ASTNodeType::IDENT_EXPR, loc), name(std::move(n)) {}
 };
@@ -298,7 +290,56 @@ struct Assignment : ASTNode {
     Assignment(TokenType o, SourceLocation loc) : ASTNode(ASTNodeType::ASSIGNMENT, loc), op(o) {}
 };
 
+// ─── Macro Nodes ───
+
+struct MacroDecl : ASTNode {
+    std::string name;
+    std::vector<std::string> params;
+    bool has_varargs = false;
+    std::vector<std::unique_ptr<ASTNode>> body;
+
+    MacroDecl(std::string n, SourceLocation loc)
+        : ASTNode(ASTNodeType::MACRO_DECL, loc), name(std::move(n)) {}
+};
+
+struct MacroCall : ASTNode {
+    std::string name;
+    std::vector<std::unique_ptr<ASTNode>> args;
+
+    MacroCall(std::string n, SourceLocation loc)
+        : ASTNode(ASTNodeType::MACRO_CALL, loc), name(std::move(n)) {}
+};
+
+struct BuildBlock : ASTNode {
+    std::vector<std::unique_ptr<ASTNode>> body;
+
+    BuildBlock(SourceLocation loc) : ASTNode(ASTNodeType::BUILD_BLOCK, loc) {}
+};
+
+struct EmitStmt : ASTNode {
+    std::unique_ptr<ASTNode> content;
+
+    EmitStmt(std::unique_ptr<ASTNode> c, SourceLocation loc)
+        : ASTNode(ASTNodeType::EMIT_STMT, loc), content(std::move(c)) {}
+};
+
+struct Interpolate : ASTNode {
+    std::string name;
+    std::unique_ptr<ASTNode> expr;
+
+    Interpolate(std::string n, SourceLocation loc)
+        : ASTNode(ASTNodeType::INTERPOLATE, loc), name(std::move(n)) {}
+    Interpolate(std::unique_ptr<ASTNode> e, SourceLocation loc)
+        : ASTNode(ASTNodeType::INTERPOLATE, loc), expr(std::move(e)) {}
+};
+
+struct ValuePlaceholder : ASTNode {
+    std::string param_name;
+
+    ValuePlaceholder(std::string pn, SourceLocation loc)
+        : ASTNode(ASTNodeType::VALUE_PLACEHOLDER, loc), param_name(std::move(pn)) {}
+};
+
 } // namespace brick
-  // namespace brick
 
 #endif

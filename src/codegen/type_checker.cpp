@@ -310,6 +310,15 @@ std::vector<std::string> TypeChecker::check(
                     declare(bd->name, "block", false);
                     break;
                 }
+                case ASTNodeType::MACRO_DECL:
+                case ASTNodeType::BUILD_BLOCK:
+                case ASTNodeType::EMIT_STMT:
+                case ASTNodeType::MACRO_CALL:
+                case ASTNodeType::INTERPOLATE:
+                case ASTNodeType::VALUE_PLACEHOLDER:
+                    // Resolved before type checking — skip
+                    // Resolvidos antes da verificacao de tipo — pula
+                    break;
                 default:
                     break;
             }

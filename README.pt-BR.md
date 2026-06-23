@@ -191,6 +191,45 @@ brick build jogo.brc --release -o jogo
 ./jogo
 ```
 
+### Macros (Geração de Código)
+
+Gere código em tempo de compilação com `macro`, `build` e `emit`:
+
+```brick
+macro troca(a, b) {
+    __tmp = $a
+    $a = $b
+    $b = __tmp
+}
+
+macro enum(nome, valores...) {
+    emit { $nome = 0 }
+    for i = 1; i < 4; i = i + 1 {
+        emit { ${"$" ++ valores[i]} = i }
+    }
+}
+
+enum(TipoArma, ARMA_SOCO, ARMA_PISTOLA, ARMA_RIFLE, ARMA_FOGUETE)
+
+fn main() {
+    x = 10; y = 20
+    troca(x, y)        // x=20, y=10
+    
+    if arma == ARMA_FOGUETE {
+        print("Fogo!")
+    }
+}
+```
+
+- **`macro`** — templates de código com interpolação `$`
+- **`build { }`** — computação em tempo de compilação (matemática, loops, reflection)
+- **`emit { }`** — gera saída de dentro de macros ou build
+- **`$nome`** — insere valor do argumento
+- **Varargs** — `valores...` captura argumentos restantes como lista
+- **Higiene** — variáveis `__` ganham nomes únicos automaticamente
+
+Veja o [Guia de Macros](docs/MACROS.pt-BR.md) para exemplos completos.
+
 ---
 
 ## 📁 Estrutura do Projeto
@@ -218,6 +257,7 @@ brick build jogo.brc --release -o jogo
 - **[Referência da Linguagem](docs/LANGUAGE.pt-BR.md)** — Sintaxe completa, tipos, pacotes, modelo de memória
 - **[Arquitetura](docs/ARCHITECTURE.pt-BR.md)** — Como compilador, runtime e ferramentas se encaixam
 - **[Guia de Hot Reload](docs/hot-reload.pt-BR.md)** — Troca de código ao vivo via dlopen + inotify
+- **[Guia de Macros](docs/MACROS.pt-BR.md)** — Geração de código em tempo de compilação com `macro`/`build`/`emit`
 - **[Otimizações](docs/OPTIMIZATIONS.pt-BR.md)** — Ajustes de performance e benchmarks
 - 🇬🇧 **[English](README.md)** — English documentation
 

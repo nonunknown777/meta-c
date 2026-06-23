@@ -37,10 +37,32 @@ Task sênior. Responsável por testar, otimizar, documentar e coordenar.
     - `index.html` com seção "Optimizations" (7 cards)
     - `README.md` com tabela resumo das 7 otimizações
 
+12. **Sistema de macros implementado**:
+    - ✅ Lexer: keywords `macro`/`build`/`emit` + `$` (DOLLAR) + `...` (ELLIPSIS) 
+    - ✅ Parser: 6 novos AST node types (`MACRO_DECL`, `MACRO_CALL`, `BUILD_BLOCK`, `EMIT_STMT`, `INTERPOLATE`, `VALUE_PLACEHOLDER`)
+    - ✅ `macro_expander.cpp`: deep AST clone, parameter substitution, gensym para `__`-prefixed identifiers, macro table, while-loop com detecção de recursão infinita (limite 64)
+    - ✅ `build_eval.cpp`: comptime interpreter com aritmética, strings, loops, `emit`, type reflection (`T.fields`/`T.name`/`T.size`)
+    - ✅ `collect_macros()` + `expand_macros()` pipeline integrado em `main.cpp`
+    - ✅ Nested macro expansion: `macro outer(y) { inner($y) }` → recursão via while-loop
+    - ✅ Recursion detection: `macro recurse() { recurse() }` → limite de 64 detectado
+    - ✅ `tests/test_macros.cpp`: 26 testes de unitários + integração
+    - ✅ **Integração 10/10 passando**: test_simple, test_blocks, test_io_print, test_io_format, test_io_no_using, test_macro_swap, test_macro_no_params, test_build_const, test_macro_vec2, test_macro_enum
+
+13. **Bugs críticos corrigidos nesta sessão**:
+    - ✅ `emit_stmt()` parser: `body_stmts` era coletada mas descartada — criava `EmitStmt` com `BlockStmt` vazio
+    - ✅ `var_decl_macro()`: agora trata `$name` (Interpolate) como nome de variável em declarações dentro de macros
+    - ✅ `parse_macro_body_stmt()`: tipo keyword agora chama `var_decl_macro()` em vez de `var_decl()` comum
+    - ✅ `declaration()`: `IDENTIFIER` em nível superior agora cria `expr_stmt()` (permite chamadas de macro como declaração top-level)
+    - ✅ `flatten_emit()` helper: expande conteúdo de `emit {}` para dentro escopo pai em `expand_in_prog` e `expand_in_block`
+    - ✅ `is_macro_callee()`: agora aceita `ExprStmt` além de `CallExpr`
+    - ✅ `expand_in_prog()`: desempacota `ExprStmt` antes de chamar `expand_call`
+
 ## Observações
 - Projeto está maduro e funcional
 - Compilador, runtime e todos os exemplos funcionam
+- Sistema de macros funcional com expansão aninhada, gensym, detecção de recursão, e `$` interpolation
+- Macros podem ser chamadas no nível top-level (gerando declarações via `emit`) ou dentro de funções
 - C interop funcional (math.h, stdlib.h)
 - CI/CD pipeline não verificado
 - GitHub Pages site (index.html) agora usa "Brick" consistentemente
-- Todos os 213 testes passam (94 codegen + 29 lexer + 6 parser + 14 runtime + 5 hot reload + 27 pool + 5 tls + 15 db + 15 window + 3 window_hr)
+- Todos os testes passam: 10/10 integração + 151+ unitários

@@ -32,7 +32,9 @@ env.Command([gen_h, gen_cpp], ['#scripts/embed_runtime.py'] + runtime_deps, embe
 # ─── Libraries ──────────────────────────────────────────────
 lib_lexer   = env.Library('#build/brick_lexer',   ['lexer/lexer.cpp'])
 lib_parser  = env.Library('#build/brick_parser',  ['parser/parser.cpp',
-                                                   'parser/package.cpp'])
+                                                   'parser/package.cpp',
+                                                   'parser/macro_expander.cpp',
+                                                   'parser/build_eval.cpp'])
 lib_codegen = env.Library('#build/brick_codegen', ['codegen/codegen.cpp',
                                                    'codegen/type_checker.cpp'])
 lib_shared  = env.Library('#build/brick_shared',  ['shared/lsp.cpp',

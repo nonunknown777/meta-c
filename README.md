@@ -165,6 +165,7 @@ Brick applies **7 optimizations** automatically:
 
 | Optimization | What it does | When |
 |---|---|---|
+| **Compile-Time Macros** | `macro`/`build`/`emit` — code generation, comptime eval, reflection | Always |
 | **Constant Folding** | Pre-computes `60 * 1000` → `60000` at compile time | Always |
 | **Inline Hints** | `__attribute__((always_inline))` on every function | Always |
 | **SIMD Alignment** | `aligned(16/32)` on float fields for SSE/AVX | Structs with f32/f64 |
@@ -174,6 +175,32 @@ Brick applies **7 optimizations** automatically:
 | **PGO** | Profile-guided optimization via `scons profile=pgo-*` | Release builds |
 
 See [docs/OPTIMIZATIONS.md](docs/OPTIMIZATIONS.md) for deep-dive explanations with examples.
+
+### Macros
+
+Generate code at compile time with `macro`, `build`, and `emit`:
+
+```brick
+macro swap(a, b) {
+    __tmp = $a
+    $a = $b
+    $b = __tmp
+}
+
+fn main() {
+    x = 10; y = 20
+    swap(x, y)         // x=20, y=10
+}
+```
+
+- **`macro name(params) { body }`** — definable code templates with `$` interpolation
+- **`build { }`** — compile-time code execution (math, loops, type reflection)
+- **`emit { code }`** — generate output from inside macros or build blocks
+- **`$name` / `$(expr)`** — insert argument values or computed expressions
+- **Varargs** — `values...` captures remaining arguments as a list
+- **Hygiene** — `__`-prefixed variables get unique names automatically
+
+See the [Macro Guide](docs/MACROS.md) for complete examples.
 
 ### Compiler
 
@@ -270,6 +297,7 @@ See the [Hot Reload Guide](docs/hot-reload.md) for details.
 - **[Language Reference](docs/LANGUAGE.md)** — Complete syntax, types, packages, memory model
 - **[Architecture](docs/ARCHITECTURE.md)** — How compiler, runtime, and tools fit together
 - **[Hot Reload Guide](docs/hot-reload.md)** — Live code swapping via dlopen + inotify
+- **[Macro Guide](docs/MACROS.md)** — Compile-time code generation with `macro`/`build`/`emit`
 - **[Optimizations](docs/OPTIMIZATIONS.md)** — Performance tuning and benchmarks
 - **[Design Doc](DESIGN.md)** — Architecture decisions and rationale
 - 🇧🇷 **[Português](README.pt-BR.md)** — Documentação em português

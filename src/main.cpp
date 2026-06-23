@@ -15,6 +15,8 @@
 #include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "parser/package.h"
+#include "parser/macro_expander.h"
+#include "parser/build_eval.h"
 #include "codegen/codegen.h"
 #include "shared/lsp.h"
 #include "shared/version.h"
@@ -107,6 +109,19 @@ static int cmd_build(const std::string& input, const std::string& output,
     auto packages = brick::resolve_packages(parse_result.ast, input);
     std::vector<std::unique_ptr<brick::ProgramNode>> asts;
     asts.push_back(std::move(parse_result.ast));
+
+    brick::MacroTable macro_table;
+    brick::collect_macros(asts, macro_table);
+    auto build_result = brick::eval_build_blocks(asts, macro_table);
+    for (const auto& e : build_result.errors)
+        std::cerr << "error: " << e << "\n";
+    if (!build_result.success) return 1;
+
+    auto expand_result = brick::expand_macros(asts, macro_table);
+    for (const auto& e : expand_result.errors)
+        std::cerr << "error: " << e << "\n";
+    if (!expand_result.success) return 1;
+
     auto codegen_result = brick::generate_c(asts, packages);
     for (const auto& e : codegen_result.errors)
         std::cerr << "error: " << e << "\n";
@@ -581,6 +596,34 @@ int main(int argc, char** argv) {
 
     std::vector<std::unique_ptr<brick::ProgramNode>> asts;
     asts.push_back(std::move(parse_result.ast));
+
+    // Macro pipeline: collect -> eval build -> expand
+    // Pipeline de macros: coleta -> avalia build -> expande
+    brick::MacroTable macro_table;
+    brick::collect_macros(asts, macro_table);
+    if (!macro_table.empty() && !lsp_mode)
+        std::cout << "[macro] " << macro_table.size() << " macros collected\n";
+
+    auto build_result = brick::eval_build_blocks(asts, macro_table);
+    for (const auto& e : build_result.errors) {
+        if (lsp_mode) {
+            lsp_out.errors.push_back(brick::parse_error_string(e, input_file));
+        } else {
+            std::cerr << "error: " << e << "\n";
+        }
+    }
+    if (!build_result.success && !lsp_mode) return 1;
+
+    auto expand_result = brick::expand_macros(asts, macro_table);
+    for (const auto& e : expand_result.errors) {
+        if (lsp_mode) {
+            lsp_out.errors.push_back(brick::parse_error_string(e, input_file));
+        } else {
+            std::cerr << "error: " << e << "\n";
+        }
+    }
+    if (!expand_result.success && !lsp_mode) return 1;
+    if (!lsp_mode) std::cout << "[macro] expansion done\n";
 
     auto codegen_result = brick::generate_c(asts, packages);
 

@@ -298,6 +298,7 @@ Monitoring via inotify. Atomic swap of function pointers.
 .brc file
   → Lexer (tokens)
   → Parser (AST + package resolution)
+  → [Macro System (collect + eval build + expand)]
   → Codegen (type check + C generation with #line)
   → output.c + runtime.c → gcc -O3 → binary
   ↑
@@ -317,3 +318,53 @@ Senior task of the project. Responsible for:
 - Documenting inline code (simple comments) + docs .md
 - Updating STATE.md of tasks 01-09 with progress and findings
 - Checking consistency between interfaces (TokenType, AST, etc)
+
+## Macro System (v0.5.0)
+
+Macros geram código em tempo de compilação.
+
+### 1. `macro` — Template de Código
+```brick
+macro nome(param1, param2, valores...) {
+    $param1 = $param2 + 1
+    emit { fn $param1() { } }
+}
+```
+- Parâmetros não têm tipo (seguram expressões)
+- `$nome` insere o argumento
+- `$(expr)` avalia expr em tempo de compilação e insere resultado
+- `valores...` captura argumentos restantes como lista indexável
+
+### 2. `build` — Computação em Tempo de Compilação
+```brick
+build {
+    x = 42
+    emit { z = x + 10 }   // z = 52 no código final
+}
+```
+- Suporta: aritmética, for/while/if, atribuição, strings
+- `emit { }` gera código no local do build
+- `emit nome(args)` — atalho para chamar macro
+- Type reflection: `T.name`, `T.size`, `T.fields`
+
+### 3. `emit` — Geração de Código
+```brick
+emit { /* qualquer código Brick */ }
+emit nome_macro(args)
+```
+
+### Pipeline
+1. **Collect**: `macro` declarations → tabela (removidas da AST)
+2. **Eval Build**: `build {}` executa em tempo de compilação, `emit` gera código
+3. **Expand**: `macro_call(...)` → substituição `$` + gensym `__` + inserção do corpo
+4. **Clean**: AST final sem macros → type checker → codegen
+
+### Higiene
+- Variáveis `__` dentro de macros ganham sufixo `__1`, `__2`, etc.
+- Parâmetros do usuário NÃO são renomeados
+- Gensym counter global por unidade de compilação
+
+### Limites
+- Recursão máxima: 64 níveis (detectado como erro)
+- `$` fora de macro/build: erro de compilação
+- I/O bloqueado dentro de `build`
