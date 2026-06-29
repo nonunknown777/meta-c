@@ -120,15 +120,29 @@ else:
 # 3. BASE ENVIRONMENT
 # 3. AMBIENTE BASE
 # ═════════════════════════════════════════════════════════════════════════════
-env = Environment(
-    CXX=cxx, CC=cc,
-    CXXFLAGS=['-std=c++20', '-Wall'],
-    CFLAGS=['-std=c11', '-Wall'],
-    LIBS=platform_libs,
-    CPPPATH=['#src', '#runtime'],
-    LIBPATH=['#build'],
-    ENV=os.environ,
-)
+if target == 'windows':
+    # Force POSIX build semantics so SCons uses GCC-style flags (-o, -c, -I)
+    # instead of MSVC-style (/Fo, /c, /I) when compiling with MinGW g++
+    env = Environment(
+        CXX=cxx, CC=cc,
+        PLATFORM='posix',
+        CXXFLAGS=['-std=c++20', '-Wall'],
+        CFLAGS=['-std=c11', '-Wall'],
+        LIBS=platform_libs,
+        CPPPATH=['#src', '#runtime'],
+        LIBPATH=['#build'],
+        ENV=os.environ,
+    )
+else:
+    env = Environment(
+        CXX=cxx, CC=cc,
+        CXXFLAGS=['-std=c++20', '-Wall'],
+        CFLAGS=['-std=c11', '-Wall'],
+        LIBS=platform_libs,
+        CPPPATH=['#src', '#runtime'],
+        LIBPATH=['#build'],
+        ENV=os.environ,
+    )
 if prog_suffix:
     env['PROGSUFFIX'] = prog_suffix
 

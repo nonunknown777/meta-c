@@ -1,17 +1,43 @@
-name: Release Linux
+name: CI Linux
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            libncurses-dev \
+            libx11-dev \
+            pkg-config \
+            python3-pip
+          pip3 install scons --quiet
+
+      - name: Build Compiler
+        run: scons target=linux profile=release -j4
+
+      - name: Build Tests
+        run: scons target=linux profile=release test -j4
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -40,7 +66,7 @@ jobs:
 
           exec 3>&1 1>/tmp/release-notes.md
 
-          echo "## Brick Compiler v${VERSION}"
+          echo "## Brick Compiler v${VERSION} (Linux)"
           echo ""
           echo "### What's inside"
           echo ""
@@ -70,6 +96,7 @@ jobs:
           echo "- **VS Code extension** — Syntax highlighting, LSP (completions, hover, go-to-def, semantic tokens), debug webview"
           echo "- **GDB integration** — Pretty-printers for BlockCtx/BrickString, \`info blocks\` command, \\\\#line directives"
           echo "- **Window library** — X11 window creation with hot-reload support"
+          echo "- **Windows native port** — Full MinGW-w64 support, VirtualAlloc blocks, LoadLibrary hot reload, Win32 window library"
           echo "- **IO package** — \`print()\` with format strings, type-specific output"
           echo ""
           echo "### Dependencies"
@@ -105,12 +132,11 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
         with:
-          name: Brick v${{ steps.version.outputs.tag }}
+          name: Brick v${{ steps.version.outputs.tag }} (Linux)
           body_path: /tmp/release-notes.md
           files: |
-            build/release/brick
+            build/release/brick_x11
             build/release/brick-language.vsix

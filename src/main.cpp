@@ -520,6 +520,9 @@ int main(int argc, char** argv) {
             attach_pid = std::stoi(argv[++i]);
         }
     }
+#else
+    (void)visualize_mode;
+    (void)attach_pid;
 #endif
 
     bool build_release = false;

@@ -21,9 +21,9 @@ echo "[2/3] Assembling release..."
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 
-cp "$BUILD_DIR/brick" "$RELEASE_DIR/brick"
-strip "$RELEASE_DIR/brick" 2>/dev/null || true
-echo "      brick  ($(du -h "$RELEASE_DIR/brick" | cut -f1))"
+cp "$BUILD_DIR/brick" "$RELEASE_DIR/brick_x11"
+strip "$RELEASE_DIR/brick_x11" 2>/dev/null || true
+echo "      brick_x11  ($(du -h "$RELEASE_DIR/brick_x11" | cut -f1))"
 
 # ─── 3. Package VS Code extension ──────────────────────────────────────────
 echo ""
@@ -60,7 +60,7 @@ echo ""
 echo ""
 echo "═══════════════════════════════════════════════════"
 echo "  Release ready: $RELEASE_DIR"
-echo "    brick                    (compilador + visualizer)"
+echo "    brick_x11                (compilador + visualizer + X11)"
 echo "    brick-language.vsix      (extensão VS Code)"
 echo "═══════════════════════════════════════════════════"
 echo ""
